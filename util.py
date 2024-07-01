@@ -1,17 +1,22 @@
 moves_data = []
 
-
 def tem_lateral_vizinho(pos1, pos2):
     """
     Verifica se duas posições estão lado a lado
-    :param pos1:
-    :param pos2:
+    :param pos1: posição 1 (x, y) da peça
+    :param pos2: posição 2 (x, y) da peça
     :return: True se as posições estiverem lado a lado, False caso contrário
     """
     return abs(pos1[1] - pos2[1]) <= 5 and 82 >= abs(pos1[0] - pos2[0]) >= 72
 
 
 def tem_lateral_diagonal(pos1, pos2):
+    """
+    Verifica se duas posições estão lado a lado na diagonal
+    :param pos1: posição 1 (x, y) da peça
+    :param pos2: posição 2 (x, y) da peça
+    :return: True se as posições estiverem lado a lado na diagonal, False caso contrário
+    """
     return 74 >= abs(pos1[1] - pos2[1]) >= 64 and 44 >= abs(pos1[0] - pos2[0]) >= 34
 
 
@@ -25,13 +30,12 @@ def contar_vizinhos_peca(jogada, peca):
     """
     vizinhos = 0
     for i in range(jogada):
-        if moves_data[i]["UltimoPlayer"] == peca:
+        if moves_data[i]["UID"] == peca:
             pos_atual = [moves_data[i]["DestinoX"], moves_data[i]["DestinoY"]]
             pos_peca = [moves_data[jogada]["DestinoX"], moves_data[jogada]["DestinoY"]]
 
             if tem_lateral_vizinho(pos_atual, pos_peca) or tem_lateral_diagonal(pos_atual, pos_peca):
                 vizinhos += 1
-
     return vizinhos
 
 
@@ -79,8 +83,20 @@ def process_data(move):
             jogada["vizinhos_diagonais"] = True
             outra_jogada["vizinhos_diagonais"] = True
 
+    # Determinar a quantidade de vizinhos da peça
+    jogada["vizinhos_peca"] = contar_vizinhos_peca(len(moves_data), uid)
+
     # Determinar o valor da jogada
     if jogada["vizinhos_laterais"] or jogada["vizinhos_diagonais"]:
         jogada["valor"] = 1
+
+    if jogada["vizinhos_peca"] == 1:
+        jogada["valor"] = 2
+
+    if 2 <= jogada["vizinhos_peca"] <= 5:
+        jogada["valor"] = 3
+
+    if jogada["vizinhos_peca"] > 5:
+        jogada["valor"] = 4
 
     moves_data.append(jogada)
