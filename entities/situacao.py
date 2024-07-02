@@ -53,13 +53,13 @@ class Situacao:
         """
         Analisa a jogada e define a situação com base em critérios específicos.
         """
-        if self.jogada.peca.vizinho == 0:
+        if self.jogada.peca.grupo == 0:
             return 1  # Pegou a peça e largou em algum lugar Aleatório
-        if self.jogada.peca.vizinho == 1:
+        if self.jogada.peca.grupo == 1:
             return 2  # Fez, sozinho, um agrupamento com 2 peças
-        if 2 <= self.jogada.peca.vizinho <= 6:
+        if 2 <= self.jogada.peca.grupo <= 6:
             return 3  # Fez, sozinho, um agrupamento com 3 a 6 peças
-        if self.jogada.peca.vizinho > 6:
+        if self.jogada.peca.grupo > 6:
             return 4  # Fez, sozinho, um agrupamento com mais de 6 peças
         if self.jogada.tempo > 6:
             return 7  # Segurou uma peça por mais de 6 segundos por exemplo

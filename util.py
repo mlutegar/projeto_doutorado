@@ -58,6 +58,19 @@ def contar_vizinhos_peca(peca: Peca) -> int:
     return vizinhos
 
 
+def contar_pecas_grupo(peca: Peca) -> int:
+    """
+    Conta a quantidade de peças pertencente ao mesmo grupo. Ela verifica todos os vizinhos da peça, adiciona as UIDs
+    deles em uma lista e começa a verificar os vizinhos dos vizinhos. Até que não haja mais nenhuma UID para verificar.
+    """
+    pecas_grupo = [peca.uid]
+    for i, peca in enumerate(pecas):
+        if peca.uid in pecas_grupo:
+            if peca.posicao_atual == pecas[i].posicao_atual:
+                pecas_grupo.append(peca.uid)
+    return len(pecas_grupo)
+
+
 def process_data(move: dict) -> None:
     """
     Processa os dados da jogada, atualizando a lista de movimentos.
@@ -74,8 +87,16 @@ def process_data(move: dict) -> None:
 
     peca.set_posicao_antiga(int(move["InicioX"]), int(move["InicioY"]))
     peca.set_posicao_atual(int(move["DestinoX"]), int(move["DestinoY"]))
-    print(f"Peca criada: UID={peca.uid}, Cor={peca.cor}, Posição Antiga={peca.posicao_antiga}, Posição Atual={peca.posicao_atual}")
 
+    peca.set_grupo(contar_pecas_grupo(peca))
+    print(
+        f"Peca criada: "
+        f"UID={peca.uid}, "
+        f"Cor={peca.cor}, "
+        f"Posição Antiga={peca.posicao_antiga}, "
+        f"Posição Atual={peca.posicao_atual}"
+        f"Grupo={peca.grupo}"
+    )
 
     peca.set_last_player(move["PenultimoPlayer"])
     peca.set_player(move["UltimoPlayer"])

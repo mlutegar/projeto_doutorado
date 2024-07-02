@@ -83,7 +83,7 @@ class Peca:
 
     def set_grupo(self, grupo: int) -> None:
         """
-        Define o grupo da peça.
+        Define a quantidade de peças no grupo que a peça pertence.
         """
         self.grupo = grupo
 
