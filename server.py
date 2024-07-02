@@ -33,9 +33,16 @@ def export_csv():
 
     # Cria e escreve os dados no arquivo CSV
     with open(csv_file, 'w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=util.jogadas[0].keys())
+        fieldnames = ["id", "peca_uid", "jogador", "tempo", "peca_cor", "peca_posicao_antiga", "peca_posicao_atual",
+                      "peca_grupo", "peca_last_player", "peca_vizinho", "situacao_id", "situacao_descricao"]
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(util.jogadas)
+
+        for jogada, situacao in util.jogadas:
+            jogada_dict = jogada.to_dict()
+            situacao_dict = situacao.to_dict()
+            combined_dict = {**jogada_dict, **situacao_dict}
+            writer.writerow(combined_dict)
 
     # Envia o arquivo CSV para download
     return send_file(csv_file, as_attachment=True)

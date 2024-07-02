@@ -71,3 +71,9 @@ class Situacao:
             return 6  # Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num período curto
         # Adicione mais critérios conforme necessário
         return 0  # Situação padrão
+
+    def to_dict(self) -> dict:
+        return {
+            "situacao_id": self.id,
+            "situacao_descricao": self.descricao,
+        }
