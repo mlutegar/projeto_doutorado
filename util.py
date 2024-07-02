@@ -63,12 +63,22 @@ def contar_pecas_grupo(peca: Peca) -> int:
     Conta a quantidade de peças pertencente ao mesmo grupo. Ela verifica todos os vizinhos da peça, adiciona as UIDs
     deles em uma lista e começa a verificar os vizinhos dos vizinhos. Até que não haja mais nenhuma UID para verificar.
     """
-    pecas_grupo = [peca.uid]
-    for i, peca in enumerate(pecas):
-        if peca.uid in pecas_grupo:
-            if peca.posicao_atual == pecas[i].posicao_atual:
-                pecas_grupo.append(peca.uid)
-    return len(pecas_grupo)
+    pecas_grupo = [peca]
+    pecas_analisadas = []
+
+    while pecas_grupo:
+        peca_analisada = pecas_grupo.pop()
+        pecas_analisadas.append(peca_analisada.uid)
+        for outra_peca in pecas:
+            if outra_peca.uid in pecas_analisadas:
+                continue
+            if tem_lateral_vizinho(
+                    peca_analisada.posicao_atual, outra_peca.posicao_atual
+            ) or tem_lateral_diagonal(
+                peca_analisada.posicao_atual, outra_peca.posicao_atual
+            ):
+                pecas_grupo.append(outra_peca)
+    return len(pecas_analisadas)
 
 
 def process_data(move: dict) -> None:
