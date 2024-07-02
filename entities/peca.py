@@ -67,8 +67,8 @@ class Peca:
         """
         Atualiza a posição antiga da peça.
         """
-        self.linha_antiga = definir_linha(pos_x)
-        self.coluna_antiga = definir_coluna(pos_y)
+        self.linha_antiga = definir_linha(pos_y)
+        self.coluna_antiga = definir_coluna(pos_x)
         self.posicao_antiga = [self.linha_antiga, self.coluna_antiga]
         print(f"Posição antiga definida: {self.posicao_antiga}")
     
@@ -76,8 +76,8 @@ class Peca:
         """
         Atualiza a posição atual da peça.
         """
-        self.linha_atual = definir_linha(pos_x)
-        self.coluna_atual = definir_coluna(pos_y)
+        self.linha_atual = definir_linha(pos_y)
+        self.coluna_atual = definir_coluna(pos_x)
         self.posicao_atual = [self.linha_atual, self.coluna_atual]
         print(f"Posição atual definida: {self.posicao_atual}")
 

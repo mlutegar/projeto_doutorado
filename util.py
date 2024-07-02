@@ -29,7 +29,7 @@ def tem_lateral_vizinho(pos1: tuple, pos2: tuple) -> bool:
     """
     linha1, coluna1 = pos1
     linha2, coluna2 = pos2
-    return linha1 == linha2 and abs(coluna1 - coluna2) == 1
+    return linha1 == linha2 and abs(coluna1 - coluna2) == 2
 
 
 def tem_lateral_diagonal(pos1: tuple, pos2: tuple) -> bool:
