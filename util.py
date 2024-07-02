@@ -6,6 +6,16 @@ pecas = []
 jogadas = []
 
 
+def get_peca(uid: int):
+    """
+    Retorna uma peça com base em seu identificador único.
+    """
+    for peca in pecas:
+        if peca.uid == uid:
+            return peca
+    return None
+
+
 def verificar_peca_existe(uid: int) -> bool:
     """
     Verifica se uma peça já foi adicionada.
@@ -58,26 +68,28 @@ def contar_vizinhos_peca(peca: Peca) -> int:
     return vizinhos
 
 
-def contar_pecas_grupo(peca: Peca) -> int:
+def contar_pecas_grupo(peca: Peca):
     """
     Conta a quantidade de peças pertencente ao mesmo grupo. Ela verifica todos os vizinhos da peça, adiciona as UIDs
     deles em uma lista e começa a verificar os vizinhos dos vizinhos. Até que não haja mais nenhuma UID para verificar.
     """
-    pecas_grupo = [peca]
+    pecas_grupo = [peca.uid]
     pecas_analisadas = []
 
     while pecas_grupo:
-        peca_analisada = pecas_grupo.pop()
-        pecas_analisadas.append(peca_analisada.uid)
+        uid = pecas_grupo.pop()
+        pecas_analisadas.append(uid)
         for outra_peca in pecas:
+            if outra_peca.uid == uid:
+                continue
             if outra_peca.uid in pecas_analisadas:
                 continue
             if tem_lateral_vizinho(
-                    peca_analisada.posicao_atual, outra_peca.posicao_atual
+                    get_peca(uid).posicao_atual, outra_peca.posicao_atual
             ) or tem_lateral_diagonal(
-                peca_analisada.posicao_atual, outra_peca.posicao_atual
+                get_peca(uid).posicao_atual, outra_peca.posicao_atual
             ):
-                pecas_grupo.append(outra_peca)
+                pecas_grupo.append(outra_peca.uid)
     return len(pecas_analisadas)
 
 
