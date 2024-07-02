@@ -1,102 +1,92 @@
-moves_data = []
+from typing import List, Dict, Tuple
 
-def tem_lateral_vizinho(pos1, pos2):
+moves_data: List[Dict[str, int]] = []
+
+def tem_lateral_vizinho(pos1: Tuple[int, int], pos2: Tuple[int, int]) -> bool:
     """
-    Verifica se duas posições estão lado a lado
-    :param pos1: posição 1 (x, y) da peça
-    :param pos2: posição 2 (x, y) da peça
-    :return: True se as posições estiverem lado a lado, False caso contrário
+    Verifica se duas posições estão lado a lado.
     """
     return abs(pos1[1] - pos2[1]) <= 5 and 82 >= abs(pos1[0] - pos2[0]) >= 72
 
-
-def tem_lateral_diagonal(pos1, pos2):
+def tem_lateral_diagonal(pos1: Tuple[int, int], pos2: Tuple[int, int]) -> bool:
     """
-    Verifica se duas posições estão lado a lado na diagonal
-    :param pos1: posição 1 (x, y) da peça
-    :param pos2: posição 2 (x, y) da peça
-    :return: True se as posições estiverem lado a lado na diagonal, False caso contrário
+    Verifica se duas posições estão lado a lado na diagonal.
     """
     return 74 >= abs(pos1[1] - pos2[1]) >= 64 and 44 >= abs(pos1[0] - pos2[0]) >= 34
 
-
-def contar_vizinhos_peca(jogada, peca):
+def contar_vizinhos_peca(jogada: int, peca: int) -> int:
     """
-    Dado o id da peça e o número da jogada, ele analisa a quantidade de peças vizinho a peça tem.
-    Ele simula um tabuleiro com as peças dada até a jogada e faz a verificação.
-    :param jogada: O número da jogada até o qual as peças devem ser simuladas
-    :param peca: O id da peça que deve ser verificada
-    :return: O número de peças vizinhas
+    Conta a quantidade de peças vizinhas a uma determinada peça até uma jogada específica.
     """
     vizinhos = 0
     for i in range(jogada):
         if moves_data[i]["UID"] == peca:
             pos_atual = [moves_data[i]["DestinoX"], moves_data[i]["DestinoY"]]
             pos_peca = [moves_data[jogada]["DestinoX"], moves_data[jogada]["DestinoY"]]
-
             if tem_lateral_vizinho(pos_atual, pos_peca) or tem_lateral_diagonal(pos_atual, pos_peca):
                 vizinhos += 1
     return vizinhos
 
+def verificar_vizinhos(jogada: Dict[str, int]) -> Tuple[bool, bool]:
+    """
+    Verifica se a jogada atual tem vizinhos laterais ou diagonais em relação a jogadas anteriores.
+    """
+    pos_atual = [jogada["DestinoX"], jogada["DestinoY"]]
+    vizinhos_laterais = False
+    vizinhos_diagonais = False
+    for outra_jogada in moves_data:
+        pos_outra = [outra_jogada["DestinoX"], outra_jogada["DestinoY"]]
+        if tem_lateral_vizinho(pos_atual, pos_outra):
+            vizinhos_laterais = True
+            outra_jogada["vizinhos_laterais"] = True
+        if tem_lateral_diagonal(pos_atual, pos_outra):
+            vizinhos_diagonais = True
+            outra_jogada["vizinhos_diagonais"] = True
+    return vizinhos_laterais, vizinhos_diagonais
 
-def process_data(move):
+def determinar_valor_jogada(vizinhos_peca: int, vizinhos_laterais: bool, vizinhos_diagonais: bool) -> int:
+    """
+    Determina o valor da jogada com base nos vizinhos laterais, diagonais e quantidade de vizinhos da peça.
+    """
+    if vizinhos_laterais or vizinhos_diagonais:
+        return 2
+    if 2 <= vizinhos_peca <= 5:
+        return 3
+    if vizinhos_peca > 5:
+        return 4
+    return 1
+
+def process_data(move: Dict[str, Dict[str, int]]) -> None:
+    """
+    Processa os dados da jogada, atualizando a lista de movimentos.
+    """
     global moves_data
-
     move = move['data']
 
-    print(move)
-
-    # Verifique se todas as chaves necessárias estão presentes
-    if all(key in move for key in ("UID", "InicioX", "InicioY", "DestinoX", "DestinoY", "Tempo", "UltimoPlayer", "PenultimoPlayer")):
-        uid, inicio_x, inicio_y, destino_x, destino_y, tempo, UltimoPlayer, PenultimoPlayer = move.values()
-    else:
+    required_keys = {"UID", "InicioX", "InicioY", "DestinoX", "DestinoY", "Tempo", "UltimoPlayer", "PenultimoPlayer"}
+    if not required_keys.issubset(move.keys()):
         raise ValueError("Dados incompletos recebidos")
 
-    # Ignorar entradas com posições x e y iguais a 0
-    if destino_x == 0 and destino_y == 0:
+    if move["DestinoX"] == 0 and move["DestinoY"] == 0:
         return
 
     jogada = {
-        "id_jogada": len(moves_data) + 1,  # Adiciona id_jogada incremental
-        "UID": uid,
-        "InicioX": inicio_x,
-        "InicioY": inicio_y,
-        "DestinoX": destino_x,
-        "DestinoY": destino_y,
-        "Tempo": tempo,
-        "UltimoPlayer": UltimoPlayer,
-        "PenultimoPlayer": PenultimoPlayer,
+        "id_jogada": len(moves_data) + 1,
+        "UID": move["UID"],
+        "InicioX": move["InicioX"],
+        "InicioY": move["InicioY"],
+        "DestinoX": move["DestinoX"],
+        "DestinoY": move["DestinoY"],
+        "Tempo": move["Tempo"],
+        "UltimoPlayer": move["UltimoPlayer"],
+        "PenultimoPlayer": move["PenultimoPlayer"],
         "vizinhos_laterais": False,
         "vizinhos_diagonais": False,
         "valor": 0
     }
 
-    # Verificar vizinhança nova jogada com jogadas anteriores
-    pos_atual = [destino_x, destino_y]
-    for outra_jogada in moves_data:
-        pos_outra = [outra_jogada["DestinoX"], outra_jogada["DestinoY"]]
-
-        if tem_lateral_vizinho(pos_atual, pos_outra):
-            jogada["vizinhos_laterais"] = True
-            outra_jogada["vizinhos_laterais"] = True
-        if tem_lateral_diagonal(pos_atual, pos_outra):
-            jogada["vizinhos_diagonais"] = True
-            outra_jogada["vizinhos_diagonais"] = True
-
-    # Determinar a quantidade de vizinhos da peça
-    jogada["vizinhos_peca"] = contar_vizinhos_peca(len(moves_data), uid)
-
-    # Determinar o valor da jogada
-    if jogada["vizinhos_laterais"] or jogada["vizinhos_diagonais"]:
-        jogada["valor"] = 1
-
-    if jogada["vizinhos_peca"] == 1:
-        jogada["valor"] = 2
-
-    if 2 <= jogada["vizinhos_peca"] <= 5:
-        jogada["valor"] = 3
-
-    if jogada["vizinhos_peca"] > 5:
-        jogada["valor"] = 4
+    jogada["vizinhos_laterais"], jogada["vizinhos_diagonais"] = verificar_vizinhos(jogada)
+    jogada["vizinhos_peca"] = contar_vizinhos_peca(len(moves_data), move["UID"])
+    jogada["valor"] = determinar_valor_jogada(jogada["vizinhos_peca"], jogada["vizinhos_laterais"], jogada["vizinhos_diagonais"])
 
     moves_data.append(jogada)

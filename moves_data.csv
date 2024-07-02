@@ -1,8 +1,7 @@
-id_jogada,UID,InicioX,InicioY,DestinoX,DestinoY,Tempo,UltimoPlayer,vizinhos_laterais,vizinhos_diagonais,valor
-1,12,1158,351,1158,351,0,1,False,True,0
-2,11,1267,284,1267,284,0,4,False,False,0
-3,20,1272,561,1272,561,0,4,False,False,0
-4,17,1196,424,1196,424,0,3,False,True,1
-5,14,1233.0692508463542,74,1233.0692508463542,74,0,3,False,False,0
-6,50,1157,633,1157,633,0,3,False,False,0
-7,47,1270,702,1270,702,0,4,False,False,0
+id_jogada,UID,InicioX,InicioY,DestinoX,DestinoY,Tempo,UltimoPlayer,PenultimoPlayer,vizinhos_laterais,vizinhos_diagonais,valor,vizinhos_peca
+1,24,161,633,161,633,0,aaa,aaa,True,False,1,0
+2,23,162,351,162,351,0,aaa,aaa,False,False,1,0
+3,21,237,633,237,633,0,aaa,aaa,True,False,2,0
+4,48,201,841,201,841,0,aaa,aaa,True,False,1,0
+5,37,277,841,277,841,0,aaa,aaa,True,False,2,0
+6,47,354,841,354,841,0,aaa,aaa,True,False,2,0
