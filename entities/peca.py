@@ -2,7 +2,7 @@ def definir_linha(pos_x: int) -> int:
     """
     Define a linha da peça com base na posição x.
     """
-    linhas = [74, 143, 211, 284, 351, 424, 497, 565, 638, 706, 779, 846, 919]
+    linhas = [74, 143, 211, 284, 351, 424, 490, 561, 633, 702, 770, 841, 912]
     margem_erro = 20
 
     for i, linha in enumerate(linhas, start=1):
@@ -18,8 +18,8 @@ def definir_coluna(pos_y: int) -> int:
     """
     Define a coluna da peça com base na posição y.
     """
-    colunas = [86, 123, 163, 200, 239, 276, 316, 353, 393, 430, 470, 507, 547, 584, 624, 661, 701, 738, 778, 815,
-               855, 892, 932, 969, 1009, 1046, 1086, 1123, 1163, 1200, 1240, 1277, 1317, 1354]
+    colunas = [86, 123, 163, 200, 239, 276, 316, 353, 393, 430, 469, 506, 547, 584, 622, 657, 698, 736, 775, 813,
+               852, 890, 928, 966, 1004, 1042, 1082, 1119, 1158, 1196, 1233, 1270, 1312, 1350]
     margem_erro = 20
 
     for i, coluna in enumerate(colunas, start=1):
