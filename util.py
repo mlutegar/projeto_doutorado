@@ -5,13 +5,11 @@ from entities.situacao import Situacao
 pecas = []
 jogadas = []
 
-
 def verificar_peca_existe(uid: int) -> bool:
     """
     Verifica se uma peça já foi adicionada.
     """
     return any(peca.uid == uid for peca in pecas)
-
 
 def substituir_peca(nova_peca: Peca) -> None:
     """
@@ -22,15 +20,14 @@ def substituir_peca(nova_peca: Peca) -> None:
             pecas[i] = nova_peca
             return
 
-
 def tem_lateral_vizinho(pos1: tuple, pos2: tuple) -> bool:
     """
-    Verifica se duas peças estão na mesma linha e são de colunas subsequentes.
+    Verifica se duas peças estão na mesma linha e são de colunas duas unidades distantes.
     """
     linha1, coluna1 = pos1
     linha2, coluna2 = pos2
+    print(f"Verificando vizinhança lateral: {pos1} e {pos2}")
     return linha1 == linha2 and abs(coluna1 - coluna2) == 2
-
 
 def tem_lateral_diagonal(pos1: tuple, pos2: tuple) -> bool:
     """
@@ -38,8 +35,8 @@ def tem_lateral_diagonal(pos1: tuple, pos2: tuple) -> bool:
     """
     linha1, coluna1 = pos1
     linha2, coluna2 = pos2
+    print(f"Verificando vizinhança diagonal: {pos1} e {pos2}")
     return abs(linha1 - linha2) == 1 and abs(coluna1 - coluna2) == 1
-
 
 def contar_vizinhos_peca(peca: Peca) -> int:
     """
@@ -57,8 +54,7 @@ def contar_vizinhos_peca(peca: Peca) -> int:
             vizinhos += 1
     return vizinhos
 
-
-def contar_pecas_grupo(peca: Peca):
+def contar_pecas_grupo(peca: Peca) -> int:
     """
     Conta a quantidade de peças pertencente ao mesmo grupo. Ela verifica todos os vizinhos da peça, adiciona as UIDs
     deles em uma lista e começa a verificar os vizinhos dos vizinhos. Até que não haja mais nenhuma UID para verificar.
@@ -82,7 +78,6 @@ def contar_pecas_grupo(peca: Peca):
         print(f"Peças analisadas: {pecas_analisadas}")
     return len(pecas_analisadas)
 
-
 def process_data(move: dict) -> None:
     """
     Processa os dados da jogada, atualizando a lista de movimentos.
@@ -100,18 +95,20 @@ def process_data(move: dict) -> None:
     peca.set_posicao_antiga(int(move["InicioX"]), int(move["InicioY"]))
     peca.set_posicao_atual(int(move["DestinoX"]), int(move["DestinoY"]))
 
+    peca.set_player(move["UltimoPlayer"])
+    peca.set_last_player(move["PenultimoPlayer"])
+
     peca.set_grupo(contar_pecas_grupo(peca))
     print(
         f"Peca criada: "
         f"UID={peca.uid}, "
         f"Cor={peca.cor}, "
         f"Posição Antiga={peca.posicao_antiga}, "
-        f"Posição Atual={peca.posicao_atual}"
+        f"Posição Atual={peca.posicao_atual}, "
+        f"Player={peca.player}, "
+        f"LastPlayer={peca.last_player}, "
         f"Grupo={peca.grupo}"
     )
-
-    peca.set_last_player(move["PenultimoPlayer"])
-    peca.set_player(move["UltimoPlayer"])
 
     if verificar_peca_existe(peca.uid):
         substituir_peca(peca)

@@ -1,6 +1,5 @@
 from entities.jogada import Jogada
 
-
 class Situacao:
     situacoes = {
         1: "Pegou a peça e largou em algum lugar Aleatório",
@@ -53,6 +52,14 @@ class Situacao:
         """
         Analisa a jogada e define a situação com base em critérios específicos.
         """
+        # Exemplo de critério para interação entre jogadores
+        if self.jogada.peca.last_player != self.jogada.jogador:
+            if self.jogada.jogador.fez_varias_vezes:
+                return 5  # Adicionou uma peça no agrupamento de outro integrante, fez várias vezes
+            if self.jogada.jogador.fez_uma_vez_curto_periodo:
+                return 6  # Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num período curto
+
+        # Critérios baseados no tamanho do agrupamento
         if self.jogada.peca.grupo == 1:
             return 1  # Pegou a peça e largou em algum lugar Aleatório
         if self.jogada.peca.grupo == 2:
@@ -61,14 +68,13 @@ class Situacao:
             return 3  # Fez, sozinho, um agrupamento com 3 a 6 peças
         if self.jogada.peca.grupo > 6:
             return 4  # Fez, sozinho, um agrupamento com mais de 6 peças
+
+        # Critérios baseados no tempo da jogada
         if self.jogada.tempo > 6:
             return 7  # Segurou uma peça por mais de 6 segundos por exemplo
         if self.jogada.tempo < 3:
             return 9  # Realizou uma ação rápida, menos de 3 segundos
-        if self.jogada.jogador.fez_varias_vezes:
-            return 5  # Adicionou uma peça no agrupamento de outro integrante, fez várias vezes
-        if self.jogada.jogador.fez_uma_vez_curto_periodo:
-            return 6  # Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num período curto
+
         # Adicione mais critérios conforme necessário
         return 0  # Situação padrão
 
