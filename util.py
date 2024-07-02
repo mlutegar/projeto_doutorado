@@ -68,7 +68,7 @@ def contar_pecas_grupo(peca: Peca):
 
     while pecas_grupo:
         peca_analisada = pecas_grupo.pop()
-        pecas_analisadas.append(peca_analisada)
+        pecas_analisadas.append(peca_analisada.uid)
         for outra_peca in pecas:
             if outra_peca.uid in pecas_analisadas:
                 continue
