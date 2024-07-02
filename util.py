@@ -1,92 +1,95 @@
-from typing import List, Dict, Tuple
+from projeto_doutorado.entities.jogada import Jogada
+from projeto_doutorado.entities.peca import Peca
+from projeto_doutorado.entities.situacao import Situacao
 
-moves_data: List[Dict[str, int]] = []
+pecas = []
+jogadas = []
 
-def tem_lateral_vizinho(pos1: Tuple[int, int], pos2: Tuple[int, int]) -> bool:
-    """
-    Verifica se duas posições estão lado a lado.
-    """
-    return abs(pos1[1] - pos2[1]) <= 5 and 82 >= abs(pos1[0] - pos2[0]) >= 72
 
-def tem_lateral_diagonal(pos1: Tuple[int, int], pos2: Tuple[int, int]) -> bool:
+def verificar_peca_existe(uid: int) -> bool:
     """
-    Verifica se duas posições estão lado a lado na diagonal.
+    Verifica se uma peça já foi adicionada.
     """
-    return 74 >= abs(pos1[1] - pos2[1]) >= 64 and 44 >= abs(pos1[0] - pos2[0]) >= 34
+    return any(peca.uid == uid for peca in pecas)
 
-def contar_vizinhos_peca(jogada: int, peca: int) -> int:
+
+def substituir_peca(nova_peca: Peca) -> None:
     """
-    Conta a quantidade de peças vizinhas a uma determinada peça até uma jogada específica.
+    Substitui uma peça existente.
+    """
+    for i, peca in enumerate(pecas):
+        if peca.uid == nova_peca.uid:
+            pecas[i] = nova_peca
+            return
+
+
+def tem_lateral_vizinho(pos1: tuple, pos2: tuple) -> bool:
+    """
+    Verifica se duas peças estão na mesma linha e são de colunas subsequentes.
+    """
+    linha1, coluna1 = pos1
+    linha2, coluna2 = pos2
+    return linha1 == linha2 and abs(coluna1 - coluna2) == 1
+
+
+def tem_lateral_diagonal(pos1: tuple, pos2: tuple) -> bool:
+    """
+    Verifica se duas posições em colunas subsequentes estão em linhas subsequentes.
+    """
+    linha1, coluna1 = pos1
+    linha2, coluna2 = pos2
+    return abs(linha1 - linha2) == 1 and abs(coluna1 - coluna2) == 1
+
+
+def contar_vizinhos_peca(peca: Peca) -> int:
+    """
+    Conta a quantidade de peças vizinhas a uma determinada peça analisando as peças já adicionadas.
     """
     vizinhos = 0
-    for i in range(jogada):
-        if moves_data[i]["UID"] == peca:
-            pos_atual = [moves_data[i]["DestinoX"], moves_data[i]["DestinoY"]]
-            pos_peca = [moves_data[jogada]["DestinoX"], moves_data[jogada]["DestinoY"]]
-            if tem_lateral_vizinho(pos_atual, pos_peca) or tem_lateral_diagonal(pos_atual, pos_peca):
-                vizinhos += 1
+    for outra_peca in pecas:
+        if outra_peca.uid == peca.uid:
+            continue
+        if tem_lateral_vizinho(
+                peca.posicao_atual, outra_peca.posicao_atual
+        ) or tem_lateral_diagonal(
+            peca.posicao_atual, outra_peca.posicao_atual
+        ):
+            vizinhos += 1
     return vizinhos
 
-def verificar_vizinhos(jogada: Dict[str, int]) -> Tuple[bool, bool]:
-    """
-    Verifica se a jogada atual tem vizinhos laterais ou diagonais em relação a jogadas anteriores.
-    """
-    pos_atual = [jogada["DestinoX"], jogada["DestinoY"]]
-    vizinhos_laterais = False
-    vizinhos_diagonais = False
-    for outra_jogada in moves_data:
-        pos_outra = [outra_jogada["DestinoX"], outra_jogada["DestinoY"]]
-        if tem_lateral_vizinho(pos_atual, pos_outra):
-            vizinhos_laterais = True
-            outra_jogada["vizinhos_laterais"] = True
-        if tem_lateral_diagonal(pos_atual, pos_outra):
-            vizinhos_diagonais = True
-            outra_jogada["vizinhos_diagonais"] = True
-    return vizinhos_laterais, vizinhos_diagonais
 
-def determinar_valor_jogada(vizinhos_peca: int, vizinhos_laterais: bool, vizinhos_diagonais: bool) -> int:
-    """
-    Determina o valor da jogada com base nos vizinhos laterais, diagonais e quantidade de vizinhos da peça.
-    """
-    if vizinhos_laterais or vizinhos_diagonais:
-        return 2
-    if 2 <= vizinhos_peca <= 5:
-        return 3
-    if vizinhos_peca > 5:
-        return 4
-    return 1
-
-def process_data(move: Dict[str, Dict[str, int]]) -> None:
+def process_data(move: dict) -> None:
     """
     Processa os dados da jogada, atualizando a lista de movimentos.
     """
-    global moves_data
-    move = move['data']
-
     required_keys = {"UID", "InicioX", "InicioY", "DestinoX", "DestinoY", "Tempo", "UltimoPlayer", "PenultimoPlayer"}
     if not required_keys.issubset(move.keys()):
         raise ValueError("Dados incompletos recebidos")
 
-    if move["DestinoX"] == 0 and move["DestinoY"] == 0:
-        return
+    peca = Peca()
+    jogada = Jogada()
 
-    jogada = {
-        "id_jogada": len(moves_data) + 1,
-        "UID": move["UID"],
-        "InicioX": move["InicioX"],
-        "InicioY": move["InicioY"],
-        "DestinoX": move["DestinoX"],
-        "DestinoY": move["DestinoY"],
-        "Tempo": move["Tempo"],
-        "UltimoPlayer": move["UltimoPlayer"],
-        "PenultimoPlayer": move["PenultimoPlayer"],
-        "vizinhos_laterais": False,
-        "vizinhos_diagonais": False,
-        "valor": 0
-    }
+    peca.set_uid(int(move["UID"]))
+    peca.set_cor("azul")  # Aqui você pode ajustar para definir a cor correta
 
-    jogada["vizinhos_laterais"], jogada["vizinhos_diagonais"] = verificar_vizinhos(jogada)
-    jogada["vizinhos_peca"] = contar_vizinhos_peca(len(moves_data), move["UID"])
-    jogada["valor"] = determinar_valor_jogada(jogada["vizinhos_peca"], jogada["vizinhos_laterais"], jogada["vizinhos_diagonais"])
+    peca.set_posicao_antiga(int(move["InicioX"]), int(move["InicioY"]))
+    peca.set_posicao_atual(int(move["DestinoX"]), int(move["DestinoY"]))
 
-    moves_data.append(jogada)
+    peca.set_last_player(move["PenultimoPlayer"])
+    peca.set_player(move["UltimoPlayer"])
+
+    if verificar_peca_existe(peca.uid):
+        substituir_peca(peca)
+    else:
+        pecas.append(peca)
+
+    peca.set_vizinho(contar_vizinhos_peca(peca))
+
+    jogada.id = len(jogadas) + 1
+    jogada.set_peca(peca)
+    jogada.set_jogador(move["UltimoPlayer"])
+    jogada.set_tempo(int(move["Tempo"]))
+
+    situacao = Situacao(jogada)
+
+    jogadas.append([jogada, situacao])
