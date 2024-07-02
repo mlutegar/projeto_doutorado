@@ -84,10 +84,13 @@ def contar_pecas_grupo(peca: Peca):
                 continue
             if outra_peca.uid in pecas_analisadas:
                 continue
+            peca_analise = get_peca(uid)
+            if peca_analise is None:
+                continue
             if tem_lateral_vizinho(
-                    get_peca(uid).posicao_atual, outra_peca.posicao_atual
+                    peca_analise.posicao_atual, outra_peca.posicao_atual
             ) or tem_lateral_diagonal(
-                get_peca(uid).posicao_atual, outra_peca.posicao_atual
+                peca_analise.posicao_atual, outra_peca.posicao_atual
             ):
                 pecas_grupo.append(outra_peca.uid)
     return len(pecas_analisadas)
