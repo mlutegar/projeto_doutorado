@@ -1,6 +1,6 @@
-from projeto_doutorado.entities.jogada import Jogada
-from projeto_doutorado.entities.peca import Peca
-from projeto_doutorado.entities.situacao import Situacao
+from entities.jogada import Jogada
+from entities.peca import Peca
+from entities.situacao import Situacao
 
 pecas = []
 jogadas = []
@@ -74,6 +74,8 @@ def process_data(move: dict) -> None:
 
     peca.set_posicao_antiga(int(move["InicioX"]), int(move["InicioY"]))
     peca.set_posicao_atual(int(move["DestinoX"]), int(move["DestinoY"]))
+    print(f"Peca criada: UID={peca.uid}, Cor={peca.cor}, Posição Antiga={peca.posicao_antiga}, Posição Atual={peca.posicao_atual}")
+
 
     peca.set_last_player(move["PenultimoPlayer"])
     peca.set_player(move["UltimoPlayer"])
@@ -84,12 +86,15 @@ def process_data(move: dict) -> None:
         pecas.append(peca)
 
     peca.set_vizinho(contar_vizinhos_peca(peca))
+    print(f"Vizinhos da peça {peca.uid}: {peca.vizinho}")
 
     jogada.id = len(jogadas) + 1
     jogada.set_peca(peca)
     jogada.set_jogador(move["UltimoPlayer"])
     jogada.set_tempo(int(move["Tempo"]))
+    print(f"Jogada criada: ID={jogada.id}, Jogador={jogada.jogador}, Tempo={jogada.tempo}")
 
     situacao = Situacao(jogada)
+    print(f"Situação determinada: ID={situacao.id}, Descrição={situacao.descricao}")
 
     jogadas.append([jogada, situacao])

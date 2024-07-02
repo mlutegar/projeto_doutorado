@@ -7,7 +7,10 @@ def definir_linha(pos_x: int) -> int:
 
     for i, linha in enumerate(linhas, start=1):
         if abs(pos_x - linha) <= margem_erro:
+            print(f"Linha encontrada para x={pos_x}: {i}")
             return i
+            
+    print(f"Erro: Posição x fora do intervalo permitido: {pos_x}")
     raise ValueError("Posição x fora do intervalo permitido.")
 
 
@@ -21,7 +24,10 @@ def definir_coluna(pos_y: int) -> int:
 
     for i, coluna in enumerate(colunas, start=1):
         if abs(pos_y - coluna) <= margem_erro:
+            print(f"Coluna encontrada para y={pos_y}: {i}")
             return i
+
+    print(f"Erro: Posição y fora do intervalo permitido: {pos_y}")
     raise ValueError("Posição y fora do intervalo permitido.")
 
 
@@ -48,12 +54,14 @@ class Peca:
         Define o identificador da peça.
         """
         self.uid = uid
+        print(f"UID definido: {self.uid}")
 
     def set_cor(self, cor: str) -> None:
         """
         Define a cor da peça.
         """
         self.cor = cor
+        print(f"Cor definida: {self.cor}")
 
     def set_posicao_antiga(self, pos_x, pos_y) -> None:
         """
@@ -62,7 +70,8 @@ class Peca:
         self.linha_antiga = definir_linha(pos_x)
         self.coluna_antiga = definir_coluna(pos_y)
         self.posicao_antiga = [self.linha_antiga, self.coluna_antiga]
-
+        print(f"Posição antiga definida: {self.posicao_antiga}")
+    
     def set_posicao_atual(self, pos_x, pos_y) -> None:
         """
         Atualiza a posição atual da peça.
@@ -70,6 +79,7 @@ class Peca:
         self.linha_atual = definir_linha(pos_x)
         self.coluna_atual = definir_coluna(pos_y)
         self.posicao_atual = [self.linha_atual, self.coluna_atual]
+        print(f"Posição atual definida: {self.posicao_atual}")
 
     def set_grupo(self, grupo: int) -> None:
         """

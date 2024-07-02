@@ -1,4 +1,4 @@
-from projeto_doutorado.entities.jogada import Jogada
+from entities.jogada import Jogada
 
 
 class Situacao:

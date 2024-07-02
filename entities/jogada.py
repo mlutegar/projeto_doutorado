@@ -1,5 +1,5 @@
-from projeto_doutorado.entities.jogador import Jogador
-from projeto_doutorado.entities.peca import Peca
+from entities.jogador import Jogador
+from entities.peca import Peca
 
 
 class Jogada:
