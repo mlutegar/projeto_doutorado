@@ -70,6 +70,7 @@ def contar_pecas_grupo(peca: Peca):
         peca_analisada = pecas_grupo.pop()
         pecas_analisadas.append(peca_analisada.uid)
         for outra_peca in pecas:
+            print(f"Analisando peça {outra_peca.uid}")
             if outra_peca.uid in pecas_analisadas:
                 continue
             if tem_lateral_vizinho(
@@ -78,6 +79,7 @@ def contar_pecas_grupo(peca: Peca):
                 peca_analisada.posicao_atual, outra_peca.posicao_atual
             ):
                 pecas_grupo.append(outra_peca)
+                print(f"Peças analisadas: {pecas_analisadas}")
     return len(pecas_analisadas)
 
 
