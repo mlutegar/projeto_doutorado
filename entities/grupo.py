@@ -20,6 +20,9 @@ class Grupo:
         self.set_qtd_jogadores()
         self.set_qtd_pecas()
 
+    def verificar_peca(self, peca) -> bool:
+        return peca in self.pecas
+
     def set_id(self, id) -> None:
         """
         Define o id do grupo.
@@ -86,3 +89,10 @@ def get_grupo_by_peca(peca):
             return grupo
     return None
 
+
+# Função para encontrar o grupo pelo qual a peça fazia parte anteriormente
+def encontrar_grupo_antigo(peca):
+    for grupo in grupos:
+        if grupo.verificar_peca(peca):
+            return grupo
+    return None

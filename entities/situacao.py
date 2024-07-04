@@ -1,6 +1,6 @@
-from entities.grupo import Grupo
+from entities.grupo import encontrar_grupo_antigo, grupos
 from entities.jogada import Jogada
-from entities.peca import Peca
+from entities.peca import Peca, remover_peca
 
 
 class Situacao:
@@ -64,7 +64,12 @@ class Situacao:
         self.registrar_caso9(casos)
         # CASO 10 - analisar 3 jogadas seguidas
         self.registrar_caso11a13(casos)
+        self.registrar_caso14a16(casos)
 
+        self.casos_descricao = [self.situacoes[caso] for caso in casos]
+        return casos
+
+    def registrar_caso14a16(self, casos):
         peca_antiga = Peca()
         peca_antiga.set_uid(self.jogada.peca.uid)
         peca_antiga.set_cor(self.jogada.peca.cor)
@@ -72,13 +77,21 @@ class Situacao:
         peca_antiga.set_player(self.jogada.peca.jogador_antigo)
         peca_antiga.set_vizinho()
 
-        grupo_antigo = Grupo()
+        grupo_antigo = encontrar_grupo_antigo(peca_antiga)
 
-        if peca_antiga.vizinho > 0 and self.jogada.peca.jogador == "tabuleiro":
+        if peca_antiga.vizinho > 0 and self.jogada.peca.jogador.nome == "tabuleiro":
             casos.append(14)  # Retirou peças do Agrupamento do outro integrante e devolveu para o monte
 
-        self.casos_descricao = [self.situacoes[caso] for caso in casos]
-        return casos
+        if grupo_antigo and grupo_antigo.jogador != self.jogada.peca.jogador:
+            # Peça foi retirada de um grupo que não pertence ao jogador atual
+            # Agora verificamos se a peça foi colocada em um grupo do jogador atual
+            for grupo in grupos:
+                if grupo.jogador == self.jogada.peca.jogador and grupo.verificar_peca(self.jogada.peca):
+                    # Peça foi adicionada a um grupo do jogador atual
+                    casos.append(15)
+                    break
+
+        remover_peca(peca_antiga)
 
     def registrar_caso11a13(self, casos):
         if self.jogada.grupo.qtd_cores == 1:

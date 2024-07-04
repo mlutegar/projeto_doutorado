@@ -21,6 +21,8 @@ class Peca:
         self.jogador = tabuleiro
         self.vizinho = 0
 
+        pecas.append(self)
+
     def set_uid(self, uid: int) -> None:
         """
         Define o identificador da peça.
@@ -32,7 +34,7 @@ class Peca:
         Define a cor da peça.
         """
         self.cor = cor
-    
+
     def set_posicao_atual(self, pos_x, pos_y) -> None:
         """
         Atualiza a posição atual da peça.
@@ -45,16 +47,28 @@ class Peca:
             tabuleiro = Jogador()
             tabuleiro.set_nome("tabuleiro")
             self.set_player(tabuleiro)
-
-        self.linha_atual = definir_linha(pos_y)
-        self.coluna_atual = definir_coluna(pos_x)
+        else:
+            self.linha_atual = definir_linha(pos_y)
+            self.coluna_atual = definir_coluna(pos_x)
         self.posicao_atual = [self.linha_atual, self.coluna_atual]
+        atualizar_vizinhos()
 
     def set_posicao(self, posicao):
         self.posicao_antiga = self.posicao_atual
         self.posicao_atual = posicao
+        self.linha_antiga = self.linha_atual
+        self.coluna_antiga = self.coluna_atual
         self.linha_atual = posicao[0]
         self.coluna_atual = posicao[1]
+
+        if self.linha_atual == 99:
+            tabuleiro = Jogador()
+            tabuleiro.set_nome("tabuleiro")
+            self.jogador_antigo = self.jogador
+            self.jogador = tabuleiro
+
+        self.set_vizinho()
+        atualizar_vizinhos()
 
     def set_player(self, player) -> None:
         """
@@ -75,6 +89,21 @@ class Peca:
 
 
 pecas = []
+
+
+def atualizar_vizinhos():
+    """
+    Atualiza a quantidade de vizinhos de todas as peças.
+    """
+    for peca in pecas:
+        peca.set_vizinho()
+
+
+def remover_peca(peca: Peca):
+    """
+    Remove uma peça da lista de peças.
+    """
+    pecas.remove(peca)
 
 
 def contar_vizinhos_peca(peca: Peca):

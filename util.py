@@ -191,7 +191,6 @@ def process_data(move: dict) -> None:
             f"LastPlayer={peca.jogador_antigo}"
         )
     else:
-        pecas.append(peca)
         print(
             f"Peca criada: "
             f"UID={peca.uid}, "

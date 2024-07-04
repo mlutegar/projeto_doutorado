@@ -1,9 +1,24 @@
-from util import *
+import unittest
+from util import (
+    substituir_grupo, get_peca_by_uid, get_grupo_by_peca_pai, verificar_peca_existe,
+    verificar_jogador_existe, substituir_peca, substituir_jogador, tem_lateral_vizinho,
+    tem_lateral_diagonal, process_data
+)
+from entities.jogador import Jogador, jogadores
+from entities.peca import Peca, pecas
+from entities.grupo import Grupo, grupos
+from entities.jogada import jogadas
 
 
-def rodar_testes():
-    def teste_substituir_grupo():
-        print("Teste substituir_grupo")
+class TestUtil(unittest.TestCase):
+    def setUp(self):
+        # Resetar os estados globais antes de cada teste
+        grupos.clear()
+        pecas.clear()
+        jogadores.clear()
+        jogadas.clear()
+
+    def test_substituir_grupo(self):
         jogador1 = Jogador()
         jogador1.set_nome("Jogador1")
 
@@ -21,38 +36,34 @@ def rodar_testes():
         peca2.coluna_atual = 3
         peca2.set_player(jogador1)
 
-        grupos.clear()
         grupo1 = Grupo()
         grupo1.set_id(1)
         grupo1.add_peca(peca1)
+
         grupo2 = Grupo()
         grupo2.set_id(1)
         grupo2.add_peca(peca1)
         grupo2.add_peca(peca2)
+
         grupos.append(grupo1)
         substituir_grupo(grupo2)
-        assert grupos[0].criador == jogador1
-        assert grupos[0].qtd_cores == 2
-        assert grupos[0].qtd_jogadores == 1
-        assert grupos[0].qtd_pecas == 2
-        print("Teste substituir_grupo passou\n")
 
-    def teste_get_peca_by_uid():
-        print("Teste get_peca_by_uid")
-        pecas.clear()
+        self.assertEqual(grupos[0].criador, jogador1)
+        self.assertEqual(grupos[0].qtd_cores, 2)
+        self.assertEqual(grupos[0].qtd_jogadores, 1)
+        self.assertEqual(grupos[0].qtd_pecas, 2)
+
+    def test_get_peca_by_uid(self):
         peca1 = Peca()
         peca1.set_uid(1)
         peca2 = Peca()
         peca2.set_uid(2)
         pecas.extend([peca1, peca2])
-        assert get_peca_by_uid(1) == peca1
-        assert get_peca_by_uid(2) == peca2
-        print("Teste get_peca_by_uid passou\n")
 
-    def teste_get_grupo_by_peca_pai():
-        print("Teste get_grupo_by_peca_pai")
-        grupos.clear()
-        pecas.clear()
+        self.assertEqual(get_peca_by_uid(1), peca1)
+        self.assertEqual(get_peca_by_uid(2), peca2)
+
+    def test_get_grupo_by_peca_pai(self):
         grupo1 = Grupo()
         grupo1.set_id(1)
         peca1 = Peca()
@@ -60,84 +71,70 @@ def rodar_testes():
         peca2 = Peca()
         peca2.set_uid(2)
         grupo1.set_peca_pai(peca1)
-        pecas.append(peca1)
-        pecas.append(peca2)
         grupos.append(grupo1)
-        assert get_grupo_by_peca_pai(peca1) == grupo1
-        assert get_grupo_by_peca_pai(peca2) is None
-        print("Teste get_grupo_by_peca_pai passou\n")
 
-    # Função de Teste para verificar_peca_existe
-    def teste_verificar_peca_existe():
-        print("Teste verificar_peca_existe")
-        pecas.clear()
+        self.assertEqual(get_grupo_by_peca_pai(peca1), grupo1)
+        self.assertIsNone(get_grupo_by_peca_pai(peca2))
+
+    def test_verificar_peca_existe(self):
         peca1 = Peca()
         peca1.set_uid(1)
         pecas.append(peca1)
-        assert verificar_peca_existe(1).__eq__(True)
-        assert verificar_peca_existe(2).__eq__(False)
-        print("Teste verificar_peca_existe passou\n")
 
-    def teste_verificar_jogador_existe():
-        print("Teste verificar_jogador_existe")
+        self.assertTrue(verificar_peca_existe(1))
+        self.assertFalse(verificar_peca_existe(2))
+
+    def test_verificar_jogador_existe(self):
         jogador1 = Jogador()
         jogador1.set_nome("Jogador1")
         jogadores.append(jogador1)
-        assert verificar_jogador_existe("Jogador1").__eq__(True)
-        assert verificar_jogador_existe("Jogador2").__eq__(False)
-        print("Teste verificar_jogador_existe passou\n")
 
-    # Função de Teste para substituir_peca
-    def teste_substituir_peca():
-        print("Teste substituir_peca")
+        self.assertTrue(verificar_jogador_existe("Jogador1"))
+        self.assertFalse(verificar_jogador_existe("Jogador2"))
+
+    def test_substituir_peca(self):
         peca1 = Peca()
         peca1.set_uid(1)
         pecas.append(peca1)
+
         peca2 = Peca()
         peca2.set_uid(1)
         peca2.set_cor("vermelho")
         substituir_peca(peca2)
-        assert pecas[0].cor == "vermelho"
-        print("Teste substituir_peca passou\n")
 
-    def teste_substituir_jogador():
-        print("Teste substituir_jogador")
+        self.assertEqual(pecas[0].cor, "vermelho")
+
+    def test_substituir_jogador(self):
         jogador1 = Jogador()
         jogador1.set_nome("Jogador1")
         jogador1.incrementar_infracao()
         jogadores.append(jogador1)
+
         jogador2 = Jogador()
         jogador2.set_nome("Jogador1")
         jogador2.incrementar_infracao()
         jogador2.incrementar_infracao()
         substituir_jogador(jogador2)
-        assert jogadores[0].infracoes == 2
-        print("Teste substituir_jogador passou\n")
 
-    # Função de Teste para tem_lateral_vizinho
-    def teste_tem_lateral_vizinho():
-        print("Teste tem_lateral_vizinho")
+        self.assertEqual(jogadores[0].infracoes, 2)
+
+    def test_tem_lateral_vizinho(self):
         pos1 = (1, 1)
         pos2 = (1, 3)
-        assert tem_lateral_vizinho(pos1, pos2).__eq__(True)
-        pos3 = (1, 4)
-        assert tem_lateral_vizinho(pos1, pos3).__eq__(False)
-        print("Teste tem_lateral_vizinho passou\n")
+        self.assertTrue(tem_lateral_vizinho(pos1, pos2))
 
-    # Função de Teste para tem_lateral_diagonal
-    def teste_tem_lateral_diagonal():
-        print("Teste tem_lateral_diagonal")
+        pos3 = (1, 4)
+        self.assertFalse(tem_lateral_vizinho(pos1, pos3))
+
+    def test_tem_lateral_diagonal(self):
         pos1 = (1, 1)
         pos2 = (2, 2)
-        assert tem_lateral_diagonal(pos1, pos2).__eq__(True)
-        pos3 = (2, 3)
-        assert tem_lateral_diagonal(pos1, pos3).__eq__(False)
-        print("Teste tem_lateral_diagonal passou\n")
+        self.assertTrue(tem_lateral_diagonal(pos1, pos2))
 
-    # Função de Teste para process_data
-    def teste_process_data():
-        pecas.clear()
-        print("Teste process_data")
+        pos3 = (2, 3)
+        self.assertFalse(tem_lateral_diagonal(pos1, pos3))
+
+    def test_process_data(self):
         move = {
             "UID": 1,
             "PosX": 200,
@@ -147,23 +144,8 @@ def rodar_testes():
             "Cor": "vermelho",
         }
         process_data(move)
-        assert len(pecas) == 1
-        assert len(jogadas) == 1
-        assert pecas[0].uid == 1
-        assert pecas[0].posicao_atual == [1, 4]
-        print("Teste process_data passou\n")
 
-    # Rodando todos os testes
-    teste_verificar_peca_existe()
-    teste_verificar_jogador_existe()
-    teste_substituir_peca()
-    teste_substituir_jogador()
-    teste_tem_lateral_vizinho()
-    teste_tem_lateral_diagonal()
-    teste_get_grupo_by_peca_pai()
-    teste_get_peca_by_uid()
-    teste_substituir_grupo()
-    teste_process_data()
-
-
-rodar_testes()
+        self.assertEqual(len(pecas), 1)
+        self.assertEqual(len(jogadas), 1)
+        self.assertEqual(pecas[0].uid, 1)
+        self.assertEqual(pecas[0].posicao_atual, [1, 4])
