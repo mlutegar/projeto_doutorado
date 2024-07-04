@@ -1,12 +1,11 @@
 import unittest
 from util import (
-    substituir_grupo, get_peca_by_uid, get_grupo_by_peca_pai, verificar_peca_existe,
-    verificar_jogador_existe, substituir_peca, substituir_jogador, tem_lateral_vizinho,
-    tem_lateral_diagonal, process_data
+    verificar_peca_existe,
+    verificar_jogador_existe, substituir_peca, substituir_jogador, process_data
 )
 from entities.jogador import Jogador, jogadores
-from entities.peca import Peca, pecas
-from entities.grupo import Grupo, grupos
+from entities.peca import Peca, pecas, get_peca_by_uid, tem_lateral_vizinho, tem_lateral_diagonal
+from entities.grupo import Grupo, grupos, substituir_grupo, get_grupo_by_peca_pai
 from entities.jogada import jogadas
 
 

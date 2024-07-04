@@ -1,4 +1,4 @@
-from entities.grupo import Grupo
+from entities.grupo import criar_grupo
 from entities.jogador import Jogador
 from entities.peca import Peca
 
@@ -20,11 +20,11 @@ class Jogada:
         """
         self.peca = peca
 
-    def set_grupo(self, grupo: Grupo) -> None:
+    def set_grupo(self) -> None:
         """
         Define o grupo associado à jogada.
         """
-        self.grupo = grupo
+        self.grupo = criar_grupo(self.peca)
 
     def set_jogador(self, jogador: Jogador) -> None:
         """

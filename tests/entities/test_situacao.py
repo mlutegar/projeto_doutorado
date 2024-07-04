@@ -1,5 +1,5 @@
 import unittest
-from entities.grupo import Grupo, grupos
+from entities.grupo import grupos
 from entities.jogada import Jogada
 from entities.peca import Peca
 from entities.jogador import Jogador
@@ -24,17 +24,13 @@ class TestSituacao(unittest.TestCase):
         self.peca2.set_posicao((1, 3))
         self.peca2.set_player(self.jogador)
 
-        self.grupo = Grupo()
-        self.grupo.add_peca(self.peca)
-
         self.jogada = Jogada()
         self.jogada.set_peca(self.peca)
-        self.jogada.set_grupo(self.grupo)
+        self.jogada.set_grupo()
         self.jogada.set_jogador(self.jogador)
         self.jogada.set_tempo(5)
 
-        grupos.clear()
-        grupos.append(self.grupo)
+        grupos.append(self.jogada.grupo)
 
     def test_definir_situacao_caso1(self):
         self.jogada.grupo.criador = None

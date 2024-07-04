@@ -168,3 +168,13 @@ def tem_lateral_diagonal(pos1: tuple, pos2: tuple) -> bool:
     linha1, coluna1 = pos1
     linha2, coluna2 = pos2
     return abs(linha1 - linha2) == 1 and abs(coluna1 - coluna2) == 1
+
+
+def get_peca_by_uid(uid: int):
+    """
+    Retorna uma peça pelo seu identificador.
+    """
+    for peca in pecas:
+        if peca.uid == uid:
+            return peca
+    return None

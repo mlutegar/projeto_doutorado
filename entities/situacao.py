@@ -79,10 +79,15 @@ class Situacao:
 
         grupo_antigo = encontrar_grupo_antigo(peca_antiga)
 
-        if peca_antiga.vizinho > 0 and self.jogada.peca.jogador.nome == "tabuleiro":
-            casos.append(14)  # Retirou peças do Agrupamento do outro integrante e devolveu para o monte
+        if grupo_antigo is None:
+            remover_peca(peca_antiga)
+            return
 
-        if grupo_antigo and grupo_antigo.jogador != self.jogada.peca.jogador:
+        if peca_antiga.vizinho > 0 and self.jogada.peca.jogador.nome == "tabuleiro":
+            if grupo_antigo.criador != self.jogada.jogador:
+                casos.append(14)  # Retirou peças do Agrupamento do outro integrante e devolveu para o monte
+
+        if grupo_antigo.criador != self.jogada.peca.jogador:
             # Peça foi retirada de um grupo que não pertence ao jogador atual
             # Agora verificamos se a peça foi colocada em um grupo do jogador atual
             for grupo in grupos:

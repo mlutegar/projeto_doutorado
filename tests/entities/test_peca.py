@@ -12,7 +12,6 @@ def rodar_testes_peca():
         peca2 = Peca()
         peca2.set_uid(2)
         peca2.set_posicao_atual(200, 74)
-        pecas.extend([peca1, peca2])
         assert contar_vizinhos_peca(peca1) == 1
         assert contar_vizinhos_peca(peca2) == 1
         print("Teste contar_vizinhos_peca passou\n")

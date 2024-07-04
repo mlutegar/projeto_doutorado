@@ -1,3 +1,6 @@
+from entities.peca import pecas, tem_lateral_vizinho, tem_lateral_diagonal, Peca, get_peca_by_uid
+
+
 class Grupo:
     def __init__(self):
         self.id = None
@@ -23,11 +26,11 @@ class Grupo:
     def verificar_peca(self, peca) -> bool:
         return peca in self.pecas
 
-    def set_id(self, id) -> None:
+    def set_id(self, id_grupo) -> None:
         """
         Define o id do grupo.
         """
-        self.id = id
+        self.id = id_grupo
 
     def set_criador(self, criador) -> None:
         """
@@ -41,11 +44,14 @@ class Grupo:
         """
         self.peca_pai = peca_pai
 
-    def set_pecas(self, pecas) -> None:
+    def set_pecas(self, lista_pecas) -> None:
         """
         Adiciona uma peça ao grupo.
         """
-        self.pecas = pecas
+        self.pecas = lista_pecas
+        self.set_qtd_cores()
+        self.set_qtd_jogadores()
+        self.set_qtd_pecas()
 
     def set_members(self) -> None:
         """
@@ -77,7 +83,52 @@ class Grupo:
         """
         self.qtd_pecas = len(self.pecas)
 
+
 grupos = []
+
+
+def criar_grupo(peca) -> Grupo:
+    # definir grupo
+    grupo = Grupo()
+    if peca.vizinho == 1:
+        grupo.set_id(len(grupos) + 1)
+        grupo.add_peca(peca)
+        grupo.set_pecas(get_pecas_from_grupo(peca))
+        grupos.append(grupo)
+    elif peca.vizinho > 1:
+        # verificar quem sao as pecas desse grupo que acabou de entrar
+        pecas_grupo_novo = get_pecas_from_grupo(peca)
+        # verificar quem é a peça pai desse grupo
+        peca_pai = pecas_grupo_novo[0]
+        # atualizar o grupo
+        grupo = get_grupo_by_peca_pai(peca_pai)
+        grupo.set_pecas(pecas_grupo_novo)
+        substituir_grupo(grupo)
+    return grupo
+
+
+def get_pecas_from_grupo(peca):
+    pecas_grupo = [peca]
+    pecas_uid_analisadas = []
+    while pecas_grupo:
+        peca_analisada = pecas_grupo.pop()
+        pecas_uid_analisadas.append(peca_analisada.uid)
+        for outra_peca in pecas:
+            if outra_peca.uid in pecas_uid_analisadas or outra_peca in pecas_grupo:
+                continue
+            if tem_lateral_vizinho(
+                    peca_analisada.posicao_atual, outra_peca.posicao_atual
+            ) or tem_lateral_diagonal(
+                peca_analisada.posicao_atual, outra_peca.posicao_atual
+            ):
+                pecas_grupo.append(outra_peca)
+
+    pecas_analisadas = []
+    for peca_uid_analisada in pecas_uid_analisadas:
+        peca_nova = get_peca_by_uid(peca_uid_analisada)
+        pecas_analisadas.append(peca_nova)
+
+    return pecas_analisadas
 
 
 def get_grupo_by_peca(peca):
@@ -91,8 +142,28 @@ def get_grupo_by_peca(peca):
 
 
 # Função para encontrar o grupo pelo qual a peça fazia parte anteriormente
-def encontrar_grupo_antigo(peca):
+def encontrar_grupo_antigo(peca) -> Grupo | None:
     for grupo in grupos:
         if grupo.verificar_peca(peca):
             return grupo
     return None
+
+
+def get_grupo_by_peca_pai(peca_pai: Peca) -> Grupo | None:
+    """
+    Retorna um grupo pelo identificador da peça pai.
+    """
+    for grupo in grupos:
+        if grupo.peca_pai == peca_pai:
+            return grupo
+    return
+
+
+def substituir_grupo(grupo_novo):
+    """
+    Substitui um grupo existente.
+    """
+    for i, grupo in enumerate(grupos):
+        if grupo_novo.peca_pai.uid == grupo.peca_pai.uid:
+            grupos[i] = grupo_novo
+            return
