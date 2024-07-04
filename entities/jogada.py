@@ -1,3 +1,4 @@
+from entities.grupo import Grupo
 from entities.jogador import Jogador
 from entities.peca import Peca
 
@@ -9,6 +10,7 @@ class Jogada:
         """
         self.id = None
         self.peca = None
+        self.grupo = None
         self.jogador = None
         self.tempo = None
 
@@ -17,6 +19,12 @@ class Jogada:
         Define a peça associada à jogada.
         """
         self.peca = peca
+
+    def set_grupo(self, grupo: Grupo) -> None:
+        """
+        Define o grupo associado à jogada.
+        """
+        self.grupo = grupo
 
     def set_jogador(self, jogador: Jogador) -> None:
         """
@@ -40,6 +48,9 @@ class Jogada:
             "peca_posicao_antiga": self.peca.posicao_antiga if self.peca else None,
             "peca_posicao_atual": self.peca.posicao_atual if self.peca else None,
             "peca_grupo": self.peca.grupo if self.peca else None,
-            "peca_last_player": self.peca.last_player if self.peca else None,
+            "peca_last_player": self.peca.jogador_antigo if self.peca else None,
             "peca_vizinho": self.peca.vizinho if self.peca else None,
         }
+
+
+jogadas = []

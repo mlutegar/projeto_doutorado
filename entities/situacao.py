@@ -1,4 +1,7 @@
+from entities.grupo import Grupo
 from entities.jogada import Jogada
+from entities.peca import Peca
+
 
 class Situacao:
     situacoes = {
@@ -45,41 +48,76 @@ class Situacao:
 
     def __init__(self, jogada: Jogada):
         self.jogada = jogada
-        self.id = self.definir_situacao()
-        self.descricao = self.situacoes.get(self.id, "Situação desconhecida")
+        self.casos_id = self.definir_situacao()
+        self.casos_descricao = None
 
-    def definir_situacao(self) -> int:
+    def definir_situacao(self) -> list[int]:
         """
-        Analisa a jogada e define a situação com base em critérios específicos.
+        Analisa a jogada e define todos os casos que se encaixam.
         """
-        # Exemplo de critério para interação entre jogadores
-        if self.jogada.peca.last_player != self.jogada.jogador:
-            if self.jogada.jogador.fez_varias_vezes:
-                return 5  # Adicionou uma peça no agrupamento de outro integrante, fez várias vezes
-            if self.jogada.jogador.fez_uma_vez_curto_periodo:
-                return 6  # Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num período curto
+        casos = []
 
-        # Critérios baseados no tamanho do agrupamento
-        if self.jogada.peca.grupo == 1:
-            return 1  # Pegou a peça e largou em algum lugar Aleatório
-        if self.jogada.peca.grupo == 2:
-            return 2  # Fez, sozinho, um agrupamento com 2 peças
-        if 3 <= self.jogada.peca.grupo <= 6:
-            return 3  # Fez, sozinho, um agrupamento com 3 a 6 peças
-        if self.jogada.peca.grupo > 6:
-            return 4  # Fez, sozinho, um agrupamento com mais de 6 peças
+        self.registrar_caso1a4(casos)
+        self.registrar_caso5e6(casos)
+        self.registrar_caso7(casos)
+        # CASO 8 - é preciso analisar 3 jogadas seguidas
+        self.registrar_caso9(casos)
+        # CASO 10 - analisar 3 jogadas seguidas
+        self.registrar_caso11a13(casos)
 
-        # Critérios baseados no tempo da jogada
-        if self.jogada.tempo > 6:
-            return 7  # Segurou uma peça por mais de 6 segundos por exemplo
+        peca_antiga = Peca()
+        peca_antiga.set_uid(self.jogada.peca.uid)
+        peca_antiga.set_cor(self.jogada.peca.cor)
+        peca_antiga.set_posicao(self.jogada.peca.posicao_antiga)
+        peca_antiga.set_player(self.jogada.peca.jogador_antigo)
+        peca_antiga.set_vizinho()
+
+        grupo_antigo = Grupo()
+
+        if peca_antiga.vizinho > 0 and self.jogada.peca.jogador == "tabuleiro":
+            casos.append(14)  # Retirou peças do Agrupamento do outro integrante e devolveu para o monte
+
+        self.casos_descricao = [self.situacoes[caso] for caso in casos]
+        return casos
+
+    def registrar_caso11a13(self, casos):
+        if self.jogada.grupo.qtd_cores == 1:
+            casos.append(11)  # Agrupou peças de cor igual
+        elif self.jogada.grupo.qtd_cores == 1:
+            casos.append(12)  # Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas
+        elif self.jogada.grupo.qtd_cores > 1:
+            casos.append(13)  # Agrupou peças de cores diferentes
+
+    def registrar_caso9(self, casos):
         if self.jogada.tempo < 3:
-            return 9  # Realizou uma ação rápida, menos de 3 segundos
+            casos.append(9)  # Realizou uma ação rápida, menos de 3 segundos
 
-        # Adicione mais critérios conforme necessário
-        return 0  # Situação padrão
+    def registrar_caso7(self, casos):
+        if self.jogada.tempo > 6:
+            casos.append(7)  # Segurou uma peça por mais de 6 segundos por exemplo
+
+    def registrar_caso5e6(self, casos):
+        if self.jogada.grupo.qtd_jogadores > 1:
+            if self.jogada.jogador == self.jogada.grupo.criador:
+                if self.jogada.jogador.infracoes > 1:
+                    casos.append(5)  # Adicionou uma peça no agrupamento de outro integrante, fez várias vezes
+                else:
+                    casos.append(6)  # Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num
+                    # período curto
+
+    def registrar_caso1a4(self, casos):
+        if self.jogada.grupo.criador is None:
+            casos.append(1)  # Pegou a peça e largou em algum lugar Aleatório
+        elif self.jogada.grupo.qtd_pecas == 2:
+            casos.append(2)  # Fez, sozinho, um agrupamento com 2 peças
+        elif 3 <= self.jogada.grupo.qtd_pecas <= 6:
+            casos.append(3)  # Fez, sozinho, um agrupamento com 3 a 6 peças
+        elif self.jogada.grupo.qtd_pecas > 6:
+            casos.append(4)  # Fez, sozinho, um agrupamento com mais de 6 peças
 
     def to_dict(self) -> dict:
         return {
-            "situacao_id": self.id,
-            "situacao_descricao": self.descricao,
+            "id": self.jogada.id,
+            "casos_id": self.casos_id,
+            "casos_descricao": self.casos_descricao
         }

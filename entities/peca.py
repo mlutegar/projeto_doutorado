@@ -1,4 +1,100 @@
-def definir_linha(pos_x: int) -> int:
+from entities.jogador import Jogador
+
+
+class Peca:
+    def __init__(self):
+        self.uid = None
+        self.cor = None
+
+        self.linha_antiga = 0
+        self.coluna_antiga = 0
+        self.posicao_antiga = (0, 0)
+
+        self.linha_atual = 99
+        self.coluna_atual = 99
+        self.posicao_atual = (99, 99)
+
+        self.jogador_antigo = None
+
+        tabuleiro = Jogador()
+        tabuleiro.set_nome("tabuleiro")
+        self.jogador = tabuleiro
+        self.vizinho = 0
+
+    def set_uid(self, uid: int) -> None:
+        """
+        Define o identificador da peça.
+        """
+        self.uid = uid
+
+    def set_cor(self, cor: str) -> None:
+        """
+        Define a cor da peça.
+        """
+        self.cor = cor
+    
+    def set_posicao_atual(self, pos_x, pos_y) -> None:
+        """
+        Atualiza a posição atual da peça.
+        """
+        self.posicao_antiga = self.posicao_atual
+
+        if pos_x > 1430:
+            self.linha_atual = 99
+            self.coluna_atual = 99
+            tabuleiro = Jogador()
+            tabuleiro.set_nome("tabuleiro")
+            self.set_player(tabuleiro)
+
+        self.linha_atual = definir_linha(pos_y)
+        self.coluna_atual = definir_coluna(pos_x)
+        self.posicao_atual = [self.linha_atual, self.coluna_atual]
+
+    def set_posicao(self, posicao):
+        self.posicao_antiga = self.posicao_atual
+        self.posicao_atual = posicao
+        self.linha_atual = posicao[0]
+        self.coluna_atual = posicao[1]
+
+    def set_player(self, player) -> None:
+        """
+        Define o jogador que moveu a peça.
+        """
+        self.jogador_antigo = self.jogador
+        if self.linha_atual == 99:
+            tabuleiro = Jogador()
+            tabuleiro.set_nome("tabuleiro")
+            self.jogador = tabuleiro
+        self.jogador = player
+
+    def set_vizinho(self) -> None:
+        """
+        Define a quantidade de vizinhos da peça.
+        """
+        self.vizinho = contar_vizinhos_peca(self)
+
+
+pecas = []
+
+
+def contar_vizinhos_peca(peca: Peca):
+    """
+    Conta a quantidade de peças vizinhas a uma determinada peça analisando as peças já adicionadas.
+    """
+    vizinhos = 0
+    for outra_peca in pecas:
+        if outra_peca.uid == peca.uid:
+            continue
+        if tem_lateral_vizinho(
+                peca.posicao_atual, outra_peca.posicao_atual
+        ) or tem_lateral_diagonal(
+            peca.posicao_atual, outra_peca.posicao_atual
+        ):
+            vizinhos += 1
+    return vizinhos
+
+
+def definir_linha(pos_y: int) -> int:
     """
     Define a linha da peça com base na posição x.
     """
@@ -6,15 +102,13 @@ def definir_linha(pos_x: int) -> int:
     margem_erro = 20
 
     for i, linha in enumerate(linhas, start=1):
-        if abs(pos_x - linha) <= margem_erro:
-            print(f"Linha encontrada para x={pos_x}: {i}")
+        if abs(pos_y - linha) <= margem_erro:
             return i
-            
-    print(f"Erro: Posição x fora do intervalo permitido: {pos_x}")
+
     raise ValueError("Posição x fora do intervalo permitido.")
 
 
-def definir_coluna(pos_y: int) -> int:
+def definir_coluna(pos_x: int) -> int:
     """
     Define a coluna da peça com base na posição y.
     """
@@ -23,84 +117,25 @@ def definir_coluna(pos_y: int) -> int:
     margem_erro = 20
 
     for i, coluna in enumerate(colunas, start=1):
-        if abs(pos_y - coluna) <= margem_erro:
-            print(f"Coluna encontrada para y={pos_y}: {i}")
+        if abs(pos_x - coluna) <= margem_erro:
             return i
 
-    print(f"Erro: Posição y fora do intervalo permitido: {pos_y}")
     raise ValueError("Posição y fora do intervalo permitido.")
 
 
-class Peca:
-    def __init__(self):
-        self.uid = None
-        self.cor = None
+def tem_lateral_vizinho(pos1: tuple, pos2: tuple) -> bool:
+    """
+    Verifica se duas peças estão na mesma linha e são de colunas duas unidades distantes.
+    """
+    linha1, coluna1 = pos1
+    linha2, coluna2 = pos2
+    return linha1 == linha2 and abs(coluna1 - coluna2) == 2
 
-        self.linha_antiga = None
-        self.coluna_antiga = None
-        self.posicao_antiga = None
 
-        self.linha_atual = None
-        self.coluna_atual = None
-        self.posicao_atual = None
-
-        self.grupo = None
-        self.last_player = None
-        self.player = None
-        self.vizinho = 0
-
-    def set_uid(self, uid: int) -> None:
-        """
-        Define o identificador da peça.
-        """
-        self.uid = uid
-        print(f"UID definido: {self.uid}")
-
-    def set_cor(self, cor: str) -> None:
-        """
-        Define a cor da peça.
-        """
-        self.cor = cor
-        print(f"Cor definida: {self.cor}")
-
-    def set_posicao_antiga(self, pos_x, pos_y) -> None:
-        """
-        Atualiza a posição antiga da peça.
-        """
-        self.linha_antiga = definir_linha(pos_y)
-        self.coluna_antiga = definir_coluna(pos_x)
-        self.posicao_antiga = [self.linha_antiga, self.coluna_antiga]
-        print(f"Posição antiga definida: {self.posicao_antiga}")
-    
-    def set_posicao_atual(self, pos_x, pos_y) -> None:
-        """
-        Atualiza a posição atual da peça.
-        """
-        self.linha_atual = definir_linha(pos_y)
-        self.coluna_atual = definir_coluna(pos_x)
-        self.posicao_atual = [self.linha_atual, self.coluna_atual]
-        print(f"Posição atual definida: {self.posicao_atual}")
-
-    def set_grupo(self, grupo: int) -> None:
-        """
-        Define a quantidade de peças no grupo que a peça pertence.
-        """
-        self.grupo = grupo
-
-    def set_last_player(self, last_player: str) -> None:
-        """
-        Define o último jogador que moveu a peça.
-        """
-        self.last_player = last_player
-
-    def set_player(self, player: str) -> None:
-        """
-        Define o jogador que moveu a peça.
-        """
-        self.player = player
-
-    def set_vizinho(self, vizinho: int) -> None:
-        """
-        Define a quantidade de vizinhos da peça.
-        """
-        self.vizinho = vizinho
+def tem_lateral_diagonal(pos1: tuple, pos2: tuple) -> bool:
+    """
+    Verifica se duas posições em colunas subsequentes estão em linhas subsequentes.
+    """
+    linha1, coluna1 = pos1
+    linha2, coluna2 = pos2
+    return abs(linha1 - linha2) == 1 and abs(coluna1 - coluna2) == 1

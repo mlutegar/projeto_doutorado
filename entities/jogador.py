@@ -14,16 +14,23 @@ class Jogador:
         """
         self.nome = nome
 
-    def set_fez_varias_vezes(self) -> None:
+    def incrementar_infracao(self) -> None:
         """
-        Define se o jogador fez várias vezes uma ação.
+        Incrementa a contagem de infrações do jogador e atualiza os estados correspondentes.
         """
-        if self.infracoes > 3:
-            self.fez_varias_vezes = True
+        self.infracoes += 1
+        self.atualizar_estados()
 
-    def set_fez_uma_vez_curto_periodo(self) -> None:
+    def atualizar_estados(self) -> None:
         """
-        Define se o jogador fez uma vez em um curto período.
+        Atualiza os estados 'fez_varias_vezes' e 'fez_uma_vez_curto_periodo' com base no número de infrações.
         """
-        if self.infracoes == 1:
-            self.fez_uma_vez_curto_periodo = True
+        self.fez_varias_vezes = self.infracoes > 3
+        self.fez_uma_vez_curto_periodo = self.infracoes == 1
+
+    def __repr__(self) -> str:
+        return (f"Jogador(nome={self.nome}, infracoes={self.infracoes}, "
+                f"fez_varias_vezes={self.fez_varias_vezes}, fez_uma_vez_curto_periodo={self.fez_uma_vez_curto_periodo})")
+
+
+jogadores = []
