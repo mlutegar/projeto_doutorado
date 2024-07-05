@@ -1,5 +1,4 @@
 from entities.grupo import criar_grupo
-from entities.jogador import Jogador
 from entities.peca import Peca
 
 
@@ -8,10 +7,10 @@ class Jogada:
         """
         Inicializa uma nova jogada com os atributos especificados.
         """
-        self.id = None
+        self.id = len(jogadas) + 1
         self.peca = None
         self.grupo = None
-        self.jogador = None
+        self.jogador_jogada = None
         self.tempo = None
 
     def set_peca(self, peca: Peca) -> None:
@@ -32,7 +31,7 @@ class Jogada:
         """
         Define o jogador associado à jogada.
         """
-        self.jogador = self.peca.jogador
+        self.jogador_jogada = self.peca.jogador_peca
 
     def set_tempo(self, tempo: int) -> None:
         """
@@ -44,7 +43,7 @@ class Jogada:
         return {
             "id": self.id,
             "peca_uid": self.peca.uid if self.peca else None,
-            "jogador": self.jogador,
+            "jogador": self.jogador_jogada,
             "tempo": self.tempo,
             "peca_cor": self.peca.cor if self.peca else None,
             "peca_posicao_antiga": self.peca.posicao_antiga if self.peca else None,
@@ -54,5 +53,15 @@ class Jogada:
             "peca_vizinho": self.peca.vizinho if self.peca else None,
         }
 
+    def __eq__(self, other):
+        if other is self:
+            return True
+        if other is None or not isinstance(other, Jogada):
+            return False
+        return self.id == other.id
 
-jogadas = []
+    def __hash__(self):
+        return hash(self.id)
+
+
+jogadas = {}

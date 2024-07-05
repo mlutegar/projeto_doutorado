@@ -2,8 +2,8 @@ from entities.jogador import Jogador
 
 
 class Peca:
-    def __init__(self):
-        self.uid = None
+    def __init__(self, uid: int):
+        self.uid = uid
         self.cor = None
 
         self.linha_antiga = 0
@@ -14,20 +14,13 @@ class Peca:
         self.coluna_atual = 99
         self.posicao_atual = (99, 99)
 
-        self.jogador_antigo = None
+        self.local = "monte"
 
-        tabuleiro = Jogador()
-        tabuleiro.set_nome("tabuleiro")
-        self.jogador = tabuleiro
+        self.jogador_antigo: Jogador | None = None
+        self.jogador_peca: Jogador | None = None
         self.vizinho = 0
 
-        pecas.append(self)
-
-    def set_uid(self, uid: int) -> None:
-        """
-        Define o identificador da peça.
-        """
-        self.uid = uid
+        pecas[self.uid] = self
 
     def set_cor(self, cor: str) -> None:
         """
@@ -44,12 +37,11 @@ class Peca:
         if pos_x > 1430:
             self.linha_atual = 99
             self.coluna_atual = 99
-            tabuleiro = Jogador()
-            tabuleiro.set_nome("tabuleiro")
-            self.set_player(tabuleiro)
+            self.local = "monte"
         else:
             self.linha_atual = definir_linha(pos_y)
             self.coluna_atual = definir_coluna(pos_x)
+            self.local = "tabuleiro"
         self.posicao_atual = [self.linha_atual, self.coluna_atual]
         atualizar_vizinhos()
 
@@ -62,10 +54,9 @@ class Peca:
         self.coluna_atual = posicao[1]
 
         if self.linha_atual == 99:
-            tabuleiro = Jogador()
-            tabuleiro.set_nome("tabuleiro")
-            self.jogador_antigo = self.jogador
-            self.jogador = tabuleiro
+            self.local = "tabuleiro"
+        else:
+            self.local = "monte"
 
         atualizar_vizinhos()
 
@@ -73,12 +64,8 @@ class Peca:
         """
         Define o jogador que moveu a peça.
         """
-        self.jogador_antigo = self.jogador
-        if self.linha_atual == 99:
-            tabuleiro = Jogador()
-            tabuleiro.set_nome("tabuleiro")
-            self.jogador = tabuleiro
-        self.jogador = player
+        self.jogador_antigo = self.jogador_peca
+        self.jogador_peca = player
 
     def set_vizinho(self) -> None:
         """
@@ -86,23 +73,26 @@ class Peca:
         """
         self.vizinho = contar_vizinhos_peca(self)
 
+    def __eq__(self, other):
+        if other is self:
+            return True
+        if other is None or not isinstance(other, Peca):
+            return False
+        return self.uid == other.uid
 
-pecas = []
+    def __hash__(self):
+        return hash(self.uid)
+
+
+pecas = dict()
 
 
 def atualizar_vizinhos():
     """
     Atualiza a quantidade de vizinhos de todas as peças.
     """
-    for peca in pecas:
+    for uid, peca in pecas.items():
         peca.set_vizinho()
-
-
-def remover_peca(peca: Peca):
-    """
-    Remove uma peça da lista de peças.
-    """
-    pecas.remove(peca)
 
 
 def contar_vizinhos_peca(peca: Peca):
@@ -111,7 +101,7 @@ def contar_vizinhos_peca(peca: Peca):
     """
     vizinhos = 0
     uid_analisados = []
-    for outra_peca in pecas:
+    for uid, outra_peca in pecas.items():
         if (outra_peca.uid == peca.uid) or (outra_peca.uid in uid_analisados):
             continue
         if tem_lateral_vizinho(
@@ -169,13 +159,3 @@ def tem_lateral_diagonal(pos1: tuple, pos2: tuple) -> bool:
     linha1, coluna1 = pos1
     linha2, coluna2 = pos2
     return abs(linha1 - linha2) == 1 and abs(coluna1 - coluna2) == 1
-
-
-def get_peca_by_uid(uid: int):
-    """
-    Retorna uma peça pelo seu identificador.
-    """
-    for peca in pecas:
-        if peca.uid == uid:
-            return peca
-    return None
