@@ -67,7 +67,6 @@ class Peca:
             self.jogador_antigo = self.jogador
             self.jogador = tabuleiro
 
-        self.set_vizinho()
         atualizar_vizinhos()
 
     def set_player(self, player) -> None:
@@ -111,8 +110,9 @@ def contar_vizinhos_peca(peca: Peca):
     Conta a quantidade de peças vizinhas a uma determinada peça analisando as peças já adicionadas.
     """
     vizinhos = 0
+    uid_analisados = []
     for outra_peca in pecas:
-        if outra_peca.uid == peca.uid:
+        if (outra_peca.uid == peca.uid) or (outra_peca.uid in uid_analisados):
             continue
         if tem_lateral_vizinho(
                 peca.posicao_atual, outra_peca.posicao_atual
@@ -120,6 +120,7 @@ def contar_vizinhos_peca(peca: Peca):
             peca.posicao_atual, outra_peca.posicao_atual
         ):
             vizinhos += 1
+            uid_analisados.append(outra_peca.uid)
     return vizinhos
 
 

@@ -26,11 +26,7 @@ class TestSituacao(unittest.TestCase):
 
         self.jogada = Jogada()
         self.jogada.set_peca(self.peca)
-        self.jogada.set_grupo()
-        self.jogada.set_jogador(self.jogador)
         self.jogada.set_tempo(5)
-
-        grupos.append(self.jogada.grupo)
 
     def test_definir_situacao_caso1(self):
         self.jogada.grupo.criador = None
@@ -38,6 +34,7 @@ class TestSituacao(unittest.TestCase):
         self.assertIn(1, situacao.casos_id)
 
     def test_definir_situacao_caso2(self):
+        self.jogada.grupo.criador = self.jogada.jogador
         self.jogada.grupo.qtd_pecas = 2
         situacao = Situacao(self.jogada)
         self.assertIn(2, situacao.casos_id)
@@ -73,7 +70,8 @@ class TestSituacao(unittest.TestCase):
         self.assertIn(13, situacao.casos_id)
 
     def test_registrar_caso14(self):
-        self.jogada.peca.set_posicao((99, 99))
+        self.peca.set_posicao((99, 99))
+        self.jogada.set_peca(self.peca)
         situacao = Situacao(self.jogada)
         self.assertIn(14, situacao.casos_id)
 

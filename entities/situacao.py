@@ -76,8 +76,11 @@ class Situacao:
         peca_antiga.set_posicao(self.jogada.peca.posicao_antiga)
         peca_antiga.set_player(self.jogada.peca.jogador_antigo)
         peca_antiga.set_vizinho()
+        jogada_antiga = Jogada()
+        jogada_antiga.set_peca(peca_antiga)
+        jogada_antiga.set_tempo(5)
 
-        grupo_antigo = encontrar_grupo_antigo(peca_antiga)
+        grupo_antigo = encontrar_grupo_antigo(peca_antiga) # PROBLEMA É AQUI !!
 
         if grupo_antigo is None:
             remover_peca(peca_antiga)

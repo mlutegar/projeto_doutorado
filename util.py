@@ -76,8 +76,6 @@ def process_data(move: dict) -> None:
     jogada = Jogada()
     jogada.id = len(jogadas) + 1
     jogada.set_peca(peca)
-    jogada.set_grupo()
-    jogada.set_jogador(peca.jogador)
     jogada.set_tempo(int(move["Tempo"]))
 
     # definir situação

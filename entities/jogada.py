@@ -19,6 +19,8 @@ class Jogada:
         Define a peça associada à jogada.
         """
         self.peca = peca
+        self.set_grupo()
+        self.set_jogador()
 
     def set_grupo(self) -> None:
         """
@@ -26,11 +28,11 @@ class Jogada:
         """
         self.grupo = criar_grupo(self.peca)
 
-    def set_jogador(self, jogador: Jogador) -> None:
+    def set_jogador(self) -> None:
         """
         Define o jogador associado à jogada.
         """
-        self.jogador = jogador
+        self.jogador = self.peca.jogador
 
     def set_tempo(self, tempo: int) -> None:
         """
