@@ -1,7 +1,22 @@
-from entities.jogada import Jogada, jogadas
-from entities.jogador import Jogador, jogadores
-from entities.peca import Peca, pecas
+from entities.csv_export import CsvExport
+from entities.game import Game
+from entities.jogada import Jogada
+from entities.jogador import Jogador
+from entities.peca import Peca
 from entities.situacao import Situacao
+
+game: Game | None = None
+csv_instance = None
+
+
+def iniciar_jogo(nome, host) -> None:
+    """
+    Função que inicia o objeto do jogo.
+    :param nome: Nome do jogo.
+    :param host: Host do jogo.
+    """
+    global game
+    game = Game(name=nome, host=host)
 
 
 def process_data(move: dict) -> None:
@@ -57,8 +72,8 @@ def process_data(move: dict) -> None:
             f"UID={peca.uid}, "
             f"Cor={peca.cor}, "
             f"Posição Antiga={peca.posicao_antiga}, "
-            f"Posição Atual={peca.posicao_atual}, "
-            f"Player={peca.jogador_peca}, "
+            f"Posição Atual={peca.posicao}, "
+            f"Player={peca.jogador}, "
             f"LastPlayer={peca.jogador_antigo}"
         )
     else:
@@ -67,8 +82,8 @@ def process_data(move: dict) -> None:
             f"UID={peca.uid}, "
             f"Cor={peca.cor}, "
             f"Posição Antiga={peca.posicao_antiga}, "
-            f"Posição Atual={peca.posicao_atual}, "
-            f"Player={peca.jogador_peca}, "
+            f"Posição Atual={peca.posicao}, "
+            f"Player={peca.jogador}, "
             f"LastPlayer={peca.jogador_antigo}"
         )
 
@@ -77,4 +92,26 @@ def process_data(move: dict) -> None:
     print(f"Tempo: {jogada.tempo} segundos")
     print(f"Situacao: {situacao.casos_id}")
     print("")
-    jogadas[jogada.id] = [jogada, situacao]
+    exportar.append((jogada, situacao.casos_id))
+
+
+def encerrar_jogo() -> None:
+    """
+    Encerra o jogo e exporta os dados.
+    """
+    global csv_instance
+    global game
+
+    if not game:
+        raise ValueError("Jogo não iniciado")
+    else:
+        csv_instance = CsvExport(path='data.csv', game=game)
+
+    csv_instance.analisar_game()
+    csv_instance.write()
+
+    print("Jogo encerrado. Dados exportados com sucesso.")
+    print("Exportando arquivo CSV...")
+    print("Arquivo exportado com sucesso.")
+    print("Fim do jogo.")
+

@@ -1,6 +1,5 @@
-from entities.grupo import grupos
-from entities.jogada import Jogada
-from entities.peca import Peca, pecas
+from datetime import timedelta
+from util.methods_game import *
 
 
 class Situacao:
@@ -46,86 +45,69 @@ class Situacao:
         38: "Não realizou ações"
     }
 
-    def __init__(self, jogada: Jogada):
-        self.jogada = jogada
-        self.casos_id = self.definir_situacao()
-        self.casos_descricao = None
+    def __init__(self, jogada: Jogada, game: Game) -> None:
+        """
+        Inicializa a classe Situacao.
+
+        :param jogada: Jogada que será analisada.
+        :param game: Game que contém a jogada.
+        """
+        self.game: Game = game
+        self.jogada: Jogada = jogada
+        self.casos_id: set[int] = self.definir_situacao()
+        self.casos_descricao: set[str] | None = None
 
     def definir_situacao(self) -> set:
         """
         Analisa a jogada e define todos os casos que se encaixam.
         """
-        casos = set()
-        peca_antiga = Peca(999)
-        peca_antiga.set_cor(self.jogada.peca.cor)
-        peca_antiga.set_posicao(self.jogada.peca.posicao_antiga)
-        peca_antiga.set_player(self.jogada.peca.jogador_antigo)
-        jogada_antiga = Jogada()
-        jogada_antiga.set_peca(peca_antiga)
-        jogada_antiga.set_tempo(5)
+        casos: set[int] = set()
 
         self.registrar_caso1a4(casos)
-        self.registrar_caso5e6(casos)
+        self.registrar_caso5(casos)
+        self.registrar_caso6(casos)
         self.registrar_caso7(casos)
-        # CASO 8 - é preciso analisar 3 jogadas seguidas
+        self.registrar_caso8(casos)
         self.registrar_caso9(casos)
-        # CASO 10 - analisar 3 jogadas seguidas
+        self.registrar_caso10(casos)
         self.registrar_caso11a13(casos)
-        self.registrar_caso14a16(casos, jogada_antiga)
-        self.registrar_caso18a19(casos, jogada_antiga)
+        self.registrar_caso14(casos)
+        self.registrar_caso15(casos)
+        self.registrar_caso16(casos)
+        self.registrar_caso17(casos)
+        self.registrar_caso18(casos)
+        self.registrar_caso19(casos)
+        self.registrar_caso20(casos)
+        self.registrar_caso21(casos)
+        self.registrar_caso22(casos)
+        self.registrar_caso23(casos)
+        self.registrar_caso24(casos)
+        self.registrar_caso25(casos)
+        self.registrar_caso26(casos)
+        self.registrar_caso27(casos)
+        self.registrar_caso28(casos)
+        self.registrar_caso29(casos)
+        self.registrar_caso30(casos)
+        self.registrar_caso31(casos)
+        self.registrar_caso32(casos)
+        self.registrar_caso33(casos)
+        self.registrar_caso34(casos)
+        self.registrar_caso35(casos)
+        self.registrar_caso36(casos)
+        self.registrar_caso37(casos)
+        self.registrar_caso38(casos)
 
         self.casos_descricao = [self.situacoes[caso] for caso in casos]
-        pecas.pop(999)
-        grupos.pop((jogada_antiga.grupo.criador.nome, jogada_antiga.grupo.peca_pai.uid))
         return casos
 
-    def registrar_caso18a19(self, casos, jogada_antiga):
-        if jogada_antiga.grupo.criador is None:
-            return
-        if self.jogada.peca.jogador_peca == jogada_antiga.grupo.criador:
-            if self.jogada.peca.local == "monte":
-                casos.add(18)  # Retirou peças do próprio Agrupamento e devolveu para o monte
-            elif self.jogada.peca.vizinho != 0:
-                casos.add(19)  # Retirou peças do próprio agrupamento e colocou em algum lugar aleatório
-
-    def registrar_caso14a16(self, casos, jogada_antiga):
-        if jogada_antiga.grupo.criador is None:
-            return
-        if self.jogada.peca.jogador_peca != jogada_antiga.grupo.criador:
-            if self.jogada.peca.local == "monte":
-                casos.add(14)  # Retirou peças do Agrupamento do outro integrante e devolveu para o monte
-            elif self.jogada.grupo.criador == self.jogada.peca.jogador_peca:
-                casos.add(15)  # Retirou peças do Agrupamento do outro integrante e colocou no seu próprio agrupamento
-            elif self.jogada.peca.vizinho != 0:
-                casos.add(16)  # Retirou peças do Agrupamento do outro integrante e colocou em um lugar aleatório
-
-    def registrar_caso11a13(self, casos):
-        if self.jogada.grupo.qtd_cores == 1:
-            casos.add(11)  # Agrupou peças de cor igual
-        elif self.jogada.grupo.qtd_cores == 1:
-            casos.add(12)  # Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas
-        elif self.jogada.grupo.qtd_cores > 1:
-            casos.add(13)  # Agrupou peças de cores diferentes
-
-    def registrar_caso9(self, casos):
-        if self.jogada.tempo < 3:
-            casos.add(9)  # Realizou uma ação rápida, menos de 3 segundos
-
-    def registrar_caso7(self, casos):
-        if self.jogada.tempo > 6:
-            casos.add(7)  # Segurou uma peça por mais de 6 segundos por exemplo
-
-    def registrar_caso5e6(self, casos):
-        if self.jogada.grupo.qtd_jogadores > 1:
-            if self.jogada.jogador_jogada == self.jogada.grupo.criador:
-                if self.jogada.jogador_jogada.infracoes > 1:
-                    casos.add(5)  # Adicionou uma peça no agrupamento de outro integrante, fez várias vezes
-                else:
-                    casos.add(6)  # Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num
-                    # período curto
-
     def registrar_caso1a4(self, casos):
-        if self.jogada.grupo.criador is None and self.jogada.peca.linha_atual < 99:
+        """
+        1: "Pegou a peça e largou em algum lugar Aleatório",
+        2: "Fez, sozinho, um agrupamento com 2 peças",
+        3: "Fez, sozinho, um agrupamento com 3 a 6 peças",
+        4: "Fez, sozinho, um agrupamento com mais de 6 peças",
+        """
+        if self.jogada.grupo is None and self.jogada.peca.local == "tabuleiro":
             casos.add(1)  # Pegou a peça e largou em algum lugar Aleatório
         elif self.jogada.grupo.qtd_pecas == 2:
             casos.add(2)  # Fez, sozinho, um agrupamento com 2 peças
@@ -133,6 +115,455 @@ class Situacao:
             casos.add(3)  # Fez, sozinho, um agrupamento com 3 a 6 peças
         elif self.jogada.grupo.qtd_pecas > 6:
             casos.add(4)  # Fez, sozinho, um agrupamento com mais de 6 peças
+
+    def registrar_caso5(self, casos):
+        """
+        5: "Adicionou uma peça no agrupamento de outro integrante, fez várias vezes",
+        """
+        if self.jogada.grupo is None:
+            return
+
+        if self.jogada.grupo.criador == self.jogada.peca.jogador:
+            return
+
+        if 5 in self.jogada.peca.jogador.tabulacao:
+            return
+
+        if self.jogada.peca.jogador.qtd_infracoes > 3:
+            casos.add(5)  # Adicionou uma peça no agrupamento de outro integrante, fez várias vezes
+
+    def registrar_caso6(self, casos):
+        """
+        6: "Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num período curto",
+        """
+        if self.jogada.grupo is None:
+            return
+
+        if self.jogada.grupo.criador == self.jogada.peca.jogador:
+            return
+
+        if 6 not in self.jogada.peca.jogador.tabulacao:
+            return
+
+        if self.jogada.peca.jogador.qtd_infracoes <= 3:
+            casos.add(6)
+
+    def registrar_caso7(self, casos):
+        """
+        7: "Segurou uma peça por mais de 6 segundos por exemplo",
+        """
+        if self.jogada.tempo > timedelta(seconds=6):
+            casos.add(7)  # Segurou uma peça por mais de 6 segundos por exemplo
+
+    def registrar_caso8(self, casos):
+        """
+        8: "Colocou uma peça no tabuleiro de forma aleatória ou no próprio agrupamento e depois colocou a mesma peça
+        no agrupamento do outro",
+        """
+        jogada_anterior_do_jogador: Jogada = pegar_jogada_do_jogador(
+            game=self.game,
+            jogador=self.jogada.peca.jogador,
+            indice=1
+        )
+
+        if jogada_anterior_do_jogador is None:
+            return
+
+        if jogada_anterior_do_jogador.grupo is None:
+            return
+
+        if not (jogada_anterior_do_jogador.grupo.criador == self.jogada.peca.jogador):
+            return
+
+        if self.jogada.grupo.criador != self.jogada.peca.jogador:
+            casos.add(8)
+
+    def registrar_caso9(self, casos):
+        """
+        9: "Realizou uma ação rápida, menos de 3 segundos",
+        """
+        if self.jogada.tempo < timedelta(seconds=3):
+            casos.add(9)  # Realizou uma ação rápida, menos de 3 segundos
+
+    def registrar_caso10(self, casos):
+        """
+        10: "Adicionou uma peça no agrupamento do outro, que a remove, mas continua a repetir a ação",
+        """
+        jogada_anterior_da_peca = pegar_jogada_da_peca(
+            game=self.game,
+            peca=self.jogada.peca,
+            indice=-1
+        )
+        jogada_antes_da_anterior_da_peca = pegar_jogada_da_peca(
+            game=self.game,
+            peca=self.jogada.peca,
+            indice=-2
+        )
+
+        if jogada_antes_da_anterior_da_peca is None:
+            return
+
+        if jogada_anterior_da_peca is None:
+            return
+
+        if jogada_antes_da_anterior_da_peca.grupo.criador == jogada_antes_da_anterior_da_peca.peca.jogador:
+            return
+
+        if jogada_anterior_da_peca.grupo.criador == jogada_antes_da_anterior_da_peca.grupo.criador:
+            return
+
+        if (self.jogada.peca.jogador != self.jogada.grupo.criador and
+                self.jogada.grupo.criador == jogada_antes_da_anterior_da_peca.grupo.criador):
+            casos.add(10)
+
+    def registrar_caso11a13(self, casos):
+        """
+        11: "Agrupou peças de cor igual",
+        12: "Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas pretas",
+        13: "Agrupou peças de cores diferentes",
+        """
+        if self.jogada.grupo is None:
+            return # Não agrupou peças
+
+        if self.jogada.grupo.qtd_cores == 1:
+            casos.add(11)  # Agrupou peças de cor igual
+        elif self.jogada.grupo.qtd_cores == 1:
+            casos.add(12)  # Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas
+        elif self.jogada.grupo.qtd_cores > 1:
+            casos.add(13)  # Agrupou peças de cores diferentes
+
+    def registrar_caso14(self, casos):
+        """
+        14: "Retirou peças do Agrupamento do outro integrante e devolveu para o monte",
+        """
+        jogada_antiga = pegar_jogada_da_peca(
+            game=self.game,
+            peca=self.jogada.peca,
+            indice=-1
+        )
+
+        if jogada_antiga is None:
+            return
+
+        # verifica se a peça estava em um grupo na jogada anterior
+        if jogada_antiga.grupo.criador is None:
+            return
+
+        # verifica se o jogador da jogada atual é diferente do criador do grupo da jogada anterior
+        if self.jogada.peca.jogador == jogada_antiga.grupo.criador:
+            return
+
+        # verifica se a peça foi colocada no monte
+        if self.jogada.peca.local == "monte":
+            casos.add(14)
+
+    def registrar_caso15(self, casos):
+        """
+        15: "Retirou peças do Agrupamento do outro integrante e colocou no seu próprio agrupamento",
+        """
+        jogada_antiga = pegar_jogada_da_peca(
+            game=self.game,
+            peca=self.jogada.peca,
+            indice=-1
+        )
+
+        if jogada_antiga is None:
+            return
+
+        # verifica se a peça estava em um grupo na jogada anterior
+        if jogada_antiga.grupo.criador is None:
+            return
+
+        # verifica se o jogador da jogada atual é diferente do criador do grupo da jogada anterior
+        if self.jogada.peca.jogador == jogada_antiga.grupo.criador:
+            return
+
+        # verifica se o jogador da jogada atual é o criador do grupo da jogada atual
+        if self.jogada.grupo.criador == self.jogada.peca.jogador:
+            casos.add(15)
+
+    def registrar_caso16(self, casos):
+        """
+        16: "Retirou peças do Agrupamento do outro integrante e colocou em um lugar aleatório",
+        """
+        jogada_antiga = pegar_jogada_da_peca(
+            game=self.game,
+            peca=self.jogada.peca,
+            indice=-1
+        )
+
+        if jogada_antiga is None:
+            return
+
+        # verifica se a peça estava em um grupo na jogada anterior
+        if jogada_antiga.grupo.criador is None:
+            return
+
+        # verifica se o jogador da jogada atual é diferente do criador do grupo da jogada anterior
+        if self.jogada.peca.jogador == jogada_antiga.grupo.criador:
+            return
+
+        # verifica se a peça foi colocada em um lugar aleatório
+        if self.jogada.grupo is None:
+            casos.add(16)
+
+    def registrar_caso17(self, casos):
+        """
+        17: "Trocou a posição da própria peça",
+        """
+        jogada_antiga_da_peca = pegar_jogada_da_peca(
+            game=self.game,
+            peca=self.jogada.peca,
+            indice=-1
+        )
+
+        if jogada_antiga_da_peca is None:
+            return
+
+        # verificar se o jogador da jogada atual é o mesmo da ultima jogada da peça
+        if jogada_antiga_da_peca.peca.jogador == self.jogada.peca.jogador:
+            casos.add(17)
+
+    def registrar_caso18(self, casos):
+        """
+        18: "Retirou peças do próprio Agrupamento e devolveu para o monte",
+        """
+        jogada_antiga_da_peca = pegar_jogada_da_peca(
+            game=self.game,
+            peca=self.jogada.peca,
+            indice=-1
+        )
+
+        if jogada_antiga_da_peca is None:
+            return
+
+        # verifica se a peça estava em um grupo na jogada anterior
+        if jogada_antiga_da_peca.grupo.criador is None:
+            return
+
+        # verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada anterior
+        if self.jogada.peca.jogador != jogada_antiga_da_peca.grupo.criador:
+            return
+
+        # verifica se a peça foi colocada no monte
+        if self.jogada.peca.local == "monte":
+            casos.add(18)
+
+    def registrar_caso19(self, casos):
+        """
+        19: "Retirou peças do próprio agrupamento e colocou em algum lugar aleatório",
+        """
+        jogada_antiga_da_peca = pegar_jogada_da_peca(
+            game=self.game,
+            peca=self.jogada.peca,
+            indice=-1
+        )
+
+        if jogada_antiga_da_peca is None:
+            return
+
+        # verifica se a peça estava em um grupo na jogada anterior
+        if jogada_antiga_da_peca.grupo.criador is None:
+            return
+
+        # verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada anterior
+        if self.jogada.peca.jogador != jogada_antiga_da_peca.grupo.criador:
+            return
+
+        # verifica se a peça foi colocada em um lugar aleatório
+        if self.jogada.grupo is None:
+            casos.add(19)
+
+    def registrar_caso20(self, casos):
+        """
+        20: "Retirou peças dos outros integrantes que adicionaram no agrupamento feito por ele",
+        """
+        jogada_antiga_da_peca = pegar_jogada_da_peca(
+            game=self.game,
+            peca=self.jogada.peca,
+            indice=-1
+        )
+
+        if jogada_antiga_da_peca is None:
+            return
+
+        # verifica se a peça estava em um grupo na jogada anterior
+        if jogada_antiga_da_peca.grupo.criador is None:
+            return
+
+        # verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada anterior
+        if self.jogada.peca.jogador != jogada_antiga_da_peca.grupo.criador:
+            return
+
+        # verifica se o jogador da jogada atual é o jogador da peça da jogada anterior
+        if self.jogada.peca.jogador != jogada_antiga_da_peca.peca.jogador:
+            casos.add(20)
+
+    def registrar_caso21(self, casos):
+        """
+        21: "Criou mais de um agrupamento",
+        """
+        qtd_grupos = 0
+
+        for _, grupo in self.game.grupos.items():
+            if grupo.criador == self.jogada.peca.jogador:
+                qtd_grupos += 1
+
+        if qtd_grupos > 1:
+            casos.add(21)
+
+    def registrar_caso22(self, casos):
+        """
+        22: "Conecta dois ou mais agrupamentos com outros participantes",
+        """
+        if self.jogada.grupo is None:
+            return
+
+        if self.jogada.grupo.qtd_jogadores == 1:
+            return
+
+        if self.jogada.peca.eh_ponte:
+            casos.add(22)
+
+    def registrar_caso23(self, casos):
+        """
+        23: "Conecta dois ou mais agrupamentos consigo mesmo
+        """
+        if self.jogada.grupo is None:
+            return
+
+        if self.jogada.grupo.qtd_jogadores == 1:
+            return
+
+        if self.jogada.peca.eh_ponte:
+            casos.add(23)
+
+    def registrar_caso24(self, casos):
+        """
+        24: "Forma um agrupamento de 2 peças com outro integrante",
+        """
+        if self.jogada.grupo is None:
+            return
+
+        if self.jogada.grupo.qtd_jogadores == 1:
+            return
+        if self.jogada.grupo.qtd_pecas == 2:
+            casos.add(24)
+
+    def registrar_caso25(self, casos):
+        """
+        25: "Forma um agrupamento de 3 a 6 peças com outro integrante",
+        """
+        if self.jogada.grupo is None:
+            return
+
+        if self.jogada.grupo.qtd_jogadores == 1:
+            return
+        if 3 <= self.jogada.grupo.qtd_pecas <= 6:
+            casos.add(25)
+
+    def registrar_caso26(self, casos):
+        """
+        26: "Forma um agrupamento de mais de 6 peças com outro integrante",
+        """
+        if self.jogada.grupo is None:
+            return
+
+        if self.jogada.grupo.qtd_jogadores == 1:
+            return
+        if self.jogada.grupo.qtd_pecas > 6:
+            casos.add(26)
+
+    def registrar_caso27(self, casos):
+        """
+        27: "Desenvolveu um agrupamento e outro integrante resolveu adicionar peças",
+        """
+        if 27 in self.jogada.peca.jogador.tabulacao:
+            return
+
+        for _, grupo in self.game.grupos.items():
+            if grupo.criador == self.jogada.peca.jogador:
+                if grupo.qtd_jogadores > 1:
+                    casos.add(27)
+
+    def registrar_caso28(self, casos):
+        """
+        28: "Desistiu Sozinho",
+        """
+        if (self.jogada.peca.jogador.situacao == "Desistiu" and
+                self.jogada.peca.jogador.tempo_em_jogo > timedelta(seconds=300)):
+            casos.add(28)
+
+    def registrar_caso29(self, casos):
+        """
+        29: "Desistiu Sozinho com pouco tempo de jogo",
+        """
+        if (self.jogada.peca.jogador.situacao == "Desistiu" and
+                self.jogada.peca.jogador.tempo_em_jogo < timedelta(seconds=300)):
+            casos.add(29)
+
+    def registrar_caso30(self, casos):
+        """
+        30: "Desistiu Sozinho e pouco tempo depois outro integrante desistiu",
+        """
+        pass
+
+    def registrar_caso31(self, casos):
+        """
+        31: "Desistiu depois de outro integrante Desistir
+        """
+        if len(self.game.players_desistiu) > 1:
+            if self.jogada.peca.jogador.situacao == "Desistiu":
+                casos.add(31)
+
+    def registrar_caso32(self, casos):
+        """
+        32: "Finalizou sozinho",
+        """
+        if self.jogada.peca.jogador.situacao == "Finalizou":
+            casos.add(32)
+
+    def registrar_caso33(self, casos):
+        """
+        33: "Finalizou sozinho com pouco tempo de jogo",
+        """
+        if (self.jogada.peca.jogador.situacao == "Finalizou" and
+                self.jogada.peca.jogador.tempo_em_jogo < timedelta(seconds=300)):
+            casos.add(33)
+
+    def registrar_caso34(self, casos):
+        """
+        34: "Finalizou depois de outro integrante Finalizar",
+        """
+        if len(self.game.players_finalizou) > 1:
+            if self.jogada.peca.jogador.situacao == "Finalizou":
+                casos.add(34)
+
+    def registrar_caso35(self, casos):
+        """
+        35: "Finalizou Sozinho e pouco tempo depois outro integrante finalizou também
+        """
+        pass
+
+    def registrar_caso36(self, casos):
+        """
+        36: "Imitou a forma do mesmo agrupamento do outro (fez depois que outro integrante realizou a ação)",
+        """
+        pass
+
+    def registrar_caso37(self, casos):
+        """
+        37: "É imitado por alguém",
+        """
+        pass
+
+    @staticmethod
+    def registrar_caso38(casos):
+        """
+        38: "Não realizou ações"
+        """
+        if casos == set():
+            casos.add(38)
 
     def to_dict(self) -> dict:
         return {

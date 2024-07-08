@@ -1,65 +1,44 @@
 import unittest
-from entities.jogada import Jogada
-from entities.peca import Peca
-from entities.jogador import Jogador
+from datetime import timedelta
+
+from entities.game import Game
 from entities.situacao import Situacao
 
 
 class TestSituacao(unittest.TestCase):
 
     def setUp(self):
-        # O jogador 1 vai mexer na peça 1 e colocar em uma posição aleatória
-        self.jogador1 = Jogador("jogador1")
-
-        self.peca = Peca(1)
-        self.peca.set_cor("vermelha")
-        self.peca.set_posicao((1, 1))
-        self.peca.set_player(self.jogador1)
-
-        self.jogada1 = Jogada()
-        self.jogada1.set_peca(self.peca)
-        self.jogada1.set_tempo(5)
-
-        # O jogador 1 vai mexer na peça 2 e colocar ao lado da peça 1 criando um grupo
-        self.peca2 = Peca(2)
-        self.peca2.set_cor("vermelha")
-        self.peca2.set_posicao((1, 3))
-        self.peca2.set_player(self.jogador1)
-
-        self.jogada2 = Jogada()
-        self.jogada2.set_peca(self.peca2)
-        self.jogada2.set_tempo(5)
-
-        # O jogador 2 vai mexer nas peças 3 e colocar em uma posição aleatória
-        self.jogador2 = Jogador("jogador2")
-
-        self.peca3 = Peca(3)
-        self.peca3.set_cor("vermelha")
-        self.peca3.set_posicao((5, 1))
-        self.peca3.set_player(self.jogador2)
-
-        self.jogada3 = Jogada()
-        self.jogada3.set_peca(self.peca3)
-        self.jogada3.set_tempo(5)
-
-        # O jogador 2 vai mexer na peça 4 e colocar ao lado da peça 3 criando um grupo
-
-        self.peca4 = Peca(4)
-        self.peca4.set_cor("vermelha")
-        self.peca4.set_posicao((5, 3))
-        self.peca4.set_player(self.jogador2)
-
-        self.jogada4 = Jogada()
-        self.jogada4.set_peca(self.peca4)
-        self.jogada4.set_tempo(5)
+        self.game = Game("teste", "host")
+        self.jogador1 = self.game.add_jogador("jogador1")
+        self.jogador2 = self.game.add_jogador("jogador2")
+        self.jogador3 = self.game.add_jogador("jogador3")
+        self.jogador4 = self.game.add_jogador("jogador4")
+        self.jogador5 = self.game.add_jogador("jogador5")
+        self.peca1 = self.game.add_peca(uid=1, cor="vermelha")
+        self.peca2 = self.game.add_peca(uid=2, cor="vermelha")
+        self.peca3 = self.game.add_peca(uid=3, cor="verde")
+        self.peca4 = self.game.add_peca(uid=4, cor="verde")
+        self.peca5 = self.game.add_peca(uid=5, cor="azul")
 
     def test_definir_situacao_caso1(self):
-        self.jogada1.grupo.criador = None
-        situacao = Situacao(self.jogada1)
+        """
+        1: "Pegou a peça e largou em algum lugar Aleatório",
+        """
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+
+        situacao = Situacao(
+            self.game.add_jogada(
+                peca=self.peca1, tempo=timedelta(seconds=5)
+            ),
+            self.game
+        )
+
         self.assertIn(1, situacao.casos_id)
 
     def test_definir_situacao_caso2(self):
-        self.jogada1.grupo.criador = self.jogada1.jogador_jogada
+        self.jogada1.grupo.criador = self.jogada1.peca.jogador
         self.jogada1.grupo.qtd_pecas = 2
         situacao = Situacao(self.jogada1)
         self.assertIn(2, situacao.casos_id)
@@ -99,7 +78,8 @@ class TestSituacao(unittest.TestCase):
         self.peca4.set_player(self.jogador1)
         self.peca4.set_posicao((99, 99))
 
-        jogada_nova = Jogada()
+        self.game.add_jogada()
+        jogada_nova = self.game.jogadas[5]
         jogada_nova.set_peca(self.peca4)
         jogada_nova.set_tempo(5)
 
@@ -111,7 +91,8 @@ class TestSituacao(unittest.TestCase):
         self.peca4.set_player(self.jogador1)
         self.peca4.set_posicao((1, 5))
 
-        jogada_nova = Jogada()
+        self.game.add_jogada()
+        jogada_nova = self.game.jogadas[5]
         jogada_nova.set_peca(self.peca4)
         jogada_nova.set_tempo(5)
 
@@ -123,7 +104,8 @@ class TestSituacao(unittest.TestCase):
         self.peca4.set_player(self.jogador1)
         self.peca4.set_posicao((11, 9))
 
-        jogada_nova = Jogada()
+        self.game.add_jogada()
+        jogada_nova = self.game.jogadas[5]
         jogada_nova.set_peca(self.peca4)
         jogada_nova.set_tempo(5)
 
@@ -134,7 +116,8 @@ class TestSituacao(unittest.TestCase):
         # jogador 1 mexeu na peça do jogador 1 que estava em um grupo e devolveu para o monte
         self.peca.set_posicao((99, 99))
 
-        jogada_nova = Jogada()
+        self.game.add_jogada()
+        jogada_nova = self.game.jogadas[5]
         jogada_nova.set_peca(self.peca)
         jogada_nova.set_tempo(5)
 
@@ -145,7 +128,8 @@ class TestSituacao(unittest.TestCase):
         # jogador 1 mexeu na peça do jogador 1 que estava em um grupo e colocou em um lugar aleatório
         self.peca.set_posicao((7, 9))
 
-        jogada_nova = Jogada()
+        self.game.add_jogada()
+        jogada_nova = self.game.jogadas[5]
         jogada_nova.set_peca(self.peca)
         jogada_nova.set_tempo(5)
 

@@ -1,11 +1,30 @@
 from flask import Flask, request, jsonify, send_file
-import csv
 from flask_cors import CORS
-import util
-from util import process_data
+import process
+from pathlib import Path
+
 
 app = Flask(__name__)
 CORS(app)
+
+
+@app.route('/iniciar_jogo', method=['POST'])
+def iniciar_jogo():
+    """
+    Inicia o jogo.
+    """
+    if request.is_json:
+        data = request.get_json()
+        nome = data['nome']
+        host = data['host']
+
+        try:
+            process.iniciar_jogo(nome, host)
+            return jsonify({"status": "success", "message": "Game started"}), 200
+        except ValueError as e:
+            return jsonify({"status": "error", "message": str(e)}), 400
+    else:
+        return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
 
 @app.route('/save_move', methods=['POST'])
@@ -15,7 +34,7 @@ def save_move():
         data = data['data']
 
         try:
-            process_data(data)
+            process.process_data(data)
             return jsonify({"status": "success", "message": "Move received"}), 200
         except ValueError as e:
             return jsonify({"status": "error", "message": str(e)}), 400
@@ -25,24 +44,17 @@ def save_move():
 
 @app.route('/export_csv', methods=['GET'])
 def export_csv():
-    if not util.jogadas:
+    process.encerrar_jogo()
+
+    if not process.game.jogadas:
         return jsonify({"status": "error", "message": "No data to export"}), 400
 
     # Define o nome do arquivo CSV
-    csv_file = 'moves_data.csv'
+    csv_file = 'data.csv'
 
-    # Cria e escreve os dados no arquivo CSV
-    with open(csv_file, 'w', newline='') as file:
-        fieldnames = ["id", "peca_uid", "jogador", "tempo", "peca_cor", "peca_posicao_antiga", "peca_posicao_atual",
-                      "peca_grupo", "peca_last_player", "peca_vizinho", "situacao_id", "situacao_descricao"]
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-
-        for jogada, situacao in util.jogadas:
-            jogada_dict = jogada.to_dict()
-            situacao_dict = situacao.to_dict()
-            combined_dict = {**jogada_dict, **situacao_dict}
-            writer.writerow(combined_dict)
+    # Verifica se o arquivo CSV foi criado e escreve os dados
+    if not process.csv_instance or not Path(csv_file).is_file():
+        return jsonify({"status": "error", "message": "Failed to create CSV file"}), 500
 
     # Envia o arquivo CSV para download
     return send_file(csv_file, as_attachment=True)

@@ -1,5 +1,5 @@
 import unittest
-from util import (
+from process import (
     process_data
 )
 from entities.jogador import jogadores
@@ -54,4 +54,4 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(len(pecas), 1)
         self.assertEqual(len(jogadas), 1)
         self.assertEqual(pecas[1].uid, 1)
-        self.assertEqual(pecas[1].posicao_atual, [1, 4])
+        self.assertEqual(pecas[1].posicao, [1, 4])

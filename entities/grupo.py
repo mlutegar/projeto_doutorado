@@ -1,168 +1,106 @@
+from typing import List, Dict
 from entities.jogador import Jogador
-from entities.peca import pecas, tem_lateral_vizinho, tem_lateral_diagonal, Peca
+from entities.peca import Peca
 
 
 class Grupo:
-    def __init__(self, peca):
-        self.criador: Jogador = peca.jogador_peca
+    def __init__(self, peca: Peca) -> None:
+        """
+        Cria um grupo de peças.
+        """
+        self.criador: Jogador = peca.jogador
         self.peca_pai: Peca = peca
-        self.pecas: dict[int, Peca] = dict()
-        self.members: dict[str, Jogador] = dict()
-        self.qtd_cores = 0
-        self.qtd_jogadores = 0
-        self.qtd_pecas = 0
+        self.pecas: Dict[int, Peca] = {peca.uid: peca}
+        self.members: Dict[str, Jogador] = {peca.jogador.nome: peca.jogador}
 
-        grupos[(self.criador.nome, self.peca_pai.uid)] = self
+        self.qtd_cores: int = 1
+        self.qtd_jogadores: int = 1
+        self.qtd_pecas: int = 1
 
-    def add_peca(self) -> None:
-        self.pecas[self.peca_pai.uid] = self.peca_pai
+    def add_peca(self, peca: Peca) -> None:
+        """
+        Adiciona uma peça ao grupo.
+        :param peca: Peca a ser adicionada ao grupo.
+        """
+        self.pecas[peca.uid] = peca
+        self.atualizar_status()
+
+    def remover_peca(self, peca: Peca) -> None:
+        """
+        Remove uma peça do grupo.
+        :param peca: Peca a ser removida do grupo.
+        """
+        if peca.uid in self.pecas:
+            self.pecas.pop(peca.uid)
+            self.atualizar_status()
+
+            if peca == self.peca_pai and self.pecas:
+                self.peca_pai = next(iter(self.pecas.values()))
+                self.criador = self.peca_pai.jogador
+
+    def atualizar_status(self) -> None:
+        """
+        Atualiza as informações do grupo.
+        """
         self.set_members()
         self.set_qtd_cores()
         self.set_qtd_jogadores()
         self.set_qtd_pecas()
 
-    def verificar_peca(self, peca) -> bool:
-        for uid, peca_analisada in self.pecas.items():
-            if peca == peca_analisada:
-                return True
+    def verificar_peca(self, peca: Peca) -> bool:
+        """
+        Verifica se a peça está no grupo.
+        :param peca: Peca a ser verificada.
+        :return: True se a peça está no grupo, false caso contrário.
+        """
+        return peca.uid in self.pecas
 
-    def set_criador(self, criador) -> None:
+    def set_pecas(self, lista_pecas: List[Peca]) -> None:
         """
-        Define o criador do grupo.
+        Adiciona uma peça ao grupo e atualiza as informações do grupo.
+        :param lista_pecas: Lista de peças a serem adicionadas ao grupo.
         """
-        self.criador = criador
-
-    def set_peca_pai(self, peca_pai) -> None:
-        """
-        Define a peça pai do grupo.
-        """
-        self.peca_pai = peca_pai
-
-    def set_pecas(self, lista_pecas) -> None:
-        """
-        Adiciona uma peça ao grupo.
-        """
-        for i in lista_pecas:
-            self.pecas[i.uid] = i
-        self.set_qtd_cores()
-        self.set_qtd_jogadores()
-        self.set_qtd_pecas()
+        for peca in lista_pecas:
+            self.pecas[peca.uid] = peca
+        self.atualizar_status()
 
     def set_members(self) -> None:
         """
-        Analisa as pecas e adicionas os jogadores ao grupo.
+        Analisa as pecas e adiciona os jogadores ao grupo.
         """
-        for uid, peca in self.pecas.items():
-            self.members[peca.jogador_peca.nome] = peca.jogador_peca
+        self.members = {peca.jogador.nome: peca.jogador for peca in self.pecas.values()}
 
     def set_qtd_cores(self) -> None:
         """
-        Define a quantidade de cores do grupo.
+        Define a quantidade de cores do grupo a partir das peças.
         """
-        cores = set()
-        for uid, peca in self.pecas.items():
-            if peca.cor not in cores:
-                cores.add(peca.cor)
-        self.qtd_cores = len(cores)
+        self.qtd_cores = len(set(peca.cor for peca in self.pecas.values()))
 
     def set_qtd_jogadores(self) -> None:
         """
-        Define a quantidade de jogadores do grupo.
+        Define a quantidade de jogadores do grupo a partir das peças.
         """
         self.qtd_jogadores = len(self.members)
 
     def set_qtd_pecas(self) -> None:
         """
-        Define a quantidade de peças do grupo.
+        Define a quantidade de peças do grupo a partir da lista de peças.
         """
         self.qtd_pecas = len(self.pecas)
 
-    def __eq__(self, other):
-        if other is self:
-            return True
-        if other is None or not isinstance(other, Grupo):
+    def __eq__(self, other: object) -> bool:
+        """
+        Verifica se dois grupos são iguais.
+        :param other: Outro grupo a ser comparado.
+        :return: True se os grupos são iguais, false caso contrário.
+        """
+        if not isinstance(other, Grupo):
             return False
-        return (self.criador == other.criador and
-                self.peca_pai == other.peca_pai)
+        return self.criador == other.criador and self.peca_pai == other.peca_pai
 
-    def __hash__(self):
+    def __hash__(self) -> int:
+        """
+        Retorna o hash do grupo.
+        :return: Hash do grupo.
+        """
         return hash((self.criador, self.peca_pai))
-
-
-grupos = dict()
-
-
-def criar_grupo(peca) -> Grupo:
-    def encontrar_peca_vizinha(item):
-        for _, peca_analisada in pecas.items():
-            if tem_lateral_vizinho(item.posicao_atual, peca_analisada.posicao_atual):
-                return peca_analisada
-        return None
-
-    peca_vizinho = encontrar_peca_vizinha(peca)
-
-    if peca_vizinho:
-        # Verificar se o vizinho já tem um grupo
-        for _, grupo in grupos.items():
-            if peca_vizinho in grupo.pecas:
-                grupo.add_peca(peca)
-                grupo.set_pecas(get_pecas_from_grupo(peca))
-                return grupo
-
-    # Se não encontrar um grupo ou vizinho, criar um novo grupo
-    grupo = Grupo(peca)
-    grupo.set_pecas(get_pecas_from_grupo(peca))
-    return grupo
-
-
-def get_pecas_from_grupo(peca):
-    pecas_grupo = set()
-    pecas_grupo.add(peca)
-    pecas_uid_analisadas = []
-    while pecas_grupo:
-        peca_analisada = pecas_grupo.pop()
-        pecas_uid_analisadas.append(peca_analisada.uid)
-        for _, outra_peca in pecas.items():
-            if outra_peca.uid in pecas_uid_analisadas or outra_peca in pecas_grupo:
-                continue
-            if tem_lateral_vizinho(
-                    peca_analisada.posicao_atual, outra_peca.posicao_atual
-            ) or tem_lateral_diagonal(
-                peca_analisada.posicao_atual, outra_peca.posicao_atual
-            ):
-                pecas_grupo.add(outra_peca)
-
-    pecas_analisadas = []
-    for peca_uid_analisada in pecas_uid_analisadas:
-        peca_nova = pecas[peca_uid_analisada]
-        pecas_analisadas.append(peca_nova)
-
-    return pecas_analisadas
-
-
-def get_grupo_by_peca(peca):
-    """
-    Retorna o grupo que contém a peça.
-    """
-    for grupo in grupos:
-        if peca in grupo.pecas:
-            return grupo
-    return None
-
-
-# Função para encontrar o grupo pelo qual a peça fazia parte anteriormente
-def encontrar_grupo_antigo(peca) -> Grupo | None:
-    for grupo in grupos:
-        if grupo.verificar_peca(peca):
-            return grupo
-    return None
-
-
-def get_grupo_by_peca_pai(peca_pai: Peca) -> Grupo | None:
-    """
-    Retorna um grupo pelo identificador da peça pai.
-    """
-    for uid, grupo in grupos.items():
-        if grupo.peca_pai == peca_pai:
-            return grupo
-    return
