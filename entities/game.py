@@ -84,6 +84,10 @@ class Game:
             return None
 
         grupo: Grupo = Grupo(peca)
+
+        for peca_conectada in pecas_conectadas.values():
+            grupo.add_peca(peca_conectada)
+
         self.grupos[(grupo.criador.nome, grupo.peca_pai.uid)] = grupo
         return grupo
 

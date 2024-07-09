@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from entities.csv_export import CsvExport
 from entities.game import Game
 from entities.jogada import Jogada
@@ -23,76 +25,27 @@ def process_data(move: dict) -> None:
     """
     Processa os dados da jogada, atualizando a lista de movimentos.
     """
+    # variaves
+    global game
+    peca: Peca
+    jogador: Jogador
+
     required_keys = {"UID", "PosX", "PosY", "Tempo", "Jogador", "Cor"}
     if not required_keys.issubset(move.keys()):
         raise ValueError("Dados incompletos recebidos")
 
-    jogador = None
-    peca = None
-
-    for jogador in jogadores:
-        if jogador.nome == move["Jogador"]:
-            # atualizar jogador
-            jogador = jogador
-    if not jogador:
-        # definir jogador
-        jogador = Jogador(move["Jogador"])
-
-    for peca in pecas:
-        if peca.uid == int(move["UID"]):
-            # lógica para atualizar peça
-            peca = peca
-    if not peca:
-        # lógica para verificar vizinhança
-        peca = Peca(int(move["UID"]))
-        peca.set_cor(move["Cor"])
-
-    peca.set_posicao_atual(int(move["PosX"]), int(move["PosY"]))
-    peca.set_player(jogador)
-    peca.set_vizinho()
-
-    # definir jogada
-    jogada = Jogada()
-    jogada.set_peca(peca)
-    jogada.set_tempo(int(move["Tempo"]))
-
-    # definir situação
-    situacao = Situacao(jogada)
-
-    # atualizar listas
-    if jogadores[jogador.nome]:
-        jogadores[jogador.nome] = jogador
+    if not move["UID"] in game.pecas:
+        peca = game.add_peca(uid=int(move["UID"]), cor=move["Cor"])
     else:
-        jogadores.add(jogador)
+        peca = game.pecas[move["UID"]]
 
-    if pecas[peca.uid]:
-        pecas[peca.uid] = peca
-        print(
-            f"Peca atualizada: "
-            f"UID={peca.uid}, "
-            f"Cor={peca.cor}, "
-            f"Posição Antiga={peca.posicao_antiga}, "
-            f"Posição Atual={peca.posicao}, "
-            f"Player={peca.jogador}, "
-            f"LastPlayer={peca.jogador_antigo}"
-        )
+    if not move["Jogador"] in game.jogadores:
+        game.add_jogador(nome=move["Jogador"])
     else:
-        print(
-            f"Peca criada: "
-            f"UID={peca.uid}, "
-            f"Cor={peca.cor}, "
-            f"Posição Antiga={peca.posicao_antiga}, "
-            f"Posição Atual={peca.posicao}, "
-            f"Player={peca.jogador}, "
-            f"LastPlayer={peca.jogador_antigo}"
-        )
+        jogador = game.jogadores[move["Jogador"]]
 
-    print(f"Grupo: {jogada.grupo.id} - {jogada.grupo.qtd_pecas} peças")
-    print(f"Jogador: {jogador.nome}")
-    print(f"Tempo: {jogada.tempo} segundos")
-    print(f"Situacao: {situacao.casos_id}")
-    print("")
-    exportar.append((jogada, situacao.casos_id))
+    peca.set_posicao_atual(pos_x=int(move["PosX"]), pos_y=int(move["PosY"]), jogador=jogador)
+    game.add_jogada(peca=peca, tempo=timedelta(seconds=move["Tempo"]))
 
 
 def encerrar_jogo() -> None:
@@ -114,4 +67,3 @@ def encerrar_jogo() -> None:
     print("Exportando arquivo CSV...")
     print("Arquivo exportado com sucesso.")
     print("Fim do jogo.")
-

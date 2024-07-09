@@ -1,5 +1,6 @@
 from entities.peca import Peca
 
+
 def encontrar_peca_vizinha(item, pecas, dict_pecas):
     """
     Encontra peças vizinhas conectadas à peça indicada.
@@ -8,19 +9,18 @@ def encontrar_peca_vizinha(item, pecas, dict_pecas):
     :param dict_pecas: Dicionário de peças conectadas.
     """
     for _, peca_analisada in pecas.items():
-        if tem_lateral_vizinho(item.posicao, peca_analisada.posicao):
+        if verificar_vizinhos(item.posicao, peca_analisada.posicao):
             dict_pecas[peca_analisada.uid] = peca_analisada
 
 
-def verificar_vizinhos(peca: Peca, pecas: dict[int, Peca]):
+def verificar_vizinhos(pos1: tuple, pos2: tuple) -> bool:
     """
     Verifica se a peça tem vizinhos.
     """
-    for _, peca_analisada in pecas.items():
-        if tem_lateral_vizinho(peca.posicao, peca_analisada.posicao):
-            return True
-        if tem_lateral_diagonal(peca.posicao, peca_analisada.posicao):
-            return True
+    if tem_lateral_vizinho(pos1, pos2):
+        return True
+    if tem_lateral_diagonal(pos1, pos2):
+        return True
     return False
 
 
