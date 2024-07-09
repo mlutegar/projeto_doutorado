@@ -24,8 +24,9 @@ class Peca:
         """
         Atualiza a posição atual da peça.
 
-        :param pos_x: Posição x da peça.
-        :param pos_y: Posição y da peça.
+        :param pos_x: Posição x da peça. (as posições podem ser [86, 123, 163, 200, 239, 276, 316, 353, 393, 430, 469, 506, 547, 584, 622, 657, 698, 736, 775, 813,
+                   852, 890, 928, 966, 1004, 1042, 1082, 1119, 1158, 1196, 1233, 1270, 1312, 1350])
+        :param pos_y: Posição y da peça. (as posições podem ser [74, 143, 211, 284, 351, 424, 490, 561, 633, 702, 770, 841, 912])
         :param jogador: Jogador que moveu a peça.
         """
         if pos_x > 1430:

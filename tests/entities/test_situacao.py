@@ -223,98 +223,278 @@ class TestSituacao(unittest.TestCase):
         """
         6: "Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num período curto",
         """
-        pass
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca2.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador1
+        )
+
+        self.game.add_jogada(
+            peca=self.peca2, tempo=timedelta(seconds=10)
+        )
+
+        # Adiciona peça no agrupamento de outro integrante (jogador2)
+        self.peca3.set_posicao_atual(
+            pos_x=239, pos_y=74, jogador=self.jogador2
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=10)
+        )
+
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(6, situacao.casos_id)
 
     def test_definir_situacao_caso7(self):
         """
         7: "Segurou uma peça por mais de 6 segundos por exemplo",
         """
-        pass
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=7)  # segurando a peça por mais de 6 segundos
+        )
+
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(7, situacao.casos_id)
+
+    def test_definir_situacao_caso8(self):
+        """
+        8: "Colocou uma peça no tabuleiro de forma aleatória ou no próprio agrupamento e depois colocou a mesma peça
+        no agrupamento do outro",
+        """
+        # Um outro jogador fez um agrupamento
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca2.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador1
+        )
+
+        self.game.add_jogada(
+            peca=self.peca2, tempo=timedelta(seconds=10)
+        )
+
+        # Jogador 1 coloca em um lugar aleatório
+        self.peca3.set_posicao_atual(
+            pos_x=1350, pos_y=912, jogador=self.jogador2
+        )
+        self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=15)
+        )
+
+        # depois coloca a mesma peça no agrupamento do outro
+        self.peca3.set_posicao_atual(
+            pos_x=239, pos_y=74, jogador=self.jogador2
+        )
+
+        jogada = self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=20)
+        )
+
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(8, situacao.casos_id)
 
     def test_registrar_caso9(self):
-        self.jogada1.set_tempo(2)
-        situacao = Situacao(self.jogada1)
-        self.assertIn(9, situacao.casos_id)
+        """
+        9: "Realizou uma ação rápida, menos de 3 segundos",
+        """
+        pass
+
+    def test_registrar_caso10(self):
+        """
+        10: "Adicionou uma peça no agrupamento do outro, que a remove, mas continua a repetir a ação",
+        """
+        pass
 
     def test_registrar_caso11(self):
-        self.jogada1.grupo.qtd_cores = 1
-        situacao = Situacao(self.jogada1)
-        self.assertIn(11, situacao.casos_id)
+        """
+        11: "Agrupou peças de cor igual",
+        """
+        pass
+
+    def test_registrar_caso12(self):
+        """
+        12: "Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas pretas",
+        """
+        pass
 
     def test_registrar_caso13(self):
-        self.jogada1.grupo.qtd_cores = 2
-        situacao = Situacao(self.jogada1)
-        self.assertIn(13, situacao.casos_id)
+        """
+        13: "Agrupou peças de cores diferentes",
+        """
+        pass
 
     def test_registrar_caso14(self):
-        # jogador 1 mexeu na peça do jogador 2 que estava em um grupo e devolveu para o monte
-        self.peca4.set_player(self.jogador1)
-        self.peca4.set_posicao((99, 99))
-
-        self.game.add_jogada()
-        jogada_nova = self.game.jogadas[5]
-        jogada_nova.set_peca(self.peca4)
-        jogada_nova.set_tempo(5)
-
-        situacao = Situacao(jogada_nova)
-        self.assertIn(14, situacao.casos_id)
+        """
+        14: "Retirou peças do Agrupamento do outro integrante e devolveu para o monte",
+        """
+        pass
 
     def test_registrar_caso15(self):
-        # jogador 1 mexeu na peça do jogador 2 que estava em um grupo e colocou em um grupo dele
-        self.peca4.set_player(self.jogador1)
-        self.peca4.set_posicao((1, 5))
-
-        self.game.add_jogada()
-        jogada_nova = self.game.jogadas[5]
-        jogada_nova.set_peca(self.peca4)
-        jogada_nova.set_tempo(5)
-
-        situacao = Situacao(jogada_nova)
-        self.assertIn(15, situacao.casos_id)
+        """
+        15: "Retirou peças do Agrupamento do outro integrante e colocou no seu próprio agrupamento",
+        """
+        pass
 
     def test_registrar_caso16(self):
-        # jogador 1 mexeu na peça do jogador 2 que estava em um grupo e colocou em um lugar aleatório
-        self.peca4.set_player(self.jogador1)
-        self.peca4.set_posicao((11, 9))
+        """
+        16: "Retirou peças do Agrupamento do outro integrante e colocou em um lugar aleatório",
+        """
+        pass
 
-        self.game.add_jogada()
-        jogada_nova = self.game.jogadas[5]
-        jogada_nova.set_peca(self.peca4)
-        jogada_nova.set_tempo(5)
-
-        situacao = Situacao(jogada_nova)
-        self.assertIn(16, situacao.casos_id)
+    def test_registrar_caso17(self):
+        """
+        17: "Trocou a posição da própria peça",
+        """
+        pass
 
     def test_registrar_caso18(self):
-        # jogador 1 mexeu na peça do jogador 1 que estava em um grupo e devolveu para o monte
-        self.peca.set_posicao((99, 99))
-
-        self.game.add_jogada()
-        jogada_nova = self.game.jogadas[5]
-        jogada_nova.set_peca(self.peca)
-        jogada_nova.set_tempo(5)
-
-        situacao = Situacao(jogada_nova)
-        self.assertIn(18, situacao.casos_id)
+        """
+        18: "Retirou peças do próprio Agrupamento e devolveu para o monte",
+        """
+        pass
 
     def test_registrar_caso19(self):
-        # jogador 1 mexeu na peça do jogador 1 que estava em um grupo e colocou em um lugar aleatório
-        self.peca.set_posicao((7, 9))
+        """
+        19: "Retirou peças do próprio agrupamento e colocou em algum lugar aleatório",
+        """
+        pass
 
-        self.game.add_jogada()
-        jogada_nova = self.game.jogadas[5]
-        jogada_nova.set_peca(self.peca)
-        jogada_nova.set_tempo(5)
+    def test_registrar_caso20(self):
+        """
+        20: "Retirou peças dos outros integrantes que adicionaram no agrupamento feito por ele",
+        """
+        pass
 
-        situacao = Situacao(jogada_nova)
-        self.assertIn(19, situacao.casos_id)
+    def test_registrar_caso21(self):
+        """
+        21: "Criou mais de um agrupamento",
+        """
+        pass
 
-    def test_to_dict(self):
-        situacao = Situacao(self.jogada1)
-        situacao_dict = situacao.to_dict()
-        self.assertEqual(situacao_dict['id'], self.jogada1.id)
-        self.assertEqual(situacao_dict['casos_id'], situacao.casos_id)
-        self.assertEqual(situacao_dict['casos_descricao'], situacao.casos_descricao)
+    def test_registrar_caso22(self):
+        """
+        22: "Conecta dois ou mais agrupamentos com outros participantes",
+        """
+        pass
+
+    def test_registrar_caso23(self):
+        """
+        23: "Conecta dois ou mais agrupamentos consigo mesmo",
+        """
+        pass
+
+    def test_registrar_caso24(self):
+        """
+        24: "Forma um agrupamento de 2 peças com outro integrante",
+        """
+        pass
+
+    def test_registrar_caso25(self):
+        """
+        25: "Forma um agrupamento de 3 a 6 peças com outro integrante",
+        """
+        pass
+
+    def test_registrar_caso26(self):
+        """
+        26: "Forma um agrupamento de mais de 6 peças com outro integrante",
+        """
+        pass
+
+    def test_registrar_caso27(self):
+        """
+        27: "Desenvolveu um agrupamento e outro integrante resolveu adicionar peças",
+        """
+        pass
+
+    def test_registrar_caso28(self):
+        """
+        28: "Desistiu Sozinho",
+        """
+        pass
+
+    def test_registrar_caso29(self):
+        """
+        29: "Desistiu Sozinho com pouco tempo de jogo",
+        """
+        pass
+
+    def test_registrar_caso30(self):
+        """
+        30: "Desistiu Sozinho e pouco tempo depois outro integrante desistiu",
+        """
+        pass
+
+    def test_registrar_caso31(self):
+        """
+        31: "Desistiu depois de outro integrante Desistir",
+        """
+        pass
+
+    def test_registrar_caso32(self):
+        """
+        32: "Finalizou sozinho",
+        """
+        pass
+
+    def test_registrar_caso33(self):
+        """
+        33: "Finalizou sozinho com pouco tempo de jogo",
+        """
+        pass
+
+    def test_registrar_caso34(self):
+        """
+        34: "Finalizou depois de outro integrante Finalizar",
+        """
+        pass
+
+    def test_registrar_caso35(self):
+        """
+        35: "Finalizou Sozinho e pouco tempo depois outro integrante finalizou também",
+        """
+        pass
+
+    def test_registrar_caso36(self):
+        """
+        36: "Imitou a forma do mesmo agrupamento do outro (fez depois que outro integrante realizou a ação)",
+        """
+        pass
+
+    def test_registrar_caso37(self):
+        """
+        37: "É imitado por alguém",
+        """
+        pass
+
+    def test_registrar_caso38(self):
+        """
+        38: "Não realizou ações"
+        """
+        pass
 
 
 if __name__ == '__main__':

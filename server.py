@@ -15,6 +15,7 @@ def iniciar_jogo():
     """
     if request.is_json:
         data = request.get_json()
+        data = data['data']
         nome = data.get('nome')
         host = data.get('host')
 

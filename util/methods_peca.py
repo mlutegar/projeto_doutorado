@@ -73,18 +73,18 @@ def verificar_peca_em_grupo(grupos, pecas_conectadas):
     :param grupos: Dicionário de grupos.
     :return: Grupo encontrado ou None.
     """
-    qtd_grupos = 0
+    grupos_verificados = set()
     grupo = None
 
     for _, peca_analisada in pecas_conectadas.items():
         for grupo_analisado in grupos.values():
-            if peca_analisada in grupo_analisado.pecas:
+            if peca_analisada.uid in grupo_analisado.pecas:
                 grupo = grupo_analisado
-                qtd_grupos += 1
+                grupos_verificados.add((grupo.criador.nome, grupo.peca_pai.uid))
 
-    if qtd_grupos > 1:
+    if len(grupos_verificados) > 1:
         return -1
-    elif qtd_grupos == 1:
+    elif len(grupos_verificados) == 1:
         return grupo
     else:
         return 0

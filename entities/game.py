@@ -76,6 +76,10 @@ class Game:
         grupo_existente = verificar_peca_em_grupo(pecas_conectadas=pecas_conectadas, grupos=self.grupos)
 
         if isinstance(grupo_existente, Grupo):
+            if grupo_existente.criador != peca.jogador:
+                peca.jogador.adicionar_infracao()
+
+            grupo_existente.add_peca(peca)
             self.grupos[(grupo_existente.criador.nome, grupo_existente.peca_pai.uid)] = grupo_existente
             return grupo_existente
 

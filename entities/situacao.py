@@ -129,7 +129,7 @@ class Situacao:
         if 5 in self.jogada.peca.jogador.tabulacao:
             return
 
-        if self.jogada.peca.jogador.qtd_infracoes > 3:
+        if self.jogada.peca.jogador.qtd_infracoes >= 3:
             casos.add(5)  # Adicionou uma peça no agrupamento de outro integrante, fez várias vezes
 
     def registrar_caso6(self, casos):
@@ -142,7 +142,7 @@ class Situacao:
         if self.jogada.grupo.criador == self.jogada.peca.jogador:
             return
 
-        if 6 not in self.jogada.peca.jogador.tabulacao:
+        if 6 in self.jogada.peca.jogador.tabulacao:
             return
 
         if self.jogada.peca.jogador.qtd_infracoes <= 3:
@@ -169,14 +169,9 @@ class Situacao:
         if jogada_anterior_do_jogador is None:
             return
 
-        if jogada_anterior_do_jogador.grupo is None:
-            return
-
-        if not (jogada_anterior_do_jogador.grupo.criador == self.jogada.peca.jogador):
-            return
-
-        if self.jogada.grupo.criador != self.jogada.peca.jogador:
-            casos.add(8)
+        if jogada_anterior_do_jogador.grupo is None or (jogada_anterior_do_jogador.grupo.criador == self.jogada.peca.jogador):
+            if self.jogada.grupo.criador != self.jogada.peca.jogador:
+                casos.add(8)
 
     def registrar_caso9(self, casos):
         """
