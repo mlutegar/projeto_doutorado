@@ -2,11 +2,6 @@ from datetime import timedelta
 
 from entities.csv_export import CsvExport
 from entities.game import Game
-from entities.jogada import Jogada
-from entities.jogador import Jogador
-from entities.peca import Peca
-from entities.situacao import Situacao
-
 game: Game | None = None
 csv_instance = None
 
@@ -26,9 +21,6 @@ def process_data(move: dict) -> None:
     Processa os dados da jogada, atualizando a lista de movimentos.
     """
     # variaves
-    global game
-    peca: Peca
-    jogador: Jogador
 
     required_keys = {"UID", "PosX", "PosY", "Tempo", "Jogador", "Cor"}
     if not required_keys.issubset(move.keys()):
@@ -40,7 +32,7 @@ def process_data(move: dict) -> None:
         peca = game.pecas[move["UID"]]
 
     if not move["Jogador"] in game.jogadores:
-        game.add_jogador(nome=move["Jogador"])
+        jogador = game.add_jogador(nome=move["Jogador"])
     else:
         jogador = game.jogadores[move["Jogador"]]
 

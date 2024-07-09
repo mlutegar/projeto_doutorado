@@ -8,17 +8,22 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/iniciar_jogo', method=['POST'])
+@app.route('/iniciar_jogo', methods=['POST'])
 def iniciar_jogo():
     """
     Inicia o jogo.
     """
     if request.is_json:
         data = request.get_json()
-        nome = data['nome']
-        host = data['host']
+        nome = data.get('nome')
+        host = data.get('host')
+
+        if not nome or not host:
+            return jsonify({"status": "error", "message": "Missing 'nome' or 'host'"}), 400
 
         try:
+            # Simulação de processamento
+            print(f"Iniciando jogo com nome: {nome}, host: {host}")
             process.iniciar_jogo(nome, host)
             return jsonify({"status": "success", "message": "Game started"}), 200
         except ValueError as e:
