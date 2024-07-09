@@ -169,6 +169,9 @@ class Situacao:
         if jogada_anterior_do_jogador is None:
             return
 
+        if self.jogada.grupo is None:
+            return
+
         if jogada_anterior_do_jogador.grupo is None or (jogada_anterior_do_jogador.grupo.criador == self.jogada.peca.jogador):
             if self.jogada.grupo.criador != self.jogada.peca.jogador:
                 casos.add(8)
