@@ -1,4 +1,5 @@
 from entities.game import Game
+from entities.jogada import Jogada
 from entities.situacao import Situacao
 from typing import List, Tuple
 import csv
@@ -12,7 +13,7 @@ class CsvExport:
         """
         self.path: Path = Path(path)
         self.game: Game = game
-        self.list_cvs: List[Tuple[object, List[int]]] = []
+        self.list_cvs: List[Tuple[Jogada, List[int]]] = []
 
     def analisar_game(self) -> None:
         """
@@ -42,8 +43,8 @@ class CsvExport:
         try:
             with self.path.open('w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(['Jogada', 'Casos ID'])
+                writer.writerow(['ID', 'Nome do player',  'Peça UID',  'Peça Cor', 'Casos ID'])
                 for jogada, casos_id in self.list_cvs:
-                    writer.writerow([jogada, casos_id])
+                    writer.writerow([jogada.id, jogada.peca.jogador.nome, jogada.peca.uid, jogada.peca.cor, casos_id])
         except IOError as e:
             print(f"Erro ao escrever no arquivo {self.path}: {e}")
