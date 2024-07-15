@@ -336,23 +336,16 @@ class Situacao:
 
     def registrar_caso18(self, casos):
         """
-            18: "Retirou peças do próprio Agrupamento e devolveu para o monte",
+        18: "Retirou peças do próprio Agrupamento e devolveu para o monte",
         """
-        jogada_antiga_da_peca = pegar_jogada_da_peca(
-            game=self.game,
-            peca=self.jogada.peca,
-            indice=1
-        )
+        # Verifica o histórico de grupos da peça
+        grupo_anterior = None
+        for grupo in self.game.historico_grupos.get(self.jogada.peca.uid, []):
+            if grupo.criador == self.jogada.peca.jogador:
+                grupo_anterior = grupo
+                break
 
-        if jogada_antiga_da_peca is None:
-            return
-
-        # Verifica se a jogada antiga tinha um grupo
-        if jogada_antiga_da_peca.grupo is None or jogada_antiga_da_peca.grupo.criador is None:
-            return
-
-        # Verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada antiga
-        if self.jogada.peca.jogador != jogada_antiga_da_peca.grupo.criador:
+        if grupo_anterior is None or grupo_anterior.criador is None:
             return
 
         # Verifica se a peça foi colocada no monte na jogada atual
@@ -363,21 +356,14 @@ class Situacao:
         """
         19: "Retirou peças do próprio agrupamento e colocou em algum lugar aleatório",
         """
-        jogada_antiga_da_peca = pegar_jogada_da_peca(
-            game=self.game,
-            peca=self.jogada.peca,
-            indice=1
-        )
+        # Verifica o histórico de grupos da peça
+        grupo_anterior = None
+        for grupo in self.game.historico_grupos.get(self.jogada.peca.uid, []):
+            if grupo.criador == self.jogada.peca.jogador:
+                grupo_anterior = grupo
+                break
 
-        if jogada_antiga_da_peca is None:
-            return
-
-        # Verifica se a jogada antiga tinha um grupo
-        if jogada_antiga_da_peca.grupo is None or jogada_antiga_da_peca.grupo.criador is None:
-            return
-
-        # Verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada antiga
-        if self.jogada.peca.jogador != jogada_antiga_da_peca.grupo.criador:
+        if grupo_anterior is None or grupo_anterior.criador is None:
             return
 
         # Verifica se a peça foi colocada em um lugar aleatório na jogada atual
@@ -388,26 +374,29 @@ class Situacao:
         """
         20: "Retirou peças dos outros integrantes que adicionaram no agrupamento feito por ele",
         """
-        jogada_antiga_da_peca = pegar_jogada_da_peca(
+        # Última jogada da peça
+        jogada_anterior_da_peca = pegar_jogada_da_peca(
             game=self.game,
             peca=self.jogada.peca,
             indice=1
         )
 
-        if jogada_antiga_da_peca is None:
+        # precisa ter uma jogada anterior, que seria a jogada que adicionaram a peça no meu grupo
+        if jogada_anterior_da_peca is None:
             return
 
-        # Verifica se a jogada antiga tinha um grupo
-        if jogada_antiga_da_peca.grupo is None or jogada_antiga_da_peca.grupo.criador is None:
+        # a pessoa que fez a jogada anterior precisa ser diferente de mim
+        if jogada_anterior_da_peca.peca.jogador == self.jogada.peca.jogador:
             return
 
-        # Verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada antiga
-        if self.jogada.peca.jogador != jogada_antiga_da_peca.grupo.criador:
+        # a pessoa que fez a jogada anterior precisa ter adicionado a peça no meu grupo
+        if jogada_anterior_da_peca.grupo is None or jogada_anterior_da_peca.grupo.criador != self.jogada.peca.jogador:
             return
 
-        # Verifica se o jogador da jogada atual é o jogador da peça da jogada anterior
-        if self.jogada.peca.jogador != jogada_antiga_da_peca.peca.jogador:
+        # eu preciso ter colocado a peça em um grupo diferente do grupo que estava antes
+        if self.jogada.grupo is None or self.jogada.grupo.id != jogada_anterior_da_peca.grupo.id:
             casos.add(20)
+
 
     def registrar_caso21(self, casos):
         """

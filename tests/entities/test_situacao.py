@@ -38,6 +38,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(1, situacao.casos_id)
 
     def test_definir_situacao_caso2(self):
@@ -62,6 +63,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(2, situacao.casos_id)
 
     def test_definir_situacao_caso3(self):
@@ -92,6 +94,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(3, situacao.casos_id)
 
     def test_definir_situacao_caso4(self):
@@ -152,6 +155,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(4, situacao.casos_id)
 
     def test_definir_situacao_caso5(self):
@@ -217,6 +221,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(5, situacao.casos_id)
 
     def test_definir_situacao_caso6(self):
@@ -251,6 +256,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(6, situacao.casos_id)
 
     def test_definir_situacao_caso7(self):
@@ -269,6 +275,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(7, situacao.casos_id)
 
     def test_definir_situacao_caso8(self):
@@ -314,6 +321,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(8, situacao.casos_id)
 
     def test_registrar_caso9(self):
@@ -333,6 +341,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(9, situacao.casos_id)
 
 # PAREI AQUI
@@ -384,6 +393,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(10, situacao.casos_id)
 
     def test_registrar_caso11(self):
@@ -410,6 +420,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(11, situacao.casos_id)
 
     def test_registrar_caso12(self):
@@ -450,6 +461,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(12, situacao.casos_id)
 
     def test_registrar_caso13(self):
@@ -483,6 +495,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(13, situacao.casos_id)
 
     def test_registrar_caso14(self):
@@ -517,6 +530,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(14, situacao.casos_id)
 
     def test_registrar_caso15(self):
@@ -567,6 +581,7 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(15, situacao.casos_id)
 
     def test_registrar_caso16(self):
@@ -617,31 +632,152 @@ class TestSituacao(unittest.TestCase):
             game=self.game
         )
 
+        print(situacao.casos_id)
         self.assertIn(16, situacao.casos_id)
 
     def test_registrar_caso17(self):
         """
         17: "Trocou a posição da própria peça",
         """
-        pass
+        # Jogador 1 coloca a peça em uma posição inicial
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        # Jogador 1 troca a posição da mesma peça
+        self.peca1.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador1
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=10)
+        )
+
+        # Verifica se a situação 17 foi registrada corretamente
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        print(situacao.casos_id)
+        self.assertIn(17, situacao.casos_id)
 
     def test_registrar_caso18(self):
         """
         18: "Retirou peças do próprio Agrupamento e devolveu para o monte",
         """
-        pass
+        # Jogador 1 agrupa duas peças
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca2.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca2, tempo=timedelta(seconds=10)
+        )
+
+        # Jogador 1 retira uma peça do próprio agrupamento e a devolve para o monte
+        self.peca1.set_posicao_atual(
+            pos_x=1500, pos_y=150, jogador=self.jogador1  # Colocando a peça no monte
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=15)
+        )
+
+        # Verifica se a situação 18 foi registrada corretamente
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        print(situacao.casos_id)
+        self.assertIn(18, situacao.casos_id)
 
     def test_registrar_caso19(self):
         """
         19: "Retirou peças do próprio agrupamento e colocou em algum lugar aleatório",
         """
-        pass
+        # Jogador 1 agrupa duas peças
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca2.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca2, tempo=timedelta(seconds=10)
+        )
+
+        # Jogador 1 retira uma peça do próprio agrupamento e a coloca em um lugar aleatório
+        self.peca1.set_posicao_atual(
+            pos_x=400, pos_y=300, jogador=self.jogador1  # Colocando a peça em um lugar aleatório
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=15)
+        )
+
+        # Verifica se a situação 19 foi registrada corretamente
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        print(situacao.casos_id)
+        self.assertIn(19, situacao.casos_id)
 
     def test_registrar_caso20(self):
         """
         20: "Retirou peças dos outros integrantes que adicionaram no agrupamento feito por ele",
         """
-        pass
+        # Jogador 1 cria um agrupamento com duas peças
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca2.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca2, tempo=timedelta(seconds=10)
+        )
+
+        # Jogador 2 adiciona uma peça no agrupamento do Jogador 1
+        self.peca3.set_posicao_atual(
+            pos_x=239, pos_y=74, jogador=self.jogador2
+        )
+        self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=15)
+        )
+
+        # Jogador 1 retira a peça adicionada pelo Jogador 2
+        self.peca3.set_posicao_atual(
+            pos_x=1350, pos_y=912, jogador=self.jogador1  # Colocando a peça no monte
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=20)
+        )
+
+        # Verifica se a situação 20 foi registrada corretamente
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(20, situacao.casos_id)
 
     def test_registrar_caso21(self):
         """

@@ -50,9 +50,36 @@ class Game:
         :return: Instância de Jogada criada.
         """
         grupo: Grupo = self.add_grupo(peca)
-        jogada: Jogada = Jogada(uid=len(self.jogadas) + 1, peca=peca, grupo=grupo, tempo=tempo)
+
+        peca_estatica = Peca(uid=peca.uid, cor=peca.cor)
+        peca_estatica.posicao = peca.posicao
+
+        peca_estatica.linha = peca.linha
+        peca_estatica.coluna = peca.coluna
+
+        peca_estatica.local = peca.local
+        peca_estatica.jogador = peca.jogador
+        peca_estatica.eh_ponte = peca.eh_ponte
+
+        if grupo:
+            grupo_estatico = Grupo(peca)
+            grupo_estatico.criador = grupo.criador
+            grupo_estatico.peca_pai = grupo.peca_pai
+            grupo_estatico.pecas = grupo.pecas
+            grupo_estatico.members = grupo.members
+
+            grupo_estatico.qtd_cores = grupo.qtd_cores
+            grupo_estatico.qtd_jogadores = grupo.qtd_jogadores
+            grupo_estatico.qtd_pecas = grupo.qtd_pecas
+
+            grupo_estatico.horario_criado = grupo.horario_criado
+            grupo_estatico.id = grupo.id
+        else:
+            grupo_estatico = None
+
+        jogada: Jogada = Jogada(uid=len(self.jogadas) + 1, peca=peca_estatica, grupo=grupo_estatico, tempo=tempo)
         self.jogadas[jogada.id] = jogada
-        self.atualizar_historico_grupos(grupo)
+        self.atualizar_historico_grupos(grupo_estatico)
         return jogada
 
     def atualizar_historico_grupos(self, grupo: Grupo) -> None:

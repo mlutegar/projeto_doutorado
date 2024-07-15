@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Dict
 from entities.jogador import Jogador
 from entities.peca import Peca
@@ -16,6 +17,9 @@ class Grupo:
         self.qtd_cores: int = 1
         self.qtd_jogadores: int = 1
         self.qtd_pecas: int = 1
+
+        self.horario_criado: datetime = datetime.now()
+        self.id = hash((self.criador, self.peca_pai))
 
     def add_peca(self, peca: Peca) -> None:
         """
