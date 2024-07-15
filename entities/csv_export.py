@@ -43,8 +43,16 @@ class CsvExport:
         try:
             with self.path.open('w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(['ID', 'Nome do player',  'Peça UID',  'Peça Cor', 'Casos ID'])
+                writer.writerow(['ID', 'Nome do player', 'Tempo', 'Grupo', 'Peça UID',  'Peça Cor', 'Casos ID'])
                 for jogada, casos_id in self.list_cvs:
-                    writer.writerow([jogada.id, jogada.peca.jogador.nome, jogada.peca.uid, jogada.peca.cor, casos_id])
+                    writer.writerow(
+                        [jogada.id,
+                         jogada.peca.jogador.nome,
+                         jogada.tempo,
+                         "grupo: " + str(jogada.grupo.peca_pai.uid) + jogada.grupo.criador.nome if jogada.grupo else "sem grupo",
+                         jogada.peca.uid,
+                         jogada.peca.cor,
+                         casos_id]
+                    )
         except IOError as e:
             print(f"Erro ao escrever no arquivo {self.path}: {e}")
