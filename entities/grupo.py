@@ -25,18 +25,31 @@ class Grupo:
         self.pecas[peca.uid] = peca
         self.atualizar_status()
 
-    def remover_peca(self, peca: Peca) -> None:
+    def remover_peca(self, peca: Peca) -> None | tuple[str, int]:
         """
         Remove uma peça do grupo.
         :param peca: Peca a ser removida do grupo.
+        :return: Retorna True se o grupo foi removido, False caso contrário.
         """
         if peca.uid in self.pecas:
+            # Remove a peça do dicionário de peças do grupo
             self.pecas.pop(peca.uid)
+
+            # Atualiza o status do grupo após a remoção
             self.atualizar_status()
 
+            # Verifica se a peça removida era a peça principal (peca_pai)
             if peca == self.peca_pai and self.pecas:
+                # Define uma nova peça principal se ainda houver peças no grupo
                 self.peca_pai = next(iter(self.pecas.values()))
                 self.criador = self.peca_pai.jogador
+
+            # Verifica se o tamanho do grupo é igual a 1 após a remoção
+            if len(self.pecas) == 1:
+                chave = (self.criador.nome, self.peca_pai.uid)
+                return chave  # Retorna a chave do grupo removido
+
+        return None  # Indica que o grupo não foi removido
 
     def atualizar_status(self) -> None:
         """

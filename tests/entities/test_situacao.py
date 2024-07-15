@@ -357,7 +357,7 @@ class TestSituacao(unittest.TestCase):
 
         # Jogador 1 adiciona peça no agrupamento do Jogador 2
         self.peca3.set_posicao_atual(
-            pos_x=239, pos_y=74, jogador=self.jogador2
+            pos_x=239, pos_y=74, jogador=self.jogador1
         )
         self.game.add_jogada(
             peca=self.peca3, tempo=timedelta(seconds=15)
@@ -365,7 +365,7 @@ class TestSituacao(unittest.TestCase):
 
         # Jogador 2 remove a peça do agrupamento
         self.peca3.set_posicao_atual(
-            pos_x=300, pos_y=74, jogador=self.jogador1
+            pos_x=506, pos_y=284, jogador=self.jogador2
         )
         self.game.add_jogada(
             peca=self.peca3, tempo=timedelta(seconds=20)
@@ -373,7 +373,7 @@ class TestSituacao(unittest.TestCase):
 
         # Jogador 1 adiciona novamente a peça no agrupamento do Jogador 2
         self.peca3.set_posicao_atual(
-            pos_x=239, pos_y=74, jogador=self.jogador2
+            pos_x=239, pos_y=74, jogador=self.jogador1
         )
         jogada = self.game.add_jogada(
             peca=self.peca3, tempo=timedelta(seconds=25)
@@ -390,37 +390,234 @@ class TestSituacao(unittest.TestCase):
         """
         11: "Agrupou peças de cor igual",
         """
-        pass
+        # Jogador 1 agrupa duas peças vermelhas
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca2.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador1
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca2, tempo=timedelta(seconds=10)
+        )
+
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(11, situacao.casos_id)
 
     def test_registrar_caso12(self):
         """
         12: "Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas pretas",
         """
-        pass
+        # Jogador 1 agrupa duas peças verdes e duas peças vermelhas
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca2.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca2, tempo=timedelta(seconds=10)
+        )
+
+        self.peca3.set_posicao_atual(
+            pos_x=239, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=15)
+        )
+
+        self.peca4.set_posicao_atual(
+            pos_x=316, pos_y=74, jogador=self.jogador1
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca4, tempo=timedelta(seconds=20)
+        )
+
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(12, situacao.casos_id)
 
     def test_registrar_caso13(self):
         """
         13: "Agrupou peças de cores diferentes",
         """
-        pass
+        # Jogador 1 agrupa uma peça vermelha, uma verde e uma azul
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca3.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=10)
+        )
+
+        self.peca5.set_posicao_atual(
+            pos_x=239, pos_y=74, jogador=self.jogador1
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca5, tempo=timedelta(seconds=15)
+        )
+
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(13, situacao.casos_id)
 
     def test_registrar_caso14(self):
         """
         14: "Retirou peças do Agrupamento do outro integrante e devolveu para o monte",
         """
-        pass
+        # Jogador 2 agrupa duas peças
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador2
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca2.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador2
+        )
+        self.game.add_jogada(
+            peca=self.peca2, tempo=timedelta(seconds=10)
+        )
+
+        # Jogador 1 retira a peça do agrupamento do Jogador 2 e a devolve para o monte
+        self.peca1.set_posicao_atual(
+            pos_x=1500, pos_y=150, jogador=self.jogador1  # Colocando a peça no monte
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=15)
+        )
+
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(14, situacao.casos_id)
 
     def test_registrar_caso15(self):
         """
         15: "Retirou peças do Agrupamento do outro integrante e colocou no seu próprio agrupamento",
         """
-        pass
+        # Jogador 2 agrupa duas peças
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador2
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca2.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador2
+        )
+        self.game.add_jogada(
+            peca=self.peca2, tempo=timedelta(seconds=10)
+        )
+
+        # Jogador 1 agrupa duas peças
+        self.peca3.set_posicao_atual(
+            pos_x=200, pos_y=284, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=15)
+        )
+
+        self.peca4.set_posicao_atual(
+            pos_x=239, pos_y=284, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca4, tempo=timedelta(seconds=20)
+        )
+
+        # Jogador 1 retira a peça do agrupamento do Jogador 2 e a coloca no seu próprio agrupamento
+        self.peca1.set_posicao_atual(
+            pos_x=276, pos_y=284, jogador=self.jogador1
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=25)
+        )
+
+        # Verifica se a situação 15 foi registrada corretamente
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(15, situacao.casos_id)
 
     def test_registrar_caso16(self):
         """
         16: "Retirou peças do Agrupamento do outro integrante e colocou em um lugar aleatório",
         """
-        pass
+        # Jogador 2 agrupa duas peças
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador2
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca2.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador2
+        )
+        self.game.add_jogada(
+            peca=self.peca2, tempo=timedelta(seconds=10)
+        )
+
+        # Jogador 1 agrupa duas peças
+        self.peca3.set_posicao_atual(
+            pos_x=200, pos_y=150, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=15)
+        )
+
+        self.peca4.set_posicao_atual(
+            pos_x=239, pos_y=150, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca4, tempo=timedelta(seconds=20)
+        )
+
+        # Jogador 1 retira a peça do agrupamento do Jogador 2 e a coloca em um lugar aleatório
+        self.peca1.set_posicao_atual(
+            pos_x=1270, pos_y=424, jogador=self.jogador1  # Colocando a peça em um lugar aleatório
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=25)
+        )
+
+        # Verifica se a situação 16 foi registrada corretamente
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(16, situacao.casos_id)
 
     def test_registrar_caso17(self):
         """

@@ -63,14 +63,19 @@ class Situacao:
         """
         casos: set[int] = set()
 
-        self.registrar_caso1a4(casos)
+        self.registrar_caso1(casos)
+        self.registrar_caso2(casos)
+        self.registrar_caso3(casos)
+        self.registrar_caso4(casos)
         self.registrar_caso5(casos)
         self.registrar_caso6(casos)
         self.registrar_caso7(casos)
         self.registrar_caso8(casos)
         self.registrar_caso9(casos)
         self.registrar_caso10(casos)
-        self.registrar_caso11a13(casos)
+        self.registrar_caso11(casos)
+        self.registrar_caso12(casos)
+        self.registrar_caso13(casos)
         self.registrar_caso14(casos)
         self.registrar_caso15(casos)
         self.registrar_caso16(casos)
@@ -100,21 +105,33 @@ class Situacao:
         self.casos_descricao = [self.situacoes[caso] for caso in casos]
         return casos
 
-    def registrar_caso1a4(self, casos):
+    def registrar_caso1(self, casos):
         """
         1: "Pegou a peça e largou em algum lugar Aleatório",
-        2: "Fez, sozinho, um agrupamento com 2 peças",
-        3: "Fez, sozinho, um agrupamento com 3 a 6 peças",
-        4: "Fez, sozinho, um agrupamento com mais de 6 peças",
         """
         if self.jogada.grupo is None and self.jogada.peca.local == "tabuleiro":
-            casos.add(1)  # Pegou a peça e largou em algum lugar Aleatório
-        elif self.jogada.grupo.qtd_pecas == 2:
-            casos.add(2)  # Fez, sozinho, um agrupamento com 2 peças
-        elif 3 <= self.jogada.grupo.qtd_pecas <= 6:
-            casos.add(3)  # Fez, sozinho, um agrupamento com 3 a 6 peças
-        elif self.jogada.grupo.qtd_pecas > 6:
-            casos.add(4)  # Fez, sozinho, um agrupamento com mais de 6 peças
+            casos.add(1)
+
+    def registrar_caso2(self, casos):
+        """
+        2: "Fez, sozinho, um agrupamento com 2 peças",
+        """
+        if self.jogada.grupo is not None and self.jogada.grupo.qtd_pecas == 2:
+            casos.add(2)
+
+    def registrar_caso3(self, casos):
+        """
+        3: "Fez, sozinho, um agrupamento com 3 a 6 peças",
+        """
+        if self.jogada.grupo is not None and 3 <= self.jogada.grupo.qtd_pecas <= 6:
+            casos.add(3)
+
+    def registrar_caso4(self, casos):
+        """
+        4: "Fez, sozinho, um agrupamento com mais de 6 peças",
+        """
+        if self.jogada.grupo is not None and self.jogada.grupo.qtd_pecas > 6:
+            casos.add(4)
 
     def registrar_caso5(self, casos):
         """
@@ -187,71 +204,80 @@ class Situacao:
         """
         10: "Adicionou uma peça no agrupamento do outro, que a remove, mas continua a repetir a ação",
         """
+        # Pega as jogadas mais recentes da peça
         jogada_anterior_da_peca = pegar_jogada_da_peca(
             game=self.game,
             peca=self.jogada.peca,
-            indice=-1
+            indice=1
         )
         jogada_antes_da_anterior_da_peca = pegar_jogada_da_peca(
             game=self.game,
             peca=self.jogada.peca,
-            indice=-2
+            indice=2
         )
 
-        if jogada_antes_da_anterior_da_peca is None:
+        if jogada_anterior_da_peca is None or jogada_antes_da_anterior_da_peca is None:
             return
 
-        if jogada_anterior_da_peca is None:
+        # Verifica se a jogada antes da anterior foi em um grupo de outro jogador
+        if jogada_antes_da_anterior_da_peca.grupo is None or jogada_antes_da_anterior_da_peca.grupo.criador == jogada_antes_da_anterior_da_peca.peca.jogador:
             return
 
-        if jogada_antes_da_anterior_da_peca.grupo.criador == jogada_antes_da_anterior_da_peca.peca.jogador:
+        # Verifica se a jogada anterior foi em um grupo diferente do grupo da jogada antes da anterior
+        if jogada_anterior_da_peca.grupo is not None and jogada_anterior_da_peca.grupo.criador == jogada_antes_da_anterior_da_peca.grupo.criador:
             return
 
-        if jogada_anterior_da_peca.grupo.criador == jogada_antes_da_anterior_da_peca.grupo.criador:
-            return
-
-        if (self.jogada.peca.jogador != self.jogada.grupo.criador and
+        # Verifica se a jogada atual foi feita no grupo de outro jogador e é a repetição da ação
+        if (self.jogada.grupo is not None and
+                self.jogada.peca.jogador != self.jogada.grupo.criador and
                 self.jogada.grupo.criador == jogada_antes_da_anterior_da_peca.grupo.criador):
             casos.add(10)
 
-    def registrar_caso11a13(self, casos):
+    def registrar_caso11(self, casos):
         """
         11: "Agrupou peças de cor igual",
-        12: "Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas pretas",
-        13: "Agrupou peças de cores diferentes",
         """
         if self.jogada.grupo is None:
-            return # Não agrupou peças
+            return  # Não agrupou peças
 
         if self.jogada.grupo.qtd_cores == 1:
             casos.add(11)  # Agrupou peças de cor igual
-        elif self.jogada.grupo.qtd_cores == 1:
-            casos.add(12)  # Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas
-        elif self.jogada.grupo.qtd_cores > 1:
+
+    def registrar_caso12(self, casos):
+        """
+        12: "Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas pretas",
+        """
+        if self.jogada.grupo is None:
+            return  # Não agrupou peças
+
+        if self.jogada.grupo.qtd_cores == 2:
+            casos.add(12)  # Criou um agrupamento contendo peças iguais e diferentes
+
+    def registrar_caso13(self, casos):
+        """
+        13: "Agrupou peças de cores diferentes",
+        """
+        if self.jogada.grupo is None:
+            return  # Não agrupou peças
+
+        if self.jogada.grupo.qtd_cores > 2:
             casos.add(13)  # Agrupou peças de cores diferentes
 
     def registrar_caso14(self, casos):
         """
         14: "Retirou peças do Agrupamento do outro integrante e devolveu para o monte",
         """
-        jogada_antiga = pegar_jogada_da_peca(
-            game=self.game,
-            peca=self.jogada.peca,
-            indice=-1
-        )
+        # Verifica o histórico de grupos da peça
+        grupo_anterior = None
+        for grupo in self.game.historico_grupos.get(self.jogada.peca.uid, []):
+            if grupo.criador and grupo.criador != self.jogada.peca.jogador:
+                grupo_anterior = grupo
+                break
 
-        if jogada_antiga is None:
+        if grupo_anterior is None or grupo_anterior.criador is None:
             return
 
-        # verifica se a peça estava em um grupo na jogada anterior
-        if jogada_antiga.grupo.criador is None:
-            return
-
-        # verifica se o jogador da jogada atual é diferente do criador do grupo da jogada anterior
-        if self.jogada.peca.jogador == jogada_antiga.grupo.criador:
-            return
-
-        # verifica se a peça foi colocada no monte
+        # Verifica se a peça foi colocada no monte na jogada atual
         if self.jogada.peca.local == "monte":
             casos.add(14)
 
@@ -259,49 +285,35 @@ class Situacao:
         """
         15: "Retirou peças do Agrupamento do outro integrante e colocou no seu próprio agrupamento",
         """
-        jogada_antiga = pegar_jogada_da_peca(
-            game=self.game,
-            peca=self.jogada.peca,
-            indice=-1
-        )
+        # Verifica o histórico de grupos da peça
+        grupo_anterior = None
+        for grupo in self.game.historico_grupos.get(self.jogada.peca.uid, []):
+            if grupo.criador and grupo.criador != self.jogada.peca.jogador:
+                grupo_anterior = grupo
+                break
 
-        if jogada_antiga is None:
+        if grupo_anterior is None or grupo_anterior.criador is None:
             return
 
-        # verifica se a peça estava em um grupo na jogada anterior
-        if jogada_antiga.grupo.criador is None:
-            return
-
-        # verifica se o jogador da jogada atual é diferente do criador do grupo da jogada anterior
-        if self.jogada.peca.jogador == jogada_antiga.grupo.criador:
-            return
-
-        # verifica se o jogador da jogada atual é o criador do grupo da jogada atual
-        if self.jogada.grupo.criador == self.jogada.peca.jogador:
+        # Verifica se o jogador da jogada atual é o criador do grupo da jogada atual
+        if self.jogada.grupo is not None and self.jogada.grupo.criador == self.jogada.peca.jogador:
             casos.add(15)
 
     def registrar_caso16(self, casos):
         """
         16: "Retirou peças do Agrupamento do outro integrante e colocou em um lugar aleatório",
         """
-        jogada_antiga = pegar_jogada_da_peca(
-            game=self.game,
-            peca=self.jogada.peca,
-            indice=-1
-        )
+        # Verifica o histórico de grupos da peça
+        grupo_anterior = None
+        for grupo in self.game.historico_grupos.get(self.jogada.peca.uid, []):
+            if grupo.criador and grupo.criador != self.jogada.peca.jogador:
+                grupo_anterior = grupo
+                break
 
-        if jogada_antiga is None:
+        if grupo_anterior is None or grupo_anterior.criador is None:
             return
 
-        # verifica se a peça estava em um grupo na jogada anterior
-        if jogada_antiga.grupo.criador is None:
-            return
-
-        # verifica se o jogador da jogada atual é diferente do criador do grupo da jogada anterior
-        if self.jogada.peca.jogador == jogada_antiga.grupo.criador:
-            return
-
-        # verifica se a peça foi colocada em um lugar aleatório
+        # Verifica se a peça foi colocada em um lugar aleatório na jogada atual
         if self.jogada.grupo is None:
             casos.add(16)
 
@@ -312,38 +324,38 @@ class Situacao:
         jogada_antiga_da_peca = pegar_jogada_da_peca(
             game=self.game,
             peca=self.jogada.peca,
-            indice=-1
+            indice=1
         )
 
         if jogada_antiga_da_peca is None:
             return
 
-        # verificar se o jogador da jogada atual é o mesmo da ultima jogada da peça
+        # Verifica se o jogador da jogada atual é o mesmo da última jogada da peça
         if jogada_antiga_da_peca.peca.jogador == self.jogada.peca.jogador:
             casos.add(17)
 
     def registrar_caso18(self, casos):
         """
-        18: "Retirou peças do próprio Agrupamento e devolveu para o monte",
+            18: "Retirou peças do próprio Agrupamento e devolveu para o monte",
         """
         jogada_antiga_da_peca = pegar_jogada_da_peca(
             game=self.game,
             peca=self.jogada.peca,
-            indice=-1
+            indice=1
         )
 
         if jogada_antiga_da_peca is None:
             return
 
-        # verifica se a peça estava em um grupo na jogada anterior
-        if jogada_antiga_da_peca.grupo.criador is None:
+        # Verifica se a jogada antiga tinha um grupo
+        if jogada_antiga_da_peca.grupo is None or jogada_antiga_da_peca.grupo.criador is None:
             return
 
-        # verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada anterior
+        # Verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada antiga
         if self.jogada.peca.jogador != jogada_antiga_da_peca.grupo.criador:
             return
 
-        # verifica se a peça foi colocada no monte
+        # Verifica se a peça foi colocada no monte na jogada atual
         if self.jogada.peca.local == "monte":
             casos.add(18)
 
@@ -354,21 +366,21 @@ class Situacao:
         jogada_antiga_da_peca = pegar_jogada_da_peca(
             game=self.game,
             peca=self.jogada.peca,
-            indice=-1
+            indice=1
         )
 
         if jogada_antiga_da_peca is None:
             return
 
-        # verifica se a peça estava em um grupo na jogada anterior
-        if jogada_antiga_da_peca.grupo.criador is None:
+        # Verifica se a jogada antiga tinha um grupo
+        if jogada_antiga_da_peca.grupo is None or jogada_antiga_da_peca.grupo.criador is None:
             return
 
-        # verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada anterior
+        # Verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada antiga
         if self.jogada.peca.jogador != jogada_antiga_da_peca.grupo.criador:
             return
 
-        # verifica se a peça foi colocada em um lugar aleatório
+        # Verifica se a peça foi colocada em um lugar aleatório na jogada atual
         if self.jogada.grupo is None:
             casos.add(19)
 
@@ -379,21 +391,21 @@ class Situacao:
         jogada_antiga_da_peca = pegar_jogada_da_peca(
             game=self.game,
             peca=self.jogada.peca,
-            indice=-1
+            indice=1
         )
 
         if jogada_antiga_da_peca is None:
             return
 
-        # verifica se a peça estava em um grupo na jogada anterior
-        if jogada_antiga_da_peca.grupo.criador is None:
+        # Verifica se a jogada antiga tinha um grupo
+        if jogada_antiga_da_peca.grupo is None or jogada_antiga_da_peca.grupo.criador is None:
             return
 
-        # verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada anterior
+        # Verifica se o jogador da jogada atual é o mesmo do criador do grupo da jogada antiga
         if self.jogada.peca.jogador != jogada_antiga_da_peca.grupo.criador:
             return
 
-        # verifica se o jogador da jogada atual é o jogador da peça da jogada anterior
+        # Verifica se o jogador da jogada atual é o jogador da peça da jogada anterior
         if self.jogada.peca.jogador != jogada_antiga_da_peca.peca.jogador:
             casos.add(20)
 
@@ -476,6 +488,9 @@ class Situacao:
         """
         27: "Desenvolveu um agrupamento e outro integrante resolveu adicionar peças",
         """
+        if self.jogada.peca is None or self.jogada.peca.jogador is None:
+            return
+
         if 27 in self.jogada.peca.jogador.tabulacao:
             return
 

@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from typing import Dict, Set, Union
+from typing import Dict, Set, Union, List
 
 from entities.grupo import Grupo
 from entities.jogada import Jogada
@@ -29,6 +29,7 @@ class Game:
         self.jogadas: Dict[int, Jogada] = dict()
         self.jogadores: Dict[str, Jogador] = dict()
         self.grupos: Dict[tuple, Grupo] = dict()
+        self.historico_grupos: Dict[int, List[Grupo]] = {}  # Histórico de grupos por peça
         self.pecas: Dict[int, Peca] = dict()
 
     def add_jogador(self, nome: str) -> Jogador:
@@ -51,7 +52,18 @@ class Game:
         grupo: Grupo = self.add_grupo(peca)
         jogada: Jogada = Jogada(uid=len(self.jogadas) + 1, peca=peca, grupo=grupo, tempo=tempo)
         self.jogadas[jogada.id] = jogada
+        self.atualizar_historico_grupos(grupo)
         return jogada
+
+    def atualizar_historico_grupos(self, grupo: Grupo) -> None:
+        """
+        Atualiza o histórico de grupos para todas as peças do grupo atual.
+        """
+        if grupo:
+            for peca in grupo.pecas.values():
+                if peca.uid not in self.historico_grupos:
+                    self.historico_grupos[peca.uid] = []
+                self.historico_grupos[peca.uid].append(grupo)
 
     def add_grupo(self, peca: Peca) -> Union[Grupo, None]:
         """
@@ -59,9 +71,12 @@ class Game:
         :param peca: A peça a ser adicionada ao grupo.
         :return: Grupo ao qual a peça foi adicionada ou novo grupo criado.
         """
-        for grupo in self.grupos.values():
+        for grupo in list(self.grupos.values()):
             if grupo.verificar_peca(peca):
-                grupo.remover_peca(peca)
+                chave = grupo.remover_peca(peca)
+                if chave:
+                    # Remove o grupo da lista de grupos usando a chave retornada
+                    self.grupos.pop(chave, None)
 
         pecas_conectadas: Dict[int, Peca] = {peca.uid: peca}
         pecas_conectadas = verificar_adicionar_pecas_conectadas(
