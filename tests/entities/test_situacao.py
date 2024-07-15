@@ -320,13 +320,71 @@ class TestSituacao(unittest.TestCase):
         """
         9: "Realizou uma ação rápida, menos de 3 segundos",
         """
-        pass
+        # Colocando a peça no tabuleiro com menos de 3 segundos
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador1
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=2)  # ação rápida
+        )
 
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(9, situacao.casos_id)
+
+# PAREI AQUI
     def test_registrar_caso10(self):
         """
         10: "Adicionou uma peça no agrupamento do outro, que a remove, mas continua a repetir a ação",
         """
-        pass
+        # Jogador 2 monta um agrupamento inicial
+        self.peca1.set_posicao_atual(
+            pos_x=86, pos_y=74, jogador=self.jogador2
+        )
+        self.game.add_jogada(
+            peca=self.peca1, tempo=timedelta(seconds=5)
+        )
+
+        self.peca2.set_posicao_atual(
+            pos_x=163, pos_y=74, jogador=self.jogador2
+        )
+        self.game.add_jogada(
+            peca=self.peca2, tempo=timedelta(seconds=10)
+        )
+
+        # Jogador 1 adiciona peça no agrupamento do Jogador 2
+        self.peca3.set_posicao_atual(
+            pos_x=239, pos_y=74, jogador=self.jogador2
+        )
+        self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=15)
+        )
+
+        # Jogador 2 remove a peça do agrupamento
+        self.peca3.set_posicao_atual(
+            pos_x=300, pos_y=74, jogador=self.jogador1
+        )
+        self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=20)
+        )
+
+        # Jogador 1 adiciona novamente a peça no agrupamento do Jogador 2
+        self.peca3.set_posicao_atual(
+            pos_x=239, pos_y=74, jogador=self.jogador2
+        )
+        jogada = self.game.add_jogada(
+            peca=self.peca3, tempo=timedelta(seconds=25)
+        )
+
+        situacao = Situacao(
+            jogada=jogada,
+            game=self.game
+        )
+
+        self.assertIn(10, situacao.casos_id)
 
     def test_registrar_caso11(self):
         """
