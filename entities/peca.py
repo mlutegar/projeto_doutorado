@@ -19,6 +19,7 @@ class Peca:
         self.local: str = "monte"
         self.jogador: Jogador | None = None
         self.eh_ponte: bool = False
+        self.ponte_qtd_lideres: int = 0
 
     def set_posicao_atual(self, pos_x: int, pos_y: int, jogador: Jogador) -> None:
         """

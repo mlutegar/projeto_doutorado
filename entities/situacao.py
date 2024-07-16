@@ -1,4 +1,6 @@
 from datetime import timedelta
+
+from entities.finalizacao import Finalizacao
 from util.methods_game import *
 
 
@@ -45,7 +47,7 @@ class Situacao:
         38: "Não realizou ações"
     }
 
-    def __init__(self, jogada: Jogada, game: Game) -> None:
+    def __init__(self, game: Game, jogada: Jogada = None, finalizacao: Finalizacao = None) -> None:
         """
         Inicializa a classe Situacao.
 
@@ -54,6 +56,7 @@ class Situacao:
         """
         self.game: Game = game
         self.jogada: Jogada = jogada
+        self.finalizacao: Finalizacao = finalizacao
         self.casos_id: set[int] = self.definir_situacao()
         self.casos_descricao: set[str] | None = None
 
@@ -63,44 +66,71 @@ class Situacao:
         """
         casos: set[int] = set()
 
-        self.registrar_caso1(casos)
-        self.registrar_caso2(casos)
-        self.registrar_caso3(casos)
-        self.registrar_caso4(casos)
-        self.registrar_caso5(casos)
-        self.registrar_caso6(casos)
-        self.registrar_caso7(casos)
-        self.registrar_caso8(casos)
-        self.registrar_caso9(casos)
-        self.registrar_caso10(casos)
-        self.registrar_caso11(casos)
-        self.registrar_caso12(casos)
-        self.registrar_caso13(casos)
-        self.registrar_caso14(casos)
-        self.registrar_caso15(casos)
-        self.registrar_caso16(casos)
-        self.registrar_caso17(casos)
-        self.registrar_caso18(casos)
-        self.registrar_caso19(casos)
-        self.registrar_caso20(casos)
-        self.registrar_caso21(casos)
-        self.registrar_caso22(casos)
-        self.registrar_caso23(casos)
-        self.registrar_caso24(casos)
-        self.registrar_caso25(casos)
-        self.registrar_caso26(casos)
-        self.registrar_caso27(casos)
-        self.registrar_caso28(casos)
-        self.registrar_caso29(casos)
-        self.registrar_caso30(casos)
-        self.registrar_caso31(casos)
-        self.registrar_caso32(casos)
-        self.registrar_caso33(casos)
-        self.registrar_caso34(casos)
-        self.registrar_caso35(casos)
-        self.registrar_caso36(casos)
-        self.registrar_caso37(casos)
-        self.registrar_caso38(casos)
+        if self.jogada:
+            if self.jogada.peca.jogador.tabulacao:
+                for caso in self.jogada.peca.jogador.tabulacao:
+                    casos.add(caso)
+                self.jogada.peca.jogador.tabulacao = []
+            self.registrar_caso1(casos)
+            self.registrar_caso2(casos)
+            self.registrar_caso3(casos)
+            self.registrar_caso4(casos)
+            self.registrar_caso5(casos)
+            self.registrar_caso6(casos)
+            self.registrar_caso7(casos)
+            self.registrar_caso8(casos)
+            self.registrar_caso9(casos)
+            self.registrar_caso10(casos)
+            self.registrar_caso11(casos)
+            self.registrar_caso12(casos)
+            self.registrar_caso13(casos)
+            self.registrar_caso14(casos)
+            self.registrar_caso15(casos)
+            self.registrar_caso16(casos)
+            self.registrar_caso17(casos)
+            self.registrar_caso18(casos)
+            self.registrar_caso19(casos)
+            self.registrar_caso20(casos)
+            self.registrar_caso21(casos)
+            self.registrar_caso22(casos)
+            self.registrar_caso23(casos)
+            self.registrar_caso24(casos)
+            self.registrar_caso25(casos)
+            self.registrar_caso26(casos)
+            self.registrar_caso27(casos)
+            self.registrar_caso36(casos)
+            self.registrar_caso37(casos)
+            self.registrar_caso38(casos)
+        elif self.finalizacao:
+            if self.finalizacao.descricao == "Desistiu":
+                for jogador in self.game.players_desistiu:
+                    if jogador.tabulacao:
+                        for caso in jogador.tabulacao:
+                            casos.add(caso)
+                        jogador.tabulacao = []
+                self.registrar_caso28(casos)
+                self.registrar_caso29(casos)
+                self.registrar_caso30(casos)
+                self.registrar_caso31(casos)
+            elif self.finalizacao.descricao == "Finalizou":
+                for jogador in self.game.players_finalizou:
+                    if jogador.tabulacao:
+                        for caso in jogador.tabulacao:
+                            casos.add(caso)
+                        jogador.tabulacao = []
+                self.registrar_caso32(casos)
+                self.registrar_caso33(casos)
+                self.registrar_caso34(casos)
+                self.registrar_caso35(casos)
+        else:
+            # unir as listas players_desistiu e players_finalizou
+            lista_jogadores = self.game.players_desistiu + self.game.players_finalizou
+
+            for jogador in lista_jogadores:
+                if jogador.tabulacao:
+                    for caso in jogador.tabulacao:
+                        casos.add(caso)
+                    jogador.tabulacao = []
 
         self.casos_descricao = [self.situacoes[caso] for caso in casos]
         return casos
@@ -137,33 +167,35 @@ class Situacao:
         """
         5: "Adicionou uma peça no agrupamento de outro integrante, fez várias vezes",
         """
-        if self.jogada.grupo is None:
+        jogada_anterior = pegar_jogada_do_jogador(jogador=self.jogada.peca.jogador, game=self.game, indice=1)
+        jogada_antes_da_anterior = pegar_jogada_do_jogador(jogador=self.jogada.peca.jogador, game=self.game, indice=2)
+
+        # Verifica se houve pelo menos duas jogadas anteriores
+        if jogada_anterior is None or jogada_antes_da_anterior is None:
             return
 
-        if self.jogada.grupo.criador == self.jogada.peca.jogador:
-            return
+        grupo_anterior = jogada_anterior.grupo
+        grupo_antes_da_anterior = jogada_antes_da_anterior.grupo
 
-        if 5 in self.jogada.peca.jogador.tabulacao:
-            return
-
-        if self.jogada.peca.jogador.qtd_infracoes >= 3:
-            casos.add(5)  # Adicionou uma peça no agrupamento de outro integrante, fez várias vezes
+        # Verifica se as duas últimas jogadas e a jogada atual adicionaram peças em grupos diferentes do jogador atual
+        if (grupo_anterior and grupo_antes_da_anterior and
+                grupo_anterior.criador != self.jogada.peca.jogador and
+                grupo_antes_da_anterior.criador != self.jogada.peca.jogador and
+                self.jogada.grupo and self.jogada.grupo.criador != self.jogada.peca.jogador):
+            casos.add(5)
 
     def registrar_caso6(self, casos):
         """
         6: "Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num período curto",
         """
-        if self.jogada.grupo is None:
-            return
+        # vai analisar o player que adicionou a peça no grupo do outro jogador e tabular o jogador que sofreu a ação do
+        # player observado
 
-        if self.jogada.grupo.criador == self.jogada.peca.jogador:
-            return
-
-        if 6 in self.jogada.peca.jogador.tabulacao:
-            return
-
-        if self.jogada.peca.jogador.qtd_infracoes <= 3:
-            casos.add(6)
+        # a peça precisa ter um grupo
+        if self.jogada.grupo is not None:
+            # o criador do grupo atual tem que ser diferente do jogador atual
+            if self.jogada.grupo.criador != self.jogada.peca.jogador:
+                self.jogada.grupo.criador.tabulacao.append(6)
 
     def registrar_caso7(self, casos):
         """
@@ -189,7 +221,8 @@ class Situacao:
         if self.jogada.grupo is None:
             return
 
-        if jogada_anterior_do_jogador.grupo is None or (jogada_anterior_do_jogador.grupo.criador == self.jogada.peca.jogador):
+        if jogada_anterior_do_jogador.grupo is None or (
+                jogada_anterior_do_jogador.grupo.criador == self.jogada.peca.jogador):
             if self.jogada.grupo.criador != self.jogada.peca.jogador:
                 casos.add(8)
 
@@ -220,11 +253,13 @@ class Situacao:
             return
 
         # Verifica se a jogada antes da anterior foi em um grupo de outro jogador
-        if jogada_antes_da_anterior_da_peca.grupo is None or jogada_antes_da_anterior_da_peca.grupo.criador == jogada_antes_da_anterior_da_peca.peca.jogador:
+        if (jogada_antes_da_anterior_da_peca.grupo is None or jogada_antes_da_anterior_da_peca.grupo.criador ==
+                jogada_antes_da_anterior_da_peca.peca.jogador):
             return
 
         # Verifica se a jogada anterior foi em um grupo diferente do grupo da jogada antes da anterior
-        if jogada_anterior_da_peca.grupo is not None and jogada_anterior_da_peca.grupo.criador == jogada_antes_da_anterior_da_peca.grupo.criador:
+        if (jogada_anterior_da_peca.grupo is not None and jogada_anterior_da_peca.grupo.criador ==
+                jogada_antes_da_anterior_da_peca.grupo.criador):
             return
 
         # Verifica se a jogada atual foi feita no grupo de outro jogador e é a repetição da ação
@@ -397,7 +432,6 @@ class Situacao:
         if self.jogada.grupo is None or self.jogada.grupo.id != jogada_anterior_da_peca.grupo.id:
             casos.add(20)
 
-
     def registrar_caso21(self, casos):
         """
         21: "Criou mais de um agrupamento",
@@ -415,27 +449,17 @@ class Situacao:
         """
         22: "Conecta dois ou mais agrupamentos com outros participantes",
         """
-        if self.jogada.grupo is None:
-            return
-
-        if self.jogada.grupo.qtd_jogadores == 1:
-            return
-
         if self.jogada.peca.eh_ponte:
-            casos.add(22)
+            if self.jogada.peca.ponte_qtd_lideres > 1:
+                casos.add(22)
 
     def registrar_caso23(self, casos):
         """
         23: "Conecta dois ou mais agrupamentos consigo mesmo
         """
-        if self.jogada.grupo is None:
-            return
-
-        if self.jogada.grupo.qtd_jogadores == 1:
-            return
-
         if self.jogada.peca.eh_ponte:
-            casos.add(23)
+            if self.jogada.peca.ponte_qtd_lideres == 1:
+                casos.add(23)
 
     def registrar_caso24(self, casos):
         """
@@ -467,7 +491,6 @@ class Situacao:
         """
         if self.jogada.grupo is None:
             return
-
         if self.jogada.grupo.qtd_jogadores == 1:
             return
         if self.jogada.grupo.qtd_pecas > 6:
@@ -477,60 +500,63 @@ class Situacao:
         """
         27: "Desenvolveu um agrupamento e outro integrante resolveu adicionar peças",
         """
-        if self.jogada.peca is None or self.jogada.peca.jogador is None:
-            return
+        # jogador da jogada atual precisa adiciona a peça em um grupo de outro jogador
 
-        if 27 in self.jogada.peca.jogador.tabulacao:
-            return
-
-        for _, grupo in self.game.grupos.items():
-            if grupo.criador == self.jogada.peca.jogador:
-                if grupo.qtd_jogadores > 1:
-                    casos.add(27)
+        # a peça precisa ter um grupo e o criador do grupo precisa ser diferente do jogador da jogada
+        if self.jogada.grupo is not None:
+            if self.jogada.grupo.criador != self.jogada.peca.jogador:
+                self.jogada.grupo.criador.tabulacao.append(27)
 
     def registrar_caso28(self, casos):
         """
         28: "Desistiu Sozinho",
         """
-        if (self.jogada.peca.jogador.situacao == "Desistiu" and
-                self.jogada.peca.jogador.tempo_em_jogo > timedelta(seconds=300)):
+        if self.finalizacao is not None and self.finalizacao.descricao == "Desistiu":
             casos.add(28)
 
     def registrar_caso29(self, casos):
         """
         29: "Desistiu Sozinho com pouco tempo de jogo",
         """
-        if (self.jogada.peca.jogador.situacao == "Desistiu" and
-                self.jogada.peca.jogador.tempo_em_jogo < timedelta(seconds=300)):
+        if (self.finalizacao is not None and
+                self.finalizacao.descricao == "Desistiu" and
+                self.finalizacao.jogador.tempo_em_jogo < timedelta(seconds=300)):
             casos.add(29)
 
     def registrar_caso30(self, casos):
         """
         30: "Desistiu Sozinho e pouco tempo depois outro integrante desistiu",
         """
-        pass
+        # verificar se alguem desistiu antes de mim
+        if len(self.game.players_desistiu) > 1:
+            # verificar se a última pessoa a desistir faz pouco tempo
+            if self.game.players_desistiu[-1].tempo_em_jogo - self.finalizacao.jogador.tempo_em_jogo < timedelta(seconds=300):
+                self.game.players_desistiu[-1].tabulacao.append(30)
 
     def registrar_caso31(self, casos):
         """
         31: "Desistiu depois de outro integrante Desistir
         """
         if len(self.game.players_desistiu) > 1:
-            if self.jogada.peca.jogador.situacao == "Desistiu":
-                casos.add(31)
+            # verificar se a última pessoa a desistir faz pouco tempo
+            if self.game.players_desistiu[-1].tempo_em_jogo - self.finalizacao.jogador.tempo_em_jogo < timedelta(seconds=300):
+                if self.finalizacao is not None and self.finalizacao.descricao == "Desistiu":
+                    casos.add(31)
 
     def registrar_caso32(self, casos):
         """
         32: "Finalizou sozinho",
         """
-        if self.jogada.peca.jogador.situacao == "Finalizou":
+        if self.finalizacao is not None and self.finalizacao.descricao == "Finalizou":
             casos.add(32)
 
     def registrar_caso33(self, casos):
         """
         33: "Finalizou sozinho com pouco tempo de jogo",
         """
-        if (self.jogada.peca.jogador.situacao == "Finalizou" and
-                self.jogada.peca.jogador.tempo_em_jogo < timedelta(seconds=300)):
+        if (self.finalizacao is not None and
+                self.finalizacao.descricao == "Finalizou" and
+                self.finalizacao.jogador.tempo_em_jogo < timedelta(seconds=300)):
             casos.add(33)
 
     def registrar_caso34(self, casos):
@@ -538,26 +564,80 @@ class Situacao:
         34: "Finalizou depois de outro integrante Finalizar",
         """
         if len(self.game.players_finalizou) > 1:
-            if self.jogada.peca.jogador.situacao == "Finalizou":
-                casos.add(34)
+            if self.game.players_finalizou[-1].tempo_em_jogo - self.finalizacao.jogador.tempo_em_jogo < timedelta(seconds=300):
+                if self.finalizacao is not None and self.finalizacao.descricao == "Finalizou":
+                    casos.add(34)
 
     def registrar_caso35(self, casos):
         """
         35: "Finalizou Sozinho e pouco tempo depois outro integrante finalizou também
         """
-        pass
+        if len(self.game.players_finalizou) > 1:
+            if self.game.players_finalizou[-1].tempo_em_jogo - self.finalizacao.jogador.tempo_em_jogo < timedelta(seconds=300):
+                if self.finalizacao is not None and self.finalizacao.descricao == "Finalizou":
+                    self.game.players_finalizou[-1].tabulacao.append(35)
 
     def registrar_caso36(self, casos):
         """
         36: "Imitou a forma do mesmo agrupamento do outro (fez depois que outro integrante realizou a ação)",
         """
-        pass
+        if self.jogada.grupo is None:
+            print("Jogada atual não tem grupo.")
+            return
+
+        # Configuração do agrupamento atual
+        configuracao_atual = {
+            'qtd_pecas': self.jogada.grupo.qtd_pecas,
+            'cores': set(peca.cor for peca in self.jogada.grupo.pecas.values())
+        }
+
+        print("Configuração atual:", configuracao_atual)
+
+        # Itera sobre todas as jogadas anteriores para encontrar uma jogada que corresponda à configuração
+        for jogada in self.game.jogadas.values():
+            if jogada.peca.jogador != self.jogada.peca.jogador and jogada.grupo is not None:
+                configuracao_anterior = {
+                    'qtd_pecas': jogada.grupo.qtd_pecas,
+                    'cores': set(peca.cor for peca in jogada.grupo.pecas.values())
+                }
+
+                print("Comparando com configuração anterior:", configuracao_anterior)
+
+                if configuracao_atual == configuracao_anterior:
+                    print("Encontrou uma configuração anterior correspondente.")
+                    casos.add(36)
+                    break
 
     def registrar_caso37(self, casos):
         """
         37: "É imitado por alguém",
         """
-        pass
+        if self.jogada.grupo is None:
+            return
+
+        # Configuração do agrupamento atual
+        configuracao_atual = {
+            'qtd_pecas': self.jogada.grupo.qtd_pecas,
+            'cores': set(peca.cor for peca in self.jogada.grupo.pecas.values())
+        }
+
+        print(f"Configuração atual: {configuracao_atual}")
+
+        # Itera sobre todas as jogadas anteriores para encontrar uma jogada que corresponda à configuração
+        for jogada in self.game.jogadas.values():
+            if jogada.peca.jogador != self.jogada.peca.jogador and jogada.grupo is not None:
+                configuracao_anterior = {
+                    'qtd_pecas': jogada.grupo.qtd_pecas,
+                    'cores': set(peca.cor for peca in jogada.grupo.pecas.values())
+                }
+
+                print(f"Comparando com configuração anterior: {configuracao_anterior}")
+
+                if configuracao_atual == configuracao_anterior:
+                    print(
+                        f"Jogador {self.jogada.peca.jogador.nome} foi imitado pelo jogador {jogada.peca.jogador.nome}")
+                    jogada.peca.jogador.tabulacao.append(37)
+                    break
 
     @staticmethod
     def registrar_caso38(casos):

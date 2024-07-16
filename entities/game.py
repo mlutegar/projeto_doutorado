@@ -1,6 +1,7 @@
 from datetime import timedelta, datetime
-from typing import Dict, Set, Union, List
+from typing import Dict, Union, List
 
+from entities.finalizacao import Finalizacao
 from entities.grupo import Grupo
 from entities.jogada import Jogada
 from entities.jogador import Jogador
@@ -23,8 +24,8 @@ class Game:
         self.tempo_inicio: datetime = datetime.now()
         self.tempo_fim: Union[datetime, None] = None
 
-        self.players_desistiu: Set[Jogador] = set()
-        self.players_finalizou: Set[Jogador] = set()
+        self.players_desistiu: List[Jogador] = []
+        self.players_finalizou: List[Jogador] = []
 
         self.jogadas: Dict[int, Jogada] = dict()
         self.jogadores: Dict[str, Jogador] = dict()
@@ -60,6 +61,7 @@ class Game:
         peca_estatica.local = peca.local
         peca_estatica.jogador = peca.jogador
         peca_estatica.eh_ponte = peca.eh_ponte
+        peca_estatica.ponte_qtd_lideres = peca.ponte_qtd_lideres
 
         if grupo:
             grupo_estatico = Grupo(peca)
@@ -125,8 +127,13 @@ class Game:
             self.grupos[(grupo_existente.criador.nome, grupo_existente.peca_pai.uid)] = grupo_existente
             return grupo_existente
 
+        if grupo_existente == -2:
+            peca.eh_ponte = True
+            peca.ponte_qtd_lideres = 2
+            return None
         if grupo_existente == -1:
             peca.eh_ponte = True
+            peca.ponte_qtd_lideres = 1
             return None
 
         grupo: Grupo = Grupo(peca)
@@ -148,29 +155,33 @@ class Game:
         self.pecas[peca.uid] = peca
         return peca
 
-    def desistir(self, player: Jogador) -> None:
+    def desistir(self, player: Jogador) -> Finalizacao:
         """
         Marca um jogador como desistente.
         :param player: Instância de Jogador que desistiu.
         """
         player.desistir()
-        self.players_desistiu.add(player)
+        self.players_desistiu.append(player)
         self.jogadores.pop(player.nome)
 
         if len(self.jogadores) == 1:
             self.acabar_jogo()
 
-    def finalizar(self, player: Jogador) -> None:
+        return Finalizacao(player, "Desistiu", tempo=self.tempo_de_jogo)
+
+    def finalizar(self, player: Jogador) -> Finalizacao:
         """
         Marca um jogador como finalizado.
         :param player: Instância de Jogador que finalizou.
         """
         player.finalizar()
-        self.players_finalizou.add(player)
+        self.players_finalizou.append(player)
         self.jogadores.pop(player.nome)
 
         if len(self.jogadores) == 1:
             self.acabar_jogo()
+
+        return Finalizacao(player, "Finalizou", tempo=self.tempo_de_jogo)
 
     def acabar_jogo(self) -> None:
         """

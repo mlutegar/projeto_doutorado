@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, List
 
 
 class Jogador:
@@ -16,7 +16,7 @@ class Jogador:
         self.tempo_fim: Optional[datetime] = None
 
         self.qtd_infracoes: int = 0
-        self.tabulacao: set[int] = set()
+        self.tabulacao: List[int] = []
 
     def adicionar_infracao(self) -> None:
         """
@@ -30,7 +30,7 @@ class Jogador:
 
         :param tabulacao: Valor da tabulação.
         """
-        self.tabulacao.add(tabulacao)
+        self.tabulacao.append(tabulacao)
 
     def desistir(self) -> None:
         """

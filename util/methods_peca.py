@@ -75,15 +75,19 @@ def verificar_peca_em_grupo(grupos, pecas_conectadas):
     """
     grupos_verificados = set()
     grupo = None
+    lideres = set()
 
     for _, peca_analisada in pecas_conectadas.items():
         for grupo_analisado in grupos.values():
             if peca_analisada.uid in grupo_analisado.pecas:
                 grupo = grupo_analisado
                 grupos_verificados.add((grupo.criador.nome, grupo.peca_pai.uid))
+                lideres.add(grupo.criador.nome)
 
     if len(grupos_verificados) > 1:
-        return -1
+        if len(lideres) == 1:
+            return -1
+        return -2
     elif len(grupos_verificados) == 1:
         return grupo
     else:

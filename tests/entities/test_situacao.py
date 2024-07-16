@@ -1,6 +1,7 @@
 import unittest
 from datetime import timedelta
 
+from entities.finalizacao import Finalizacao
 from entities.game import Game
 from entities.situacao import Situacao
 
@@ -247,8 +248,22 @@ class TestSituacao(unittest.TestCase):
         self.peca3.set_posicao_atual(
             pos_x=239, pos_y=74, jogador=self.jogador2
         )
-        jogada = self.game.add_jogada(
+        jogada1 = self.game.add_jogada(
             peca=self.peca3, tempo=timedelta(seconds=10)
+        )
+
+        Situacao(
+            jogada=jogada1,
+            game=self.game
+        )
+
+        # jogada qualquer do jogador 2
+        self.peca4.set_posicao_atual(
+            pos_x=1350, pos_y=912, jogador=self.jogador1
+        )
+
+        jogada = self.game.add_jogada(
+            peca=self.peca4, tempo=timedelta(seconds=15)
         )
 
         situacao = Situacao(
@@ -783,109 +798,287 @@ class TestSituacao(unittest.TestCase):
         """
         21: "Criou mais de um agrupamento",
         """
-        pass
+        # Jogador 1 cria o primeiro agrupamento
+        self.peca1.set_posicao_atual(pos_x=86, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca1, tempo=timedelta(seconds=5))
+        self.peca2.set_posicao_atual(pos_x=163, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca2, tempo=timedelta(seconds=10))
+
+        # Jogador 1 cria o segundo agrupamento
+        self.peca3.set_posicao_atual(pos_x=239, pos_y=150, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca3, tempo=timedelta(seconds=15))
+        self.peca4.set_posicao_atual(pos_x=316, pos_y=150, jogador=self.jogador1)
+        jogada = self.game.add_jogada(peca=self.peca4, tempo=timedelta(seconds=20))
+
+        # Verifica se a situação 21 foi registrada corretamente
+        situacao = Situacao(jogada=jogada, game=self.game)
+        self.assertIn(21, situacao.casos_id)
 
     def test_registrar_caso22(self):
         """
         22: "Conecta dois ou mais agrupamentos com outros participantes",
         """
-        pass
+        # Jogador 1 cria o primeiro agrupamento
+        self.peca1.set_posicao_atual(pos_x=86, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca1, tempo=timedelta(seconds=5))
+        self.peca2.set_posicao_atual(pos_x=163, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca2, tempo=timedelta(seconds=10))
+
+        # Jogador 2 cria o segundo agrupamento
+        self.peca3.set_posicao_atual(pos_x=86, pos_y=211, jogador=self.jogador2)
+        self.game.add_jogada(peca=self.peca3, tempo=timedelta(seconds=15))
+        self.peca4.set_posicao_atual(pos_x=163, pos_y=211, jogador=self.jogador2)
+        self.game.add_jogada(peca=self.peca4, tempo=timedelta(seconds=20))
+
+        # Jogador 1 conecta os agrupamentos
+        self.peca5.set_posicao_atual(pos_x=123, pos_y=143, jogador=self.jogador1)
+        jogada = self.game.add_jogada(peca=self.peca5, tempo=timedelta(seconds=25))
+
+        # Verifica se a situação 22 foi registrada corretamente
+        situacao = Situacao(jogada=jogada, game=self.game)
+        self.assertIn(22, situacao.casos_id)
 
     def test_registrar_caso23(self):
         """
         23: "Conecta dois ou mais agrupamentos consigo mesmo",
         """
-        pass
+        # Jogador 1 cria o primeiro agrupamento
+        self.peca1.set_posicao_atual(pos_x=86, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca1, tempo=timedelta(seconds=5))
+        self.peca2.set_posicao_atual(pos_x=163, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca2, tempo=timedelta(seconds=10))
+
+        # Jogador 1 cria o segundo agrupamento
+        self.peca3.set_posicao_atual(pos_x=86, pos_y=211, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca3, tempo=timedelta(seconds=15))
+        self.peca4.set_posicao_atual(pos_x=163, pos_y=211, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca4, tempo=timedelta(seconds=20))
+
+        # Jogador 1 conecta os agrupamentos
+        self.peca5.set_posicao_atual(pos_x=123, pos_y=143, jogador=self.jogador1)
+        jogada = self.game.add_jogada(peca=self.peca5, tempo=timedelta(seconds=25))
+
+        # Verifica se a situação 23 foi registrada corretamente
+        situacao = Situacao(jogada=jogada, game=self.game)
+        self.assertIn(23, situacao.casos_id)
 
     def test_registrar_caso24(self):
         """
         24: "Forma um agrupamento de 2 peças com outro integrante",
         """
-        pass
+        # Jogador 1 e Jogador 2 formam um agrupamento juntos
+        self.peca1.set_posicao_atual(pos_x=86, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca1, tempo=timedelta(seconds=5))
+        self.peca2.set_posicao_atual(pos_x=163, pos_y=74, jogador=self.jogador2)
+        jogada = self.game.add_jogada(peca=self.peca2, tempo=timedelta(seconds=10))
+
+        # Verifica se a situação 24 foi registrada corretamente
+        situacao = Situacao(jogada=jogada, game=self.game)
+        self.assertIn(24, situacao.casos_id)
 
     def test_registrar_caso25(self):
         """
         25: "Forma um agrupamento de 3 a 6 peças com outro integrante",
         """
-        pass
+        # Jogador 1 e Jogador 2 formam um agrupamento juntos de 3 peças
+        self.peca1.set_posicao_atual(pos_x=86, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca1, tempo=timedelta(seconds=5))
+        self.peca2.set_posicao_atual(pos_x=163, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca2, tempo=timedelta(seconds=10))
+        self.peca3.set_posicao_atual(pos_x=239, pos_y=74, jogador=self.jogador2)
+        jogada = self.game.add_jogada(peca=self.peca3, tempo=timedelta(seconds=15))
+
+        # Verifica se a situação 25 foi registrada corretamente
+        situacao = Situacao(jogada=jogada, game=self.game)
+        self.assertIn(25, situacao.casos_id)
 
     def test_registrar_caso26(self):
         """
         26: "Forma um agrupamento de mais de 6 peças com outro integrante",
         """
-        pass
+        # Jogador 1 e Jogador 2 formam um agrupamento juntos de mais de 6 peças
+        self.peca1.set_posicao_atual(pos_x=86, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca1, tempo=timedelta(seconds=5))
+        self.peca2.set_posicao_atual(pos_x=163, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca2, tempo=timedelta(seconds=10))
+        self.peca3.set_posicao_atual(pos_x=239, pos_y=74, jogador=self.jogador2)
+        self.game.add_jogada(peca=self.peca3, tempo=timedelta(seconds=15))
+        self.peca4.set_posicao_atual(pos_x=316, pos_y=74, jogador=self.jogador2)
+        self.game.add_jogada(peca=self.peca4, tempo=timedelta(seconds=20))
+        self.peca5.set_posicao_atual(pos_x=393, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca5, tempo=timedelta(seconds=25))
+        self.peca6.set_posicao_atual(pos_x=470, pos_y=74, jogador=self.jogador2)
+        self.game.add_jogada(peca=self.peca6, tempo=timedelta(seconds=30))
+        self.peca7.set_posicao_atual(pos_x=547, pos_y=74, jogador=self.jogador1)
+        jogada = self.game.add_jogada(peca=self.peca7, tempo=timedelta(seconds=30))
+
+        # Verifica se a situação 26 foi registrada corretamente
+        situacao = Situacao(jogada=jogada, game=self.game)
+        self.assertIn(26, situacao.casos_id)
 
     def test_registrar_caso27(self):
         """
         27: "Desenvolveu um agrupamento e outro integrante resolveu adicionar peças",
         """
-        pass
+        # Jogador 1 cria um agrupamento
+        self.peca1.set_posicao_atual(pos_x=86, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca1, tempo=timedelta(seconds=5))
+        self.peca2.set_posicao_atual(pos_x=163, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca2, tempo=timedelta(seconds=10))
+
+        # Jogador 2 adiciona uma peça no agrupamento do Jogador 1
+        self.peca3.set_posicao_atual(pos_x=239, pos_y=74, jogador=self.jogador2)
+
+        Situacao(
+            jogada=self.game.add_jogada(peca=self.peca3, tempo=timedelta(seconds=15)),
+            game=self.game
+        )
+
+        # Jogada qualquer do Jogador 1
+        self.peca4.set_posicao_atual(pos_x=316, pos_y=74, jogador=self.jogador1)
+        jogada = self.game.add_jogada(peca=self.peca4, tempo=timedelta(seconds=20))
+
+        # Verifica se a situação 27 foi registrada corretamente
+        situacao = Situacao(jogada=jogada, game=self.game)
+        self.assertIn(27, situacao.casos_id)
 
     def test_registrar_caso28(self):
         """
         28: "Desistiu Sozinho",
         """
-        pass
+        finalizacao = self.game.desistir(player=self.jogador1)
+        situacao = Situacao(game=self.game, finalizacao=finalizacao)
+        self.assertIn(28, situacao.casos_id)
 
     def test_registrar_caso29(self):
         """
         29: "Desistiu Sozinho com pouco tempo de jogo",
         """
-        pass
+        self.jogador1.tempo_em_jogo = timedelta(seconds=250)
+        finalizacao = self.game.desistir(player=self.jogador1)
+        situacao = Situacao(game=self.game, finalizacao=finalizacao)
+        self.assertIn(29, situacao.casos_id)
 
     def test_registrar_caso30(self):
         """
         30: "Desistiu Sozinho e pouco tempo depois outro integrante desistiu",
         """
-        pass
+        self.jogador1.tempo_em_jogo = timedelta(seconds=200)
+
+        Situacao(
+            game=self.game,
+            finalizacao=self.game.desistir(player=self.jogador1)
+        )
+
+        self.jogador2.tempo_em_jogo = timedelta(seconds=250)
+        finalizacao = self.game.desistir(player=self.jogador2)
+
+        Situacao(game=self.game, finalizacao=finalizacao)
+
+        self.game.acabar_jogo()
+
+        situacao = Situacao(game=self.game)
+        self.assertIn(30, situacao.casos_id)
 
     def test_registrar_caso31(self):
         """
         31: "Desistiu depois de outro integrante Desistir",
         """
-        pass
+        self.game.desistir(player=self.jogador2)
+        self.jogador1.tempo_em_jogo = timedelta(seconds=250)
+        finalizacao = self.game.desistir(player=self.jogador1)
+        situacao = Situacao(game=self.game, finalizacao=finalizacao)
+        self.assertIn(31, situacao.casos_id)
 
     def test_registrar_caso32(self):
         """
         32: "Finalizou sozinho",
         """
-        pass
+        finalizacao = self.game.finalizar(player=self.jogador1)
+        situacao = Situacao(game=self.game, finalizacao=finalizacao)
+        self.assertIn(32, situacao.casos_id)
 
     def test_registrar_caso33(self):
         """
         33: "Finalizou sozinho com pouco tempo de jogo",
         """
-        pass
+        self.jogador1.tempo_em_jogo = timedelta(seconds=250)
+        finalizacao = self.game.finalizar(player=self.jogador1)
+        situacao = Situacao(game=self.game, finalizacao=finalizacao)
+        self.assertIn(33, situacao.casos_id)
 
     def test_registrar_caso34(self):
         """
         34: "Finalizou depois de outro integrante Finalizar",
         """
-        pass
+        self.game.finalizar(player=self.jogador2)
+        self.jogador1.tempo_em_jogo = timedelta(seconds=250)
+        finalizacao = self.game.finalizar(player=self.jogador1)
+        situacao = Situacao(game=self.game, finalizacao=finalizacao)
+        self.assertIn(34, situacao.casos_id)
 
     def test_registrar_caso35(self):
         """
         35: "Finalizou Sozinho e pouco tempo depois outro integrante finalizou também",
         """
-        pass
+        self.jogador1.tempo_em_jogo = timedelta(seconds=200)
+        Situacao(game=self.game, finalizacao=self.game.finalizar(player=self.jogador1))
+
+        self.jogador2.tempo_em_jogo = timedelta(seconds=250)
+        Situacao(game=self.game, finalizacao=self.game.finalizar(player=self.jogador2))
+
+        self.game.acabar_jogo()
+
+        situacao = Situacao(game=self.game)
+        self.assertIn(35, situacao.casos_id)
 
     def test_registrar_caso36(self):
         """
         36: "Imitou a forma do mesmo agrupamento do outro (fez depois que outro integrante realizou a ação)",
         """
-        pass
+        # Jogador 1 cria um agrupamento
+        self.peca1.set_posicao_atual(pos_x=86, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca1, tempo=timedelta(seconds=5))
+        self.peca4.set_posicao_atual(pos_x=163, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca4, tempo=timedelta(seconds=10))
+
+        # Jogador 2 imita a forma do agrupamento do Jogador 1
+        self.peca3.set_posicao_atual(pos_x=86, pos_y=150, jogador=self.jogador2)
+        self.game.add_jogada(peca=self.peca3, tempo=timedelta(seconds=15))
+        self.peca2.set_posicao_atual(pos_x=163, pos_y=150, jogador=self.jogador2)
+        jogada = self.game.add_jogada(peca=self.peca2, tempo=timedelta(seconds=20))
+
+        # Verifica se a situação 36 foi registrada corretamente
+        situacao = Situacao(jogada=jogada, game=self.game)
+        self.assertIn(36, situacao.casos_id)
 
     def test_registrar_caso37(self):
         """
         37: "É imitado por alguém",
         """
-        pass
+        # Jogador 1 cria um agrupamento com duas peças vermelhas
+        self.peca1.set_posicao_atual(pos_x=86, pos_y=74, jogador=self.jogador1)
+        self.game.add_jogada(peca=self.peca1, tempo=timedelta(seconds=5))
+        self.peca2.set_posicao_atual(pos_x=163, pos_y=74, jogador=self.jogador1)
+        jogada1 = self.game.add_jogada(peca=self.peca2, tempo=timedelta(seconds=10))
+
+        # Jogador 2 imita a forma do agrupamento do Jogador 1 com duas peças verdes
+        self.peca3.set_posicao_atual(pos_x=86, pos_y=150, jogador=self.jogador2)
+        self.game.add_jogada(peca=self.peca3, tempo=timedelta(seconds=15))
+        self.peca4.set_posicao_atual(pos_x=163, pos_y=150, jogador=self.jogador2)
+        self.game.add_jogada(peca=self.peca4, tempo=timedelta(seconds=20))
+
+        # Verifica se a situação 37 foi registrada corretamente para o Jogador 1
+        situacao1 = Situacao(jogada=jogada1, game=self.game)
+        print("Casos identificados para Jogador 1:", situacao1.casos_id)
+        self.assertIn(37, situacao1.casos_id)
 
     def test_registrar_caso38(self):
         """
         38: "Não realizou ações"
         """
-        pass
+        situacao = Situacao(game=self.game)
+        self.assertIn(38, situacao.casos_id)
 
 
 if __name__ == '__main__':
