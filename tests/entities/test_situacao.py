@@ -24,7 +24,7 @@ class TestSituacao(unittest.TestCase):
             "Cor": "vermelha"
         }
 
-        process_data(self.game, move)
+        process_data(move)
 
         jogada = self.game.jogadas[1]  # Assumindo que esta é a primeira jogada
 
@@ -58,8 +58,8 @@ class TestSituacao(unittest.TestCase):
             "Cor": "vermelha"
         }
 
-        process_data(self.game, move1)
-        process_data(self.game, move2)
+        process_data(move1)
+        process_data(move2)
 
         jogada = self.game.jogadas[2]  # Assumindo que esta é a segunda jogada
 
@@ -75,7 +75,7 @@ class TestSituacao(unittest.TestCase):
         """
         3: "Fez, sozinho, um agrupamento com 3 a 6 peças",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -83,7 +83,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -91,7 +91,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -111,7 +111,7 @@ class TestSituacao(unittest.TestCase):
         """
         4: "Fez, sozinho, um agrupamento com mais de 6 peças",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -119,7 +119,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -127,7 +127,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -135,7 +135,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "verde"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 316,
             "PosY": 74,
@@ -143,7 +143,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "verde"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 5,
             "PosX": 393,
             "PosY": 74,
@@ -151,7 +151,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "azul"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 6,
             "PosX": 123,
             "PosY": 143,
@@ -159,7 +159,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "azul"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 7,
             "PosX": 200,
             "PosY": 143,
@@ -179,7 +179,7 @@ class TestSituacao(unittest.TestCase):
         """
         5: "Adicionou uma peça no agrupamento de outro integrante, fez várias vezes",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -187,7 +187,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -197,7 +197,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Primeira infracao
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -206,7 +206,7 @@ class TestSituacao(unittest.TestCase):
             "Cor": "verde"
         })
 
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 86,
             "PosY": 284,
@@ -215,7 +215,7 @@ class TestSituacao(unittest.TestCase):
             "Cor": "verde"
         })
 
-        process_data(self.game, {
+        process_data({
             "UID": 5,
             "PosX": 163,
             "PosY": 284,
@@ -225,7 +225,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Segunda infracao
-        process_data(self.game, {
+        process_data({
             "UID": 6,
             "PosX": 239,
             "PosY": 284,
@@ -235,7 +235,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Terceira infracao
-        process_data(self.game, {
+        process_data({
             "UID": 7,
             "PosX": 123,
             "PosY": 143,
@@ -255,7 +255,7 @@ class TestSituacao(unittest.TestCase):
         """
         6: "Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num período curto",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -263,7 +263,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -271,7 +271,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -285,7 +285,7 @@ class TestSituacao(unittest.TestCase):
         situacao1 = Situacao(jogada=jogada1, game=self.game)
 
         # Jogada qualquer do jogador 1
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 1350,
             "PosY": 912,
@@ -305,7 +305,7 @@ class TestSituacao(unittest.TestCase):
         """
         7: "Segurou uma peça por mais de 6 segundos por exemplo",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -326,7 +326,7 @@ class TestSituacao(unittest.TestCase):
         8: "Colocou uma peça no tabuleiro de forma aleatória ou no próprio agrupamento e depois colocou a mesma peça
         no agrupamento do outro",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -334,7 +334,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -344,7 +344,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 coloca em um lugar aleatório
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 1350,
             "PosY": 912,
@@ -354,7 +354,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # depois coloca a mesma peça no agrupamento do outro
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -374,7 +374,7 @@ class TestSituacao(unittest.TestCase):
         """
         9: "Realizou uma ação rápida, menos de 3 segundos",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -394,7 +394,7 @@ class TestSituacao(unittest.TestCase):
         """
         10: "Adicionou uma peça no agrupamento do outro, que a remove, mas continua a repetir a ação",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -402,7 +402,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador2",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -412,7 +412,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 adiciona peça no agrupamento do Jogador 2
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -422,7 +422,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 2 remove a peça do agrupamento
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 506,
             "PosY": 284,
@@ -432,7 +432,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 adiciona novamente a peça no agrupamento do Jogador 2
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -452,7 +452,7 @@ class TestSituacao(unittest.TestCase):
         """
         11: "Agrupou peças de cor igual",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -460,7 +460,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -480,7 +480,7 @@ class TestSituacao(unittest.TestCase):
         """
         12: "Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas pretas",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -488,7 +488,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -496,7 +496,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -504,7 +504,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "verde"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 316,
             "PosY": 74,
@@ -524,7 +524,7 @@ class TestSituacao(unittest.TestCase):
         """
         13: "Agrupou peças de cores diferentes",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -532,7 +532,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 163,
             "PosY": 74,
@@ -540,7 +540,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "verde"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 5,
             "PosX": 239,
             "PosY": 74,
@@ -560,7 +560,7 @@ class TestSituacao(unittest.TestCase):
         """
         14: "Retirou peças do Agrupamento do outro integrante e devolveu para o monte",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -568,7 +568,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador2",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -578,7 +578,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 retira a peça do agrupamento do Jogador 2 e a devolve para o monte
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 1500,
             "PosY": 150,
@@ -598,7 +598,7 @@ class TestSituacao(unittest.TestCase):
         """
         15: "Retirou peças do Agrupamento do outro integrante e colocou no seu próprio agrupamento",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -606,7 +606,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador2",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -616,7 +616,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 agrupa duas peças
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 200,
             "PosY": 284,
@@ -624,7 +624,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "verde"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 239,
             "PosY": 284,
@@ -634,7 +634,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 retira a peça do agrupamento do Jogador 2 e a coloca no seu próprio agrupamento
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 276,
             "PosY": 284,
@@ -654,7 +654,7 @@ class TestSituacao(unittest.TestCase):
         """
         16: "Retirou peças do Agrupamento do outro integrante e colocou em um lugar aleatório",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -662,7 +662,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador2",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -672,7 +672,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 agrupa duas peças
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 200,
             "PosY": 150,
@@ -680,7 +680,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "verde"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 239,
             "PosY": 150,
@@ -690,7 +690,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 retira a peça do agrupamento do Jogador 2 e a coloca em um lugar aleatório
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 1270,
             "PosY": 424,
@@ -710,7 +710,7 @@ class TestSituacao(unittest.TestCase):
         """
         17: "Trocou a posição da própria peça",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -720,7 +720,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 troca a posição da mesma peça
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 163,
             "PosY": 74,
@@ -740,7 +740,7 @@ class TestSituacao(unittest.TestCase):
         """
         18: "Retirou peças do próprio Agrupamento e devolveu para o monte",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -748,7 +748,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -758,7 +758,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 retira uma peça do próprio agrupamento e a devolve para o monte
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 1500,
             "PosY": 150,
@@ -778,7 +778,7 @@ class TestSituacao(unittest.TestCase):
         """
         19: "Retirou peças do próprio agrupamento e colocou em algum lugar aleatório",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -786,7 +786,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -796,7 +796,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 retira uma peça do próprio agrupamento e a coloca em um lugar aleatório
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 400,
             "PosY": 300,
@@ -816,7 +816,7 @@ class TestSituacao(unittest.TestCase):
         """
         20: "Retirou peças dos outros integrantes que adicionaram no agrupamento feito por ele",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -824,7 +824,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -834,7 +834,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 2 adiciona uma peça no agrupamento do Jogador 1
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -844,7 +844,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 retira a peça adicionada pelo Jogador 2
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 1350,
             "PosY": 912,
@@ -864,7 +864,7 @@ class TestSituacao(unittest.TestCase):
         """
         21: "Criou mais de um agrupamento",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -872,7 +872,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -882,7 +882,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 cria o segundo agrupamento
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 150,
@@ -890,7 +890,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "verde"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 316,
             "PosY": 150,
@@ -910,7 +910,7 @@ class TestSituacao(unittest.TestCase):
         """
         22: "Conecta dois ou mais agrupamentos com outros participantes",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -918,7 +918,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -928,7 +928,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 2 cria o segundo agrupamento
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 86,
             "PosY": 211,
@@ -936,7 +936,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador2",
             "Cor": "verde"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 163,
             "PosY": 211,
@@ -946,7 +946,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 conecta os agrupamentos
-        process_data(self.game, {
+        process_data({
             "UID": 5,
             "PosX": 123,
             "PosY": 143,
@@ -966,7 +966,7 @@ class TestSituacao(unittest.TestCase):
         """
         23: "Conecta dois ou mais agrupamentos consigo mesmo",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -974,7 +974,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -984,7 +984,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 cria o segundo agrupamento
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 86,
             "PosY": 211,
@@ -992,7 +992,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "verde"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 163,
             "PosY": 211,
@@ -1002,7 +1002,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 1 conecta os agrupamentos
-        process_data(self.game, {
+        process_data({
             "UID": 5,
             "PosX": 123 ,
             "PosY": 143,
@@ -1022,7 +1022,7 @@ class TestSituacao(unittest.TestCase):
         """
         24: "Forma um agrupamento de 2 peças com outro integrante",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1030,7 +1030,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -1050,7 +1050,7 @@ class TestSituacao(unittest.TestCase):
         """
         25: "Forma um agrupamento de 3 a 6 peças com outro integrante",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1058,7 +1058,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -1066,7 +1066,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -1086,7 +1086,7 @@ class TestSituacao(unittest.TestCase):
         """
         26: "Forma um agrupamento de mais de 6 peças com outro integrante",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1094,7 +1094,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -1102,7 +1102,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -1110,7 +1110,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador2",
             "Cor": "verde"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 316,
             "PosY": 74,
@@ -1118,7 +1118,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador2",
             "Cor": "verde"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 5,
             "PosX": 393,
             "PosY": 74,
@@ -1126,7 +1126,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "azul"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 6,
             "PosX": 470,
             "PosY": 74,
@@ -1134,7 +1134,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador2",
             "Cor": "azul"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 7,
             "PosX": 547,
             "PosY": 74,
@@ -1154,7 +1154,7 @@ class TestSituacao(unittest.TestCase):
         """
         27: "Desenvolveu um agrupamento e outro integrante resolveu adicionar peças",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1162,7 +1162,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -1172,7 +1172,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 2 adiciona uma peça no agrupamento do Jogador 1
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 239,
             "PosY": 74,
@@ -1186,7 +1186,7 @@ class TestSituacao(unittest.TestCase):
         Situacao(jogada=jogada1, game=self.game)
 
         # Jogada qualquer do Jogador 1
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 316,
             "PosY": 74,
@@ -1207,7 +1207,7 @@ class TestSituacao(unittest.TestCase):
         28: "Desistiu Sozinho",
         """
         # Jogador 1 faz uma jogada qualquer
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1217,7 +1217,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         move = {"Jogador": "jogador1", "Acao": "Desistiu"}
-        finalizacao = finalizar_jogo(self.game, move)
+        finalizacao = finalizar_jogo(move)
         situacao = Situacao(game=self.game, finalizacao=finalizacao)
         self.assertIn(28, situacao.casos_id)
 
@@ -1226,7 +1226,7 @@ class TestSituacao(unittest.TestCase):
         29: "Desistiu Sozinho com pouco tempo de jogo",
         """
         # Jogador 1 faz uma jogada qualquer
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1236,7 +1236,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         move = {"Jogador": "jogador1", "Acao": "Desistiu"}
-        finalizacao = finalizar_jogo(self.game, move)
+        finalizacao = finalizar_jogo(move)
         situacao = Situacao(game=self.game, finalizacao=finalizacao)
         self.assertIn(29, situacao.casos_id)
 
@@ -1244,7 +1244,7 @@ class TestSituacao(unittest.TestCase):
         """
         30: "Desistiu Sozinho e pouco tempo depois outro integrante desistiu",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1253,7 +1253,7 @@ class TestSituacao(unittest.TestCase):
             "Cor": "vermelha"
         })
 
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -1266,8 +1266,8 @@ class TestSituacao(unittest.TestCase):
         move1 = {"Jogador": "jogador1", "Acao": "Desistiu"}
         move2 = {"Jogador": "jogador2", "Acao": "Desistiu"}
 
-        finalizar_jogo(self.game, move1)
-        finalizar_jogo(self.game, move2)
+        finalizar_jogo(move1)
+        finalizar_jogo(move2)
 
         encerrar_jogo(self.game)
 
@@ -1278,7 +1278,7 @@ class TestSituacao(unittest.TestCase):
         """
         31: "Desistiu depois de outro integrante Desistir",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1287,7 +1287,7 @@ class TestSituacao(unittest.TestCase):
             "Cor": "vermelha"
         })
 
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -1299,8 +1299,8 @@ class TestSituacao(unittest.TestCase):
         move1 = {"Jogador": "jogador2", "Acao": "Desistiu"}
         move2 = {"Jogador": "jogador1", "Acao": "Desistiu"}
 
-        finalizar_jogo(self.game, move1)
-        finalizacao = finalizar_jogo(self.game, move2)
+        finalizar_jogo(move1)
+        finalizacao = finalizar_jogo(move2)
 
         situacao = Situacao(game=self.game, finalizacao=finalizacao)
         self.assertIn(31, situacao.casos_id)
@@ -1309,7 +1309,7 @@ class TestSituacao(unittest.TestCase):
         """
         32: "Finalizou sozinho",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1319,7 +1319,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         move = {"Jogador": "jogador1", "Acao": "Finalizou"}
-        finalizacao = finalizar_jogo(self.game, move)
+        finalizacao = finalizar_jogo(move)
         situacao = Situacao(game=self.game, finalizacao=finalizacao)
         self.assertIn(32, situacao.casos_id)
 
@@ -1327,7 +1327,7 @@ class TestSituacao(unittest.TestCase):
         """
         33: "Finalizou sozinho com pouco tempo de jogo",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1338,7 +1338,7 @@ class TestSituacao(unittest.TestCase):
 
         self.game.jogadores["jogador1"].tempo_em_jogo = timedelta(seconds=250)
         move = {"Jogador": "jogador1", "Acao": "Finalizou"}
-        finalizacao = finalizar_jogo(self.game, move)
+        finalizacao = finalizar_jogo(move)
         situacao = Situacao(game=self.game, finalizacao=finalizacao)
         self.assertIn(33, situacao.casos_id)
 
@@ -1346,7 +1346,7 @@ class TestSituacao(unittest.TestCase):
         """
         34: "Finalizou depois de outro integrante Finalizar",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1355,7 +1355,7 @@ class TestSituacao(unittest.TestCase):
             "Cor": "vermelha"
         })
 
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -1367,8 +1367,8 @@ class TestSituacao(unittest.TestCase):
         move1 = {"Jogador": "jogador2", "Acao": "Finalizou"}
         move2 = {"Jogador": "jogador1", "Acao": "Finalizou"}
 
-        finalizar_jogo(self.game, move1)
-        finalizacao = finalizar_jogo(self.game, move2)
+        finalizar_jogo(move1)
+        finalizacao = finalizar_jogo(move2)
 
         situacao = Situacao(game=self.game,finalizacao=finalizacao)
         self.assertIn(34, situacao.casos_id)
@@ -1377,7 +1377,7 @@ class TestSituacao(unittest.TestCase):
         """
         35: "Finalizou Sozinho e pouco tempo depois outro integrante finalizou também",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1386,7 +1386,7 @@ class TestSituacao(unittest.TestCase):
             "Cor": "vermelha"
         })
 
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -1400,8 +1400,8 @@ class TestSituacao(unittest.TestCase):
         move1 = {"Jogador": "jogador1", "Acao": "Finalizou"}
         move2 = {"Jogador": "jogador2", "Acao": "Finalizou"}
 
-        finalizar_jogo(self.game, move1)
-        finalizar_jogo(self.game, move2)
+        finalizar_jogo(move1)
+        finalizar_jogo(move2)
 
         encerrar_jogo(self.game)
 
@@ -1412,7 +1412,7 @@ class TestSituacao(unittest.TestCase):
         """
         36: "Imitou a forma do mesmo agrupamento do outro (fez depois que outro integrante realizou a ação)",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1420,7 +1420,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -1430,7 +1430,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 2 imita a forma do agrupamento do Jogador 1
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 86,
             "PosY": 150,
@@ -1438,7 +1438,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador2",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 163,
             "PosY": 150,
@@ -1458,7 +1458,7 @@ class TestSituacao(unittest.TestCase):
         """
         37: "É imitado por alguém",
         """
-        process_data(self.game, {
+        process_data({
             "UID": 1,
             "PosX": 86,
             "PosY": 74,
@@ -1466,7 +1466,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador1",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 2,
             "PosX": 163,
             "PosY": 74,
@@ -1476,7 +1476,7 @@ class TestSituacao(unittest.TestCase):
         })
 
         # Jogador 2 imita a forma do agrupamento do Jogador 1 com duas peças verdes
-        process_data(self.game, {
+        process_data({
             "UID": 3,
             "PosX": 86,
             "PosY": 150,
@@ -1484,7 +1484,7 @@ class TestSituacao(unittest.TestCase):
             "Jogador": "jogador2",
             "Cor": "vermelha"
         })
-        process_data(self.game, {
+        process_data({
             "UID": 4,
             "PosX": 163,
             "PosY": 150,

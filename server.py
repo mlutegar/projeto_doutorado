@@ -1,21 +1,20 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-from process import *
 from pathlib import Path
 
-from entities.game import Game
+from process import Process
 
-game: Game | None = None
 app = Flask(__name__)
 CORS(app)
 
+processo = None
 
 @app.route('/iniciar_jogo', methods=['POST'])
 def iniciar_jogo():
     """
     Inicia o jogo.
     """
-    global game
+    global processo
 
     if request.is_json:
         data = request.get_json()
@@ -29,7 +28,7 @@ def iniciar_jogo():
         try:
             # Simulação de processamento
             print(f"Iniciando jogo com nome: {nome}, host: {host}")
-            iniciar_jogo(nome=nome, host=host, game=game)
+            processo = Process(nome=nome, host=host)
             return jsonify({"status": "success", "message": "Game started"}), 200
         except ValueError as e:
             return jsonify({"status": "error", "message": str(e)}), 400
@@ -39,55 +38,60 @@ def iniciar_jogo():
 
 @app.route('/save_move', methods=['POST'])
 def save_move():
-    global game
+    global processo
 
-    if request.is_json:
-        data = request.get_json()
-        data = data['data']
+    if isinstance(processo, Process):
+        if request.is_json:
+            data = request.get_json()
+            data = data['data']
 
-        try:
-            process_data(game=game, move=data)
-            return jsonify({"status": "success", "message": "Move received"}), 200
-        except ValueError as e:
-            return jsonify({"status": "error", "message": str(e)}), 400
+            try:
+                processo.process_data(move=data)
+                return jsonify({"status": "success", "message": "Move received"}), 200
+            except ValueError as e:
+                return jsonify({"status": "error", "message": str(e)}), 400
     else:
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
 @app.route('/finalizar_jogo', methods=['POST'])
 def finalizar_jogo_route():
-    global game
+    global processo
 
-    if request.is_json:
-        data = request.get_json()
-        data = data['data']
+    if isinstance(processo, Process):
+        if request.is_json:
+            data = request.get_json()
+            data = data['data']
 
-        try:
-            finalizacao = finalizar_jogo(game=game, move=data)
-            return jsonify({"status": "success", "message": f"Game {finalizacao.descricao} by {finalizacao.jogador.nome}"}), 200
-        except ValueError as e:
-            return jsonify({"status": "error", "message": str(e)}), 400
+            try:
+                finalizacao = processo.finalizar_jogo(move=data)
+                return jsonify({"status": "success", "message": f"Game {finalizacao.descricao} by {finalizacao.jogador.nome}"}), 200
+            except ValueError as e:
+                return jsonify({"status": "error", "message": str(e)}), 400
     else:
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
 
 @app.route('/export_csv', methods=['GET'])
 def export_csv():
-    global game
+    global processo
 
-    encerrar_jogo(game=game)
+    if isinstance(processo, Process):
+        processo.encerrar_jogo()
 
-    if not game.jogadas:
-        return jsonify({"status": "error", "message": "No data to export"}), 400
+        if not processo.game.jogadas:
+            return jsonify({"status": "error", "message": "No data to export"}), 400
 
-    # Define o nome do arquivo CSV
-    csv_file = 'data.csv'
+        # Define o nome do arquivo CSV
+        csv_file = 'data.csv'
 
-    # Verifica se o arquivo CSV foi criado e escreve os dados
-    if not csv_instance or not Path(csv_file).is_file():
-        return jsonify({"status": "error", "message": "Failed to create CSV file"}), 500
+        # Verifica se o arquivo CSV foi criado e escreve os dados
+        if not processo.csv_instance or not Path(csv_file).is_file():
+            return jsonify({"status": "error", "message": "Failed to create CSV file"}), 500
 
-    # Envia o arquivo CSV para download
-    return send_file(csv_file, as_attachment=True)
+        # Envia o arquivo CSV para download
+        return send_file(csv_file, as_attachment=True)
+    else:
+        return jsonify({"status": "error", "message": "Processo nao criado"}), 415
 
 
 if __name__ == '__main__':
