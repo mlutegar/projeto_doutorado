@@ -53,22 +53,37 @@ def save_move():
     else:
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
+
 @app.route('/finalizar_jogo', methods=['POST'])
 def finalizar_jogo_route():
     global processo
 
+    print("Recebida requisição para finalizar jogo.")
+
     if isinstance(processo, Process):
+        print("Processo é uma instância válida de Process.")
+
         if request.is_json:
             data = request.get_json()
+            print("Dados JSON recebidos:", data)
+
             data = data['data']
+            print("Dados processados:", data)
 
             try:
                 finalizacao = processo.finalizar_jogo(move=data)
-                return jsonify({"status": "success", "message": f"Game {finalizacao.descricao} by {finalizacao.jogador.nome}"}), 200
+                print("Finalização realizada com sucesso:", finalizacao)
+                return jsonify({"status": "success",
+                                "message": f"Game {finalizacao.descricao} by {finalizacao.jogador.nome}"}), 200
             except ValueError as e:
+                print("Erro ao finalizar o jogo:", e)
                 return jsonify({"status": "error", "message": str(e)}), 400
+        else:
+            print("Conteúdo inválido recebido.")
+            return jsonify({"status": "error", "message": "Invalid content type"}), 415
     else:
-        return jsonify({"status": "error", "message": "Invalid content type"}), 415
+        print("Processo não é uma instância válida de Process.")
+        return jsonify({"status": "error", "message": "Invalid process instance"}), 400
 
 
 @app.route('/export_csv', methods=['GET'])
