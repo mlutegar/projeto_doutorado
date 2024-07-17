@@ -42,7 +42,7 @@ class Process:
 
         # Atualiza a posição da peça
         peca.set_posicao_atual(pos_x=int(move["PosX"]), pos_y=int(move["PosY"]), jogador=jogador)
-        print(f"Peça {peca.uid} movida para posição ({peca.posicao_x}, {peca.posicao_y}) pelo jogador {jogador.nome}.")
+        print(f"Peça {peca.uid} movida para posição ({peca.linha}, {peca.coluna}) pelo jogador {jogador.nome}.")
 
         # Adiciona a jogada no jogo
         self.game.add_jogada(peca=peca, tempo=timedelta(seconds=int(move["Tempo"])))
