@@ -28,6 +28,8 @@ class Game:
         self.players_finalizou: List[Jogador] = []
 
         self.jogadas: Dict[int, Jogada] = dict()
+        self.finalizacoes: Dict[str, Finalizacao] = dict()
+
         self.jogadores: Dict[str, Jogador] = dict()
         self.grupos: Dict[tuple, Grupo] = dict()
         self.historico_grupos: Dict[int, List[Grupo]] = {}  # Histórico de grupos por peça
@@ -167,6 +169,8 @@ class Game:
         if len(self.jogadores) == 1:
             self.acabar_jogo()
 
+        self.finalizacoes[player.nome] = Finalizacao(player, "Desistiu", tempo=self.tempo_de_jogo)
+
         return Finalizacao(player, "Desistiu", tempo=self.tempo_de_jogo)
 
     def finalizar(self, player: Jogador) -> Finalizacao:
@@ -180,6 +184,8 @@ class Game:
 
         if len(self.jogadores) == 1:
             self.acabar_jogo()
+
+        self.finalizacoes[player.nome] = Finalizacao(player, "Finalizou", tempo=self.tempo_de_jogo)
 
         return Finalizacao(player, "Finalizou", tempo=self.tempo_de_jogo)
 

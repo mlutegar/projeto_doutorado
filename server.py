@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-import process
+from process import *
 from pathlib import Path
 
+from entities.game import Game
 
+game: Game | None = None
 app = Flask(__name__)
 CORS(app)
 
@@ -13,6 +15,8 @@ def iniciar_jogo():
     """
     Inicia o jogo.
     """
+    global game
+
     if request.is_json:
         data = request.get_json()
         data = data['data']
@@ -25,7 +29,7 @@ def iniciar_jogo():
         try:
             # Simulação de processamento
             print(f"Iniciando jogo com nome: {nome}, host: {host}")
-            process.iniciar_jogo(nome, host)
+            iniciar_jogo(nome=nome, host=host, game=game)
             return jsonify({"status": "success", "message": "Game started"}), 200
         except ValueError as e:
             return jsonify({"status": "error", "message": str(e)}), 400
@@ -35,13 +39,31 @@ def iniciar_jogo():
 
 @app.route('/save_move', methods=['POST'])
 def save_move():
+    global game
+
     if request.is_json:
         data = request.get_json()
         data = data['data']
 
         try:
-            process.process_data(data)
+            process_data(game=game, move=data)
             return jsonify({"status": "success", "message": "Move received"}), 200
+        except ValueError as e:
+            return jsonify({"status": "error", "message": str(e)}), 400
+    else:
+        return jsonify({"status": "error", "message": "Invalid content type"}), 415
+
+@app.route('/finalizar_jogo', methods=['POST'])
+def finalizar_jogo_route():
+    global game
+
+    if request.is_json:
+        data = request.get_json()
+        data = data['data']
+
+        try:
+            finalizacao = finalizar_jogo(game=game, move=data)
+            return jsonify({"status": "success", "message": f"Game {finalizacao.descricao} by {finalizacao.jogador.nome}"}), 200
         except ValueError as e:
             return jsonify({"status": "error", "message": str(e)}), 400
     else:
@@ -50,16 +72,18 @@ def save_move():
 
 @app.route('/export_csv', methods=['GET'])
 def export_csv():
-    process.encerrar_jogo()
+    global game
 
-    if not process.game.jogadas:
+    encerrar_jogo(game=game)
+
+    if not game.jogadas:
         return jsonify({"status": "error", "message": "No data to export"}), 400
 
     # Define o nome do arquivo CSV
     csv_file = 'data.csv'
 
     # Verifica se o arquivo CSV foi criado e escreve os dados
-    if not process.csv_instance or not Path(csv_file).is_file():
+    if not csv_instance or not Path(csv_file).is_file():
         return jsonify({"status": "error", "message": "Failed to create CSV file"}), 500
 
     # Envia o arquivo CSV para download

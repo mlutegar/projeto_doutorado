@@ -1,51 +1,84 @@
 from datetime import timedelta
 
 from entities.csv_export import CsvExport
+from entities.finalizacao import Finalizacao
 from entities.game import Game
-game: Game | None = None
 csv_instance = None
 
 
-def iniciar_jogo(nome, host) -> None:
+def iniciar_jogo(nome: str, host: str, game: Game) -> None:
     """
     Função que inicia o objeto do jogo.
     :param nome: Nome do jogo.
     :param host: Host do jogo.
+    :param game: Instância do jogo.
     """
-    global game
     game = Game(name=nome, host=host)
 
 
-def process_data(move: dict) -> None:
+def process_data(game: Game, move: dict) -> None:
     """
     Processa os dados da jogada, atualizando a lista de movimentos.
-    """
-    # variaves
 
+    :param game: Instância do jogo.
+    :param move: Dicionário contendo os dados da jogada.
+    """
+    # Verifica se todas as chaves necessárias estão presentes
     required_keys = {"UID", "PosX", "PosY", "Tempo", "Jogador", "Cor"}
     if not required_keys.issubset(move.keys()):
         raise ValueError("Dados incompletos recebidos")
 
-    if not move["UID"] in game.pecas:
+    # Obtém ou adiciona a peça no jogo
+    if move["UID"] not in game.pecas:
         peca = game.add_peca(uid=int(move["UID"]), cor=move["Cor"])
     else:
         peca = game.pecas[move["UID"]]
 
-    if not move["Jogador"] in game.jogadores:
+    # Obtém ou adiciona o jogador no jogo
+    if move["Jogador"] not in game.jogadores:
         jogador = game.add_jogador(nome=move["Jogador"])
     else:
         jogador = game.jogadores[move["Jogador"]]
 
+    # Atualiza a posição da peça
     peca.set_posicao_atual(pos_x=int(move["PosX"]), pos_y=int(move["PosY"]), jogador=jogador)
-    game.add_jogada(peca=peca, tempo=timedelta(seconds=move["Tempo"]))
+
+    # Adiciona a jogada no jogo
+    game.add_jogada(peca=peca, tempo=timedelta(seconds=int(move["Tempo"])))
 
 
-def encerrar_jogo() -> None:
+def finalizar_jogo(game: Game, move: dict) -> Finalizacao:
+    """
+    Jogador encerra a partida para ele.
+    Move: {"Jogador": "nome_do_jogador", "Acao": "Desistiu"/"Finalizou"}
+    """
+    required_keys = {"Jogador", "Acao"}
+    if not required_keys.issubset(move.keys()):
+        raise ValueError("Dados incompletos recebidos")
+
+    jogador_nome = move["Jogador"]
+    acao = move["Acao"]
+
+    if jogador_nome not in game.jogadores:
+        raise ValueError(f"Jogador {jogador_nome} não encontrado no jogo")
+
+    jogador = game.jogadores[jogador_nome]
+
+    if acao == "Desistiu":
+        finalizacao = game.desistir(player=jogador)
+    elif acao == "Finalizou":
+        finalizacao = game.finalizar(player=jogador)
+    else:
+        raise ValueError("Ação inválida. Use 'Desistiu' ou 'Finalizou'.")
+
+    return finalizacao
+
+
+def encerrar_jogo(game: Game) -> None:
     """
     Encerra o jogo e exporta os dados.
     """
     global csv_instance
-    global game
 
     if not game:
         raise ValueError("Jogo não iniciado")

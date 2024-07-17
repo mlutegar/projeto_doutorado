@@ -100,7 +100,6 @@ class Situacao:
             self.registrar_caso27(casos)
             self.registrar_caso36(casos)
             self.registrar_caso37(casos)
-            self.registrar_caso38(casos)
         elif self.finalizacao:
             if self.finalizacao.descricao == "Desistiu":
                 for jogador in self.game.players_desistiu:
@@ -131,6 +130,9 @@ class Situacao:
                     for caso in jogador.tabulacao:
                         casos.add(caso)
                     jogador.tabulacao = []
+
+        if casos == set():
+            casos.add(38)
 
         self.casos_descricao = [self.situacoes[caso] for caso in casos]
         return casos
@@ -638,14 +640,6 @@ class Situacao:
                         f"Jogador {self.jogada.peca.jogador.nome} foi imitado pelo jogador {jogada.peca.jogador.nome}")
                     jogada.peca.jogador.tabulacao.append(37)
                     break
-
-    @staticmethod
-    def registrar_caso38(casos):
-        """
-        38: "Não realizou ações"
-        """
-        if casos == set():
-            casos.add(38)
 
     def to_dict(self) -> dict:
         return {
