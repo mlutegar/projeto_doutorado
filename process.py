@@ -81,7 +81,7 @@ class Process:
         if not self.game:
             raise ValueError("Jogo não iniciado")
         else:
-            self.csv_instance = CsvExport(path='data.csv', game=self.game)
+            self.csv_instance = CsvExport(path=f'/data/{self.game.nome_da_sala}', game=self.game)
 
         self.csv_instance.analisar_game()
         self.csv_instance.write()
