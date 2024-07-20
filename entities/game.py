@@ -99,12 +99,6 @@ class Game:
 
         return jogada
 
-    def registrar_situacao(self, jogada: Jogada, casos_id: set) -> None:
-        """
-        Registra a situação da jogada.
-        """
-        self.situacoes.append((jogada, casos_id))
-
     def atualizar_historico_grupos(self, grupo: Grupo) -> None:
         """
         Atualiza o histórico de grupos para todas as peças do grupo atual.
@@ -188,9 +182,9 @@ class Game:
         if len(self.jogadores) == 1:
             self.acabar_jogo()
 
-        self.finalizacoes[player.nome] = Finalizacao(player, "Desistiu", tempo=self.tempo_de_jogo)
+        self.finalizacoes[player.nome] = Finalizacao(player, "Desistiu", tempo=self.tempo_inicio - datetime.now())
 
-        return Finalizacao(player, "Desistiu", tempo=self.tempo_de_jogo)
+        return Finalizacao(player, "Desistiu", tempo=self.tempo_inicio - datetime.now())
 
     def finalizar(self, player: Jogador) -> Finalizacao:
         """
@@ -204,9 +198,15 @@ class Game:
         if len(self.jogadores) == 1:
             self.acabar_jogo()
 
-        self.finalizacoes[player.nome] = Finalizacao(player, "Finalizou", tempo=self.tempo_de_jogo)
+        self.finalizacoes[player.nome] = Finalizacao(player, "Finalizou", tempo=self.tempo_inicio - datetime.now())
 
-        return Finalizacao(player, "Finalizou", tempo=self.tempo_de_jogo)
+        return Finalizacao(player, "Finalizou", tempo=self.tempo_inicio - datetime.now())
+
+    def registrar_situacao(self, jogada: Jogada, casos_id: set) -> None:
+        self.situacoes.append((jogada, casos_id))
+
+    def registrar_situacao_finalizacao(self, finalizacao: Finalizacao, casos_id: set) -> None:
+        self.situacoes.append((finalizacao, casos_id))
 
     def acabar_jogo(self) -> None:
         """

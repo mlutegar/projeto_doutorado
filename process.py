@@ -46,7 +46,7 @@ class Process:
         print(f"Peça {peca.uid} movida para posição ({peca.linha}, {peca.coluna}) pelo jogador {jogador.nome}.")
 
         # Adiciona a jogada no jogo
-        jogada = self.game.add_jogada(peca=peca, tempo=timedelta(seconds=int(move["Tempo"])))
+        jogada = self.game.add_jogada(peca=peca, tempo=timedelta(seconds=float(move["Tempo"])))
         print(f"Jogada adicionada com a peça {peca.uid} e tempo {move['Tempo']} segundos.")
 
         # Analisa a jogada imediatamente
@@ -76,6 +76,10 @@ class Process:
             finalizacao = self.game.finalizar(player=jogador)
         else:
             raise ValueError("Ação inválida. Use 'Desistiu' ou 'Finalizou'.")
+
+        # Analisa a finalização imediatamente
+        situacao = Situacao(game=self.game, finalizacao=finalizacao)
+        self.game.registrar_situacao_finalizacao(finalizacao, situacao.casos_id)
 
         return finalizacao
 

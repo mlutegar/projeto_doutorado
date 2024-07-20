@@ -31,10 +31,6 @@ class CsvExport:
         """
         self.list_cvs.extend(self.game.situacoes)
 
-        for finalizacao in self.game.finalizacoes.values():
-            situacao = Situacao(game=self.game, finalizacao=finalizacao)
-            self.list_cvs.append((finalizacao, situacao.casos_id))
-
     def read(self) -> str:
         """
         Lê o conteúdo do arquivo especificado no caminho.
@@ -68,10 +64,11 @@ class CsvExport:
                     'Tipo da jogada'
                 ])
 
+                id_counter = 1
                 for item, casos_id in self.list_cvs:
                     if isinstance(item, Jogada):
                         writer.writerow([
-                            item.id,
+                            id_counter,
                             self.format_horario(item.horario_da_jogada),
                             item.peca.jogador.nome,
                             self.format_timedelta_seconds(item.tempo_desde_ultimo_movimento),
@@ -84,16 +81,17 @@ class CsvExport:
                         ])
                     elif isinstance(item, Finalizacao):
                         writer.writerow([
-                            "N/A",  # ID not applicable for Finalizacao
-                            "N/A",  # Horario da jogada not applicable for Finalizacao
+                            id_counter,
+                            self.format_horario(item.horario_da_finalizacao),
                             item.jogador.nome,
                             "N/A",  # Tempo desde do último movimento do jogador not applicable for Finalizacao
-                            item.tempo,
+                            self.format_timedelta_seconds(item.tempo),
                             "N/A",  # Group not applicable for Finalizacao
                             "N/A",  # Piece UID not applicable for Finalizacao
                             "N/A",  # Piece Color not applicable for Finalizacao
                             casos_id,
                             'Finalizacao'
                         ])
+                    id_counter += 1
         except IOError as e:
             print(f"Erro ao escrever no arquivo {self.path}: {e}")

@@ -1,5 +1,5 @@
 from entities.jogador import Jogador
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 
 class Finalizacao:
@@ -14,6 +14,7 @@ class Finalizacao:
         self.jogador: Jogador = jogador
         self.descricao: str = descricao
         self.tempo: timedelta = tempo
+        self.horario_da_finalizacao: datetime = datetime.now()
 
         # limitar a descrição para apenas "Desistiu" ou "Finalizou"
         if descricao not in ["Desistiu", "Finalizou"]:
