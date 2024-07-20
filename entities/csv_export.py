@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from entities.finalizacao import Finalizacao
 from entities.game import Game
 from entities.jogada import Jogada
@@ -16,11 +18,22 @@ class CsvExport:
         self.game: Game = game
         self.list_cvs: List = []
 
+    def format_horario(self, dt: datetime) -> str:
+        return dt.strftime("%H:%M:%S")
+
+    def format_timedelta_seconds(self, td: timedelta) -> str:
+        total_seconds = td.total_seconds()
+        return f"{total_seconds:.2f}s"
+
     def analisar_game(self) -> None:
         """
         Analisa todas as jogadas feitas no game e atribui uma situacao para cada uma delas.
         """
         self.list_cvs.extend(self.game.situacoes)
+
+        for finalizacao in self.game.finalizacoes.values():
+            situacao = Situacao(game=self.game, finalizacao=finalizacao)
+            self.list_cvs.append((finalizacao, situacao.casos_id))
 
     def read(self) -> str:
         """
@@ -59,10 +72,10 @@ class CsvExport:
                     if isinstance(item, Jogada):
                         writer.writerow([
                             item.id,
-                            item.horario_da_jogada,
+                            self.format_horario(item.horario_da_jogada),
                             item.peca.jogador.nome,
-                            item.tempo_desde_ultimo_movimento,
-                            item.tempo,
+                            self.format_timedelta_seconds(item.tempo_desde_ultimo_movimento),
+                            self.format_timedelta_seconds(item.tempo),
                             f"grupo: {item.grupo.peca_pai.uid} {item.grupo.criador.nome}" if item.grupo else "sem grupo",
                             item.peca.uid,
                             item.peca.cor,
