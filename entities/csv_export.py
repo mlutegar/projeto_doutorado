@@ -20,13 +20,7 @@ class CsvExport:
         """
         Analisa todas as jogadas feitas no game e atribui uma situacao para cada uma delas.
         """
-        for jogada in self.game.jogadas.values():
-            situacao = Situacao(game=self.game, jogada=jogada)
-            self.list_cvs.append((jogada, situacao.casos_id))
-
-        for finalizacao in self.game.finalizacoes.values():
-            situacao = Situacao(game=self.game, finalizacao=finalizacao)
-            self.list_cvs.append((finalizacao, situacao.casos_id))
+        self.list_cvs.extend(self.game.situacoes)
 
     def read(self) -> str:
         """
@@ -76,15 +70,17 @@ class CsvExport:
                             'Jogada'
                         ])
                     elif isinstance(item, Finalizacao):
-                        writer.writerow(
-                            ["N/A",  # ID not applicable for Finalizacao
-                             item.jogador.nome,
-                             item.tempo,
-                             "N/A",  # Group not applicable for Finalizacao
-                             "N/A",  # Piece UID not applicable for Finalizacao
-                             "N/A",  # Piece Color not applicable for Finalizacao
-                             casos_id,
-                             item.descricao]
-                        )
+                        writer.writerow([
+                            "N/A",  # ID not applicable for Finalizacao
+                            "N/A",  # Horario da jogada not applicable for Finalizacao
+                            item.jogador.nome,
+                            "N/A",  # Tempo desde do último movimento do jogador not applicable for Finalizacao
+                            item.tempo,
+                            "N/A",  # Group not applicable for Finalizacao
+                            "N/A",  # Piece UID not applicable for Finalizacao
+                            "N/A",  # Piece Color not applicable for Finalizacao
+                            casos_id,
+                            'Finalizacao'
+                        ])
         except IOError as e:
             print(f"Erro ao escrever no arquivo {self.path}: {e}")

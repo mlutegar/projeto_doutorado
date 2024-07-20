@@ -3,6 +3,7 @@ from datetime import timedelta
 from entities.csv_export import CsvExport
 from entities.finalizacao import Finalizacao
 from entities.game import Game
+from entities.situacao import Situacao
 
 
 class Process:
@@ -45,8 +46,12 @@ class Process:
         print(f"Peça {peca.uid} movida para posição ({peca.linha}, {peca.coluna}) pelo jogador {jogador.nome}.")
 
         # Adiciona a jogada no jogo
-        self.game.add_jogada(peca=peca, tempo=timedelta(seconds=int(move["Tempo"])))
+        jogada = self.game.add_jogada(peca=peca, tempo=timedelta(seconds=int(move["Tempo"])))
         print(f"Jogada adicionada com a peça {peca.uid} e tempo {move['Tempo']} segundos.")
+
+        # Analisa a jogada imediatamente
+        situacao = Situacao(game=self.game, jogada=jogada)
+        self.game.registrar_situacao(jogada, situacao.casos_id)
 
     def finalizar_jogo(self, move: dict) -> Finalizacao:
         """

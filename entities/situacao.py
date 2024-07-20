@@ -100,6 +100,7 @@ class Situacao:
             self.registrar_caso27(casos)
             self.registrar_caso36(casos)
             self.registrar_caso37(casos)
+            self.registrar_caso38(casos)
         elif self.finalizacao:
             if self.finalizacao.descricao == "Desistiu":
                 for jogador in self.game.players_desistiu:
@@ -130,9 +131,6 @@ class Situacao:
                     for caso in jogador.tabulacao:
                         casos.add(caso)
                     jogador.tabulacao = []
-
-        if casos == set():
-            casos.add(38)
 
         self.casos_descricao = [self.situacoes[caso] for caso in casos]
         return casos
@@ -393,7 +391,7 @@ class Situacao:
         """
         19: "Retirou peças do próprio agrupamento e colocou em algum lugar aleatório",
         """
-        # Verifica o histórico de grupos da peça
+
         grupo_anterior = None
         for grupo in self.game.historico_grupos.get(self.jogada.peca.uid, []):
             if grupo.criador == self.jogada.peca.jogador:
@@ -640,6 +638,14 @@ class Situacao:
                         f"Jogador {self.jogada.peca.jogador.nome} foi imitado pelo jogador {jogada.peca.jogador.nome}")
                     jogada.peca.jogador.tabulacao.append(37)
                     break
+
+    def registrar_caso38(self, casos):
+        """
+        38: "Não realizou ações"
+        """
+        # Verifica se o tempo desde o último movimento do jogador atual é maior que 10 segundos
+        if self.jogada.tempo_desde_ultimo_movimento.total_seconds() > 10:
+            casos.add(38)
 
     def to_dict(self) -> dict:
         return {

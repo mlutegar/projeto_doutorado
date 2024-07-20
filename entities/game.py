@@ -32,6 +32,8 @@ class Game:
         self.jogadas: Dict[int, Jogada] = dict()
         self.finalizacoes: Dict[str, Finalizacao] = dict()
 
+        self.situacoes = [] # armazena todas as situações do jogo, referente a cada jogada
+
         self.jogadores: Dict[str, Jogador] = dict()
         self.grupos: Dict[tuple, Grupo] = dict()
         self.historico_grupos: Dict[int, List[Grupo]] = {}  # Histórico de grupos por peça
@@ -96,6 +98,12 @@ class Game:
         self.ultimo_movimento[jogador_nome] = jogada.horario_da_jogada
 
         return jogada
+
+    def registrar_situacao(self, jogada: Jogada, casos_id: set) -> None:
+        """
+        Registra a situação da jogada.
+        """
+        self.situacoes.append((jogada, casos_id))
 
     def atualizar_historico_grupos(self, grupo: Grupo) -> None:
         """
