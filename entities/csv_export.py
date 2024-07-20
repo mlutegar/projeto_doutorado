@@ -48,20 +48,33 @@ class CsvExport:
         try:
             with self.path.open('w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(['ID', 'Nome do player', 'Tempo', 'Grupo', 'Peça UID', 'Peça Cor', 'Casos ID', 'Tipo'])
+                writer.writerow([
+                    'ID',
+                    'Horario da jogada',
+                    'Nome do player',
+                    'Tempo desde do último movimento do jogador',
+                    'Duração da jogada',
+                    'Grupo',
+                    'Peça UID',
+                    'Peça Cor',
+                    'Casos ID',
+                    'Tipo da jogada'
+                ])
 
                 for item, casos_id in self.list_cvs:
                     if isinstance(item, Jogada):
-                        writer.writerow(
-                            [item.id,
-                             item.peca.jogador.nome,
-                             item.tempo,
-                             f"grupo: {item.grupo.peca_pai.uid} {item.grupo.criador.nome}" if item.grupo else "sem grupo",
-                             item.peca.uid,
-                             item.peca.cor,
-                             casos_id,
-                             'Jogada']
-                        )
+                        writer.writerow([
+                            item.id,
+                            item.horario_da_jogada,
+                            item.peca.jogador.nome,
+                            item.tempo_desde_ultimo_movimento,
+                            item.tempo,
+                            f"grupo: {item.grupo.peca_pai.uid} {item.grupo.criador.nome}" if item.grupo else "sem grupo",
+                            item.peca.uid,
+                            item.peca.cor,
+                            casos_id,
+                            'Jogada'
+                        ])
                     elif isinstance(item, Finalizacao):
                         writer.writerow(
                             ["N/A",  # ID not applicable for Finalizacao

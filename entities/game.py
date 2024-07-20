@@ -24,6 +24,8 @@ class Game:
         self.tempo_inicio: datetime = datetime.now()
         self.tempo_fim: Union[datetime, None] = None
 
+        self.ultimo_movimento = {}
+
         self.players_desistiu: List[Jogador] = []
         self.players_finalizou: List[Jogador] = []
 
@@ -84,6 +86,15 @@ class Game:
         jogada: Jogada = Jogada(uid=len(self.jogadas) + 1, peca=peca_estatica, grupo=grupo_estatico, tempo=tempo)
         self.jogadas[jogada.id] = jogada
         self.atualizar_historico_grupos(grupo_estatico)
+
+        jogador_nome = peca.jogador.nome
+        if jogador_nome in self.ultimo_movimento:
+            jogada.tempo_desde_ultimo_movimento = jogada.horario_da_jogada - self.ultimo_movimento[jogador_nome]
+        else:
+            jogada.tempo_desde_ultimo_movimento = jogada.horario_da_jogada - self.tempo_inicio
+
+        self.ultimo_movimento[jogador_nome] = jogada.horario_da_jogada
+
         return jogada
 
     def atualizar_historico_grupos(self, grupo: Grupo) -> None:

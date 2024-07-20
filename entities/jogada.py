@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from entities.grupo import Grupo
 from entities.peca import Peca
 
@@ -17,6 +17,8 @@ class Jogada:
         self.peca: Peca = peca
         self.grupo: Grupo = grupo
         self.tempo: timedelta = tempo
+        self.horario_da_jogada = datetime.now()
+        self.tempo_desde_ultimo_movimento: timedelta = timedelta(0)
 
     def to_dict(self) -> dict:
         """
