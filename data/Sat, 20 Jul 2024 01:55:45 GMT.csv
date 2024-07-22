@@ -1,0 +1,14 @@
+ID,Horario da jogada,Nome do player,Tempo desde do último movimento do jogador,Duração da jogada,Grupo,Peça UID,Peça Cor,Casos ID,Tipo da jogada
+1,01:56:25,Pamela,5.91s,0.00s,sem grupo,51,red,"{1, 9}",Jogada
+2,01:56:28,Michel,8.88s,1.00s,sem grupo,301,blue,"{1, 9}",Jogada
+3,01:56:30,Michel,2.34s,0.00s,grupo: 12 Michel,12,green,"{9, 2, 12}",Jogada
+4,01:56:31,Michel,1.46s,0.00s,grupo: 12 Michel,6,black,"{9, 3, 13}",Jogada
+5,01:56:34,Pamela,9.27s,0.00s,grupo: 3 Pamela,3,light_blue,"{9, 2, 12}",Jogada
+6,01:56:36,Pamela,1.70s,0.00s,grupo: 3 Pamela,11,pink,"{9, 3, 13}",Jogada
+7,01:56:37,Pamela,1.46s,0.00s,sem grupo,8,green,"{1, 9}",Jogada
+8,01:56:39,Pamela,1.55s,0.00s,grupo: 28 Pamela,28,brown,"{9, 2, 12, 21}",Jogada
+9,01:56:42,Pamela,2.92s,1.00s,grupo: 28 Pamela,34,red,"{9, 21, 3, 13}",Jogada
+10,01:56:49,Pamela,7.04s,0.00s,grupo: 3 Pamela,17,light_blue,"{9, 21, 3, 13}",Jogada
+11,01:56:52,Michel,20.47s,0.00s,sem grupo,24,red,"{38, 1, 9, 22}",Jogada
+N/A,N/A,Michel,N/A,0:00:35.538310,N/A,N/A,N/A,"{32, 33, 34}",Finalizacao
+N/A,N/A,Pamela,N/A,0:00:35.538310,N/A,N/A,N/A,"{32, 33, 34, 35}",Finalizacao
