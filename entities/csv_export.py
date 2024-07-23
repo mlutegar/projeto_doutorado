@@ -121,6 +121,6 @@ class CsvExport:
                     id_counter += 1
 
             df = pd.DataFrame(data)
-            df.to_excel(self.path.with_suffix('.xls'), index=False)
+            df.to_excel(index=False)
         except IOError as e:
-            print(f"Erro ao escrever no arquivo {self.path.with_suffix('.xls')}: {e}")
+            print(f"Erro ao escrever no arquivo: {e}")

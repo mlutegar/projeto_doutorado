@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 from entities.csv_export import CsvExport
@@ -87,10 +88,18 @@ class Process:
         """
         Encerra o jogo e exporta os dados.
         """
+        def corrigir_nome_sala(nome: str) -> str:
+            """
+            Corrige o nome da sala removendo ou substituindo caracteres inválidos.
+            """
+            # Substitui caracteres inválidos por underscore
+            return re.sub(r'[:,]', '', nome).replace(' ', '_').replace(':', '_')
+
         if not self.game:
             raise ValueError("Jogo não iniciado")
         else:
-            self.csv_instance = CsvExport(path=f'data/{self.game.nome_da_sala}.csv', game=self.game)
+            nome_da_sala_corrigido = corrigir_nome_sala(self.game.nome_da_sala)
+            self.csv_instance = CsvExport(path=f'data/{nome_da_sala_corrigido}.csv', game=self.game)
 
         self.csv_instance.analisar_game()
         self.csv_instance.write()
