@@ -115,7 +115,8 @@ class CsvExport:
                 if isinstance(item, Jogada) or isinstance(item, Finalizacao):
                     for caso_id in casos_id:
                         data['ID'].append(id_counter)
-                        data['Nome do player'].append(item.peca.jogador.nome if isinstance(item, Jogada) else item.jogador.nome)
+                        data['Nome do player'].append(
+                            item.peca.jogador.nome if isinstance(item, Jogada) else item.jogador.nome)
                         data['Casos ID'].append(f'Caso {caso_id}')
                         data['Descrição caso'].append(self.caso_descricao.get(caso_id, 'Descrição não encontrada'))
                     id_counter += 1
