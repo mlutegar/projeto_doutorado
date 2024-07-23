@@ -1,12 +1,13 @@
-from datetime import datetime, timedelta
+import pandas as pd
+import csv
 
+from datetime import datetime, timedelta
 from entities.finalizacao import Finalizacao
 from entities.game import Game
 from entities.jogada import Jogada
-from entities.situacao import Situacao
-from typing import List
-import csv
+from typing import List, Dict
 from pathlib import Path
+from util.situacoes import situacoes  # Importando as descrições das situações
 
 
 class CsvExport:
@@ -17,6 +18,7 @@ class CsvExport:
         self.path: Path = Path(path)
         self.game: Game = game
         self.list_cvs: List = []
+        self.caso_descricao: Dict[int, str] = situacoes
 
     def format_horario(self, dt: datetime) -> str:
         return dt.strftime("%H:%M:%S")
@@ -95,3 +97,30 @@ class CsvExport:
                     id_counter += 1
         except IOError as e:
             print(f"Erro ao escrever no arquivo {self.path}: {e}")
+
+    def write_clustered(self) -> None:
+        """
+        Escreve os dados analisados em um arquivo clusterizado no caminho especificado.
+        """
+        try:
+            data = {
+                'ID': [],
+                'Nome do player': [],
+                'Casos ID': [],
+                'Descrição caso': []
+            }
+
+            id_counter = 1
+            for item, casos_id in self.list_cvs:
+                if isinstance(item, Jogada) or isinstance(item, Finalizacao):
+                    for caso_id in casos_id:
+                        data['ID'].append(id_counter)
+                        data['Nome do player'].append(item.peca.jogador.nome if isinstance(item, Jogada) else item.jogador.nome)
+                        data['Casos ID'].append(f'Caso {caso_id}')
+                        data['Descrição caso'].append(self.caso_descricao.get(caso_id, 'Descrição não encontrada'))
+                    id_counter += 1
+
+            df = pd.DataFrame(data)
+            df.to_excel(self.path.with_suffix('.xls'), index=False)
+        except IOError as e:
+            print(f"Erro ao escrever no arquivo {self.path.with_suffix('.xls')}: {e}")

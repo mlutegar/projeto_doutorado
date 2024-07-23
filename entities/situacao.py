@@ -1,52 +1,10 @@
 from datetime import timedelta
-
 from entities.finalizacao import Finalizacao
 from util.methods_game import *
+from util.situacoes import situacoes
 
 
 class Situacao:
-    situacoes = {
-        1: "Pegou a peça e largou em algum lugar Aleatório",
-        2: "Fez, sozinho, um agrupamento com 2 peças",
-        3: "Fez, sozinho, um agrupamento com 3 a 6 peças",
-        4: "Fez, sozinho, um agrupamento com mais de 6 peças",
-        5: "Adicionou uma peça no agrupamento de outro integrante, fez várias vezes",
-        6: "Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num período curto",
-        7: "Segurou uma peça por mais de 6 segundos por exemplo",
-        8: "Colocou uma peça no tabuleiro de forma aleatória ou no próprio agrupamento e depois colocou a mesma peça "
-           "no agrupamento do outro",
-        9: "Realizou uma ação rápida, menos de 3 segundos",
-        10: "Adicionou uma peça no agrupamento do outro, que a remove, mas continua a repetir a ação",
-        11: "Agrupou peças de cor igual",
-        12: "Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas pretas",
-        13: "Agrupou peças de cores diferentes",
-        14: "Retirou peças do Agrupamento do outro integrante e devolveu para o monte",
-        15: "Retirou peças do Agrupamento do outro integrante e colocou no seu próprio agrupamento",
-        16: "Retirou peças do Agrupamento do outro integrante e colocou em um lugar aleatório",
-        17: "Trocou a posição da própria peça",
-        18: "Retirou peças do próprio Agrupamento e devolveu para o monte",
-        19: "Retirou peças do próprio agrupamento e colocou em algum lugar aleatório",
-        20: "Retirou peças dos outros integrantes que adicionaram no agrupamento feito por ele",
-        21: "Criou mais de um agrupamento",
-        22: "Conecta dois ou mais agrupamentos com outros participantes",
-        23: "Conecta dois ou mais agrupamentos consigo mesmo",
-        24: "Forma um agrupamento de 2 peças com outro integrante",
-        25: "Forma um agrupamento de 3 a 6 peças com outro integrante",
-        26: "Forma um agrupamento de mais de 6 peças com outro integrante",
-        27: "Desenvolveu um agrupamento e outro integrante resolveu adicionar peças",
-        28: "Desistiu Sozinho",
-        29: "Desistiu Sozinho com pouco tempo de jogo",
-        30: "Desistiu Sozinho e pouco tempo depois outro integrante desistiu",
-        31: "Desistiu depois de outro integrante Desistir",
-        32: "Finalizou sozinho",
-        33: "Finalizou sozinho com pouco tempo de jogo",
-        34: "Finalizou depois de outro integrante Finalizar",
-        35: "Finalizou Sozinho e pouco tempo depois outro integrante finalizou também",
-        36: "Imitou a forma do mesmo agrupamento do outro (fez depois que outro integrante realizou a ação)",
-        37: "É imitado por alguém",
-        38: "Não realizou ações"
-    }
-
     def __init__(self, game: Game, jogada: Jogada = None, finalizacao: Finalizacao = None) -> None:
         """
         Inicializa a classe Situacao.
@@ -71,36 +29,7 @@ class Situacao:
                 for caso in self.jogada.peca.jogador.tabulacao:
                     casos.add(caso)
                 self.jogada.peca.jogador.tabulacao = []
-            self.registrar_caso1(casos)
-            self.registrar_caso2(casos)
-            self.registrar_caso3(casos)
-            self.registrar_caso4(casos)
-            self.registrar_caso5(casos)
-            self.registrar_caso6(casos)
-            self.registrar_caso7(casos)
-            self.registrar_caso8(casos)
-            self.registrar_caso9(casos)
-            self.registrar_caso10(casos)
-            self.registrar_caso11(casos)
-            self.registrar_caso12(casos)
-            self.registrar_caso13(casos)
-            self.registrar_caso14(casos)
-            self.registrar_caso15(casos)
-            self.registrar_caso16(casos)
-            self.registrar_caso17(casos)
-            self.registrar_caso18(casos)
-            self.registrar_caso19(casos)
-            self.registrar_caso20(casos)
-            self.registrar_caso21(casos)
-            self.registrar_caso22(casos)
-            self.registrar_caso23(casos)
-            self.registrar_caso24(casos)
-            self.registrar_caso25(casos)
-            self.registrar_caso26(casos)
-            self.registrar_caso27(casos)
-            self.registrar_caso36(casos)
-            self.registrar_caso37(casos)
-            self.registrar_caso38(casos)
+            self.registrar_casos_jogada(casos)
         elif self.finalizacao:
             if self.finalizacao.descricao == "Desistiu":
                 for jogador in self.game.players_desistiu:
@@ -108,20 +37,14 @@ class Situacao:
                         for caso in jogador.tabulacao:
                             casos.add(caso)
                         jogador.tabulacao = []
-                self.registrar_caso28(casos)
-                self.registrar_caso29(casos)
-                self.registrar_caso30(casos)
-                self.registrar_caso31(casos)
+                self.registrar_casos_desistencia(casos)
             elif self.finalizacao.descricao == "Finalizou":
                 for jogador in self.game.players_finalizou:
                     if jogador.tabulacao:
                         for caso in jogador.tabulacao:
                             casos.add(caso)
                         jogador.tabulacao = []
-                self.registrar_caso32(casos)
-                self.registrar_caso33(casos)
-                self.registrar_caso34(casos)
-                self.registrar_caso35(casos)
+                self.registrar_casos_finalizacao(casos)
         else:
             # unir as listas players_desistiu e players_finalizou
             lista_jogadores = self.game.players_desistiu + self.game.players_finalizou
@@ -132,8 +55,52 @@ class Situacao:
                         casos.add(caso)
                     jogador.tabulacao = []
 
-        self.casos_descricao = [self.situacoes[caso] for caso in casos]
+        self.casos_descricao = [situacoes[caso] for caso in casos]
         return casos
+
+    def registrar_casos_jogada(self, casos):
+        self.registrar_caso1(casos)
+        self.registrar_caso2(casos)
+        self.registrar_caso3(casos)
+        self.registrar_caso4(casos)
+        self.registrar_caso5(casos)
+        self.registrar_caso6(casos)
+        self.registrar_caso7(casos)
+        self.registrar_caso8(casos)
+        self.registrar_caso9(casos)
+        self.registrar_caso10(casos)
+        self.registrar_caso11(casos)
+        self.registrar_caso12(casos)
+        self.registrar_caso13(casos)
+        self.registrar_caso14(casos)
+        self.registrar_caso15(casos)
+        self.registrar_caso16(casos)
+        self.registrar_caso17(casos)
+        self.registrar_caso18(casos)
+        self.registrar_caso19(casos)
+        self.registrar_caso20(casos)
+        self.registrar_caso21(casos)
+        self.registrar_caso22(casos)
+        self.registrar_caso23(casos)
+        self.registrar_caso24(casos)
+        self.registrar_caso25(casos)
+        self.registrar_caso26(casos)
+        self.registrar_caso27(casos)
+        self.registrar_caso36(casos)
+        self.registrar_caso37(casos)
+        self.registrar_caso38(casos)
+
+    def registrar_casos_desistencia(self, casos):
+        self.registrar_caso28(casos)
+        self.registrar_caso29(casos)
+        self.registrar_caso30(casos)
+        self.registrar_caso31(casos)
+
+    def registrar_casos_finalizacao(self, casos):
+        self.registrar_caso32(casos)
+        self.registrar_caso33(casos)
+        self.registrar_caso34(casos)
+        self.registrar_caso35(casos)
 
     def registrar_caso1(self, casos):
         """
