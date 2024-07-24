@@ -1,0 +1,5 @@
+ID,Horario da jogada,Nome do player,Tempo desde do último movimento do jogador,Duração da jogada,Grupo,Peça UID,Peça Cor,Casos ID,Tipo da jogada
+1,2024-07-20 01:41:08.747206,3,0:00:03.062890,0:00:00,sem grupo,301,blue,"{1, 9}",Jogada
+2,2024-07-20 01:41:10.192727,3,0:00:01.445521,0:00:00,sem grupo,8,green,"{1, 9}",Jogada
+3,2024-07-20 01:41:14.464529,1,0:00:08.780213,0:00:00,sem grupo,3,light_blue,"{1, 9}",Jogada
+4,2024-07-20 01:41:15.816119,1,0:00:01.351590,0:00:00,grupo: 51 1,51,red,"{9, 3, 13, 25}",Jogada

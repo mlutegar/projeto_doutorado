@@ -1,0 +1,20 @@
+ID,Horario da jogada,Nome do player,Tempo desde do último movimento do jogador,Duração da jogada,Grupo,Peça UID,Peça Cor,Casos ID,Tipo da jogada
+1,12:36:37,ana carolina,33.28s,1.07s,sem grupo,20,black,"{38, 1, 9}",Jogada
+2,12:36:43,carlos,38.49s,0.90s,sem grupo,26,green,"{38, 1, 9}",Jogada
+3,12:36:49,carlos,6.62s,0.81s,grupo: 22 carlos,22,red,"{9, 2, 12}",Jogada
+4,12:37:03,carlos,13.71s,1.10s,grupo: 22 carlos,29,brown,"{9, 3, 13, 38}",Jogada
+5,12:37:08,ana carolina,30.14s,0.70s,grupo: 22 carlos,20,black,"{3, 38, 8, 9, 13, 17, 25}",Jogada
+6,12:37:13,carlos,10.00s,1.14s,sem grupo,37,light_blue,"{1, 38, 6, 9, 27}",Jogada
+7,12:37:18,carlos,4.64s,1.15s,grupo: 5 carlos,5,light_blue,"{9, 2, 11, 21}",Jogada
+8,12:37:21,carlos,3.15s,1.28s,grupo: 5 carlos,17,light_blue,"{11, 9, 3, 21}",Jogada
+9,12:37:25,ana carolina,17.27s,1.87s,grupo: 5 carlos,24,red,"{3, 38, 9, 12, 25}",Jogada
+10,12:37:40,carlos,19.23s,1.75s,grupo: 5 carlos,44,brown,"{3, 6, 38, 9, 13, 21, 25, 27}",Jogada
+11,12:37:41,carlos,1.36s,0.74s,sem grupo,24,red,"{1, 9, 19, 20, 21}",Jogada
+12,12:37:44,carlos,3.11s,1.03s,grupo: 44 carlos,44,brown,"{2, 9, 12, 17, 21}",Jogada
+13,12:37:46,carlos,1.74s,0.80s,grupo: 44 carlos,17,light_blue,"{3, 9, 13, 17, 21}",Jogada
+14,12:37:48,carlos,1.93s,1.17s,grupo: 44 carlos,37,light_blue,"{3, 9, 13, 17, 21}",Jogada
+15,12:37:50,carlos,2.18s,1.11s,grupo: 44 carlos,5,light_blue,"{3, 9, 13, 17, 21}",Jogada
+16,12:37:54,carlos,3.40s,0.98s,sem grupo,36,light_blue,"{1, 21, 9, 23}",Jogada
+17,12:38:03,ana carolina,37.90s,0.80s,sem grupo,44,brown,"{16, 1, 9, 38}",Jogada
+18,12:38:06,ana carolina,2.92s,0.86s,grupo: 24 ana carolina,24,red,"{9, 2, 12, 15}",Jogada
+19,12:40:02,carlos,128.59s,2.40s,sem grupo,318,light_blue,"{1, 38, 9, 21, 23}",Jogada
