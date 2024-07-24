@@ -24,10 +24,12 @@ class CsvExport:
         self.list_cvs: List = []
         self.caso_descricao: Dict[int, str] = situacoes
 
-    def format_horario(self, dt: datetime) -> str:
+    @staticmethod
+    def format_horario(dt: datetime) -> str:
         return dt.strftime("%H:%M:%S")
 
-    def format_timedelta_seconds(self, td: timedelta) -> str:
+    @staticmethod
+    def format_timedelta_seconds(td: timedelta) -> str:
         total_seconds = td.total_seconds()
         return f"{total_seconds:.2f}s"
 
@@ -62,7 +64,8 @@ class CsvExport:
                     'Horario da jogada',
                     'Nome do player',
                     'Tempo desde do último movimento do jogador',
-                    'Duração da jogada',
+                    'Tempo de reação',  # Nova coluna
+                    'Tempo de resposta',  # Renomeando 'Duração da jogada' para 'Tempo de resposta'
                     'Grupo',
                     'Peça UID',
                     'Peça Cor',
@@ -71,27 +74,38 @@ class CsvExport:
                 ])
 
                 id_counter = 1
+                last_move_time = None  # Variável para armazenar o tempo da última jogada de qualquer jogador
                 for item, casos_id in self.list_cvs:
                     if isinstance(item, Jogada):
+                        if last_move_time is None:
+                            tempo_de_reacao = "N/A"
+                        else:
+                            tempo_de_reacao = self.format_timedelta_seconds(item.horario_da_jogada - last_move_time)
+
                         writer.writerow([
                             id_counter,
                             self.format_horario(item.horario_da_jogada),
                             item.peca.jogador.nome,
                             self.format_timedelta_seconds(item.tempo_desde_ultimo_movimento),
-                            self.format_timedelta_seconds(item.tempo),
-                            f"grupo: {item.grupo.peca_pai.uid} {item.grupo.criador.nome}" if item.grupo else "sem grupo",
+                            tempo_de_reacao,  # Tempo de reação
+                            self.format_timedelta_seconds(item.tempo),  # Tempo de resposta (Duração da jogada)
+                            f"grupo: "
+                            f"{item.grupo.peca_pai.uid} "
+                            f"{item.grupo.criador.nome}" if item.grupo else "sem grupo",
                             item.peca.uid,
                             item.peca.cor,
                             casos_id,
                             'Jogada'
                         ])
+                        last_move_time = item.horario_da_jogada  # Atualiza o tempo da última jogada de qualquer jogador
                     elif isinstance(item, Finalizacao):
                         writer.writerow([
                             id_counter,
                             self.format_horario(item.horario_da_finalizacao),
                             item.jogador.nome,
                             "N/A",  # Tempo desde do último movimento do jogador not applicable for Finalizacao
-                            self.format_timedelta_seconds(item.tempo),
+                            "N/A",  # Tempo de reação not applicable for Finalizacao
+                            self.format_timedelta_seconds(item.tempo),  # Tempo de resposta (Duração da jogada)
                             "N/A",  # Group not applicable for Finalizacao
                             "N/A",  # Piece UID not applicable for Finalizacao
                             "N/A",  # Piece Color not applicable for Finalizacao
@@ -104,7 +118,7 @@ class CsvExport:
 
     def write_clustered(self) -> None:
         """
-        Lê o CSV gerado e escreve os dados analisados em um arquivo clusterizado no caminho especificado.
+        Lê o CSV gerado e escreve os dados analisados em um arquivo clusteritzada no caminho especificado.
         """
         csv_path = self.path
         excel_path = self.path.with_suffix('.xlsx')
@@ -138,14 +152,17 @@ class CsvExport:
                 for caso_id in casos_id:
                     descricao_caso = descricoes_casos.get(caso_id, "Descrição não encontrada")
                     for acao_generica in acoes_genericas.get(caso_id, ["Ação genérica não encontrada"]):
-                        nova_linha = row.copy()
-                        nova_linha["Casos ID"] = caso_id
-                        nova_linha["Descrição do Caso"] = descricao_caso
-                        nova_linha["Ação Genérica"] = acao_generica
+                        nova_linha = {
+                            "ID": row["ID"],
+                            "Nome do player": row["Nome do player"],
+                            "Descrição do Caso": descricao_caso,
+                            "Ação Genérica": acao_generica
+                        }
                         novas_linhas.append(nova_linha)
 
-            # Criar um novo DataFrame com as novas linhas
-            df_expandido = pd.DataFrame(novas_linhas)
+            # Criar um novo DataFrame com as novas linhas e colunas desejadas
+            df_expandido = pd.DataFrame(novas_linhas,
+                                        columns=["ID", "Nome do player", "Descrição do Caso", "Ação Genérica"])
             print(f"DataFrame expandido criado com sucesso. Número de linhas: {len(df_expandido)}")
 
             # Usar buffer de memória para escrever o arquivo Excel
@@ -161,7 +178,7 @@ class CsvExport:
 
             # Criar arquivo ZIP
             with zipfile.ZipFile(zip_path, 'w') as zipf:
-                zipf.write(excel_path, arcname='nome_clusterizado.xlsx')
+                zipf.write(excel_path, arcname=f'{self.path.stem}.xlsx')
 
             print(f"Arquivo ZIP salvo em '{zip_path}'.")
 
