@@ -121,7 +121,18 @@ class CsvExport:
                         data['Descrição caso'].append(self.caso_descricao.get(caso_id, 'Descrição não encontrada'))
                     id_counter += 1
 
+            # Debug print to check the data dictionary
+            print("Data dictionary:", data)
+
             df = pd.DataFrame(data)
-            df.to_excel(self.path.with_suffix('.xlsx'), index=False)
-        except IOError as e:
+
+            # Debug print to check the DataFrame
+            print("DataFrame head:", df.head())
+
+            # Debug print to check the DataFrame info
+            print("DataFrame info:", df.info())
+
+            df.to_excel(self.path.with_suffix('.xlsx'), index=False, engine='openpyxl')
+            print(f"Arquivo {self.path.with_suffix('.xlsx')} escrito com sucesso.")
+        except Exception as e:
             print(f"Erro ao escrever no arquivo {self.path.with_suffix('.xlsx')}: {e}")
