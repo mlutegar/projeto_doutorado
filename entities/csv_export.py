@@ -11,7 +11,7 @@ from entities.game import Game
 from entities.jogada import Jogada
 from typing import List, Dict
 from pathlib import Path
-from util.situacoes import situacoes  # Importando as descrições das situações
+from util.situacoes import situacoes, acoes_genericas  # Importando as descrições das situações
 
 
 class CsvExport:
@@ -134,12 +134,15 @@ class CsvExport:
                     print(f"Erro ao analisar os casos ID na linha {index}: {e}")
                     continue
 
-                # Para cada caso ID, criar uma nova linha com a descrição do caso
+                # Para cada caso ID, criar uma nova linha com a descrição do caso e as ações genéricas
                 for caso_id in casos_id:
-                    nova_linha = row.copy()
-                    nova_linha["Casos ID"] = caso_id
-                    nova_linha["Descrição do Caso"] = descricoes_casos.get(caso_id, "Descrição não encontrada")
-                    novas_linhas.append(nova_linha)
+                    descricao_caso = descricoes_casos.get(caso_id, "Descrição não encontrada")
+                    for acao_generica in acoes_genericas.get(caso_id, ["Ação genérica não encontrada"]):
+                        nova_linha = row.copy()
+                        nova_linha["Casos ID"] = caso_id
+                        nova_linha["Descrição do Caso"] = descricao_caso
+                        nova_linha["Ação Genérica"] = acao_generica
+                        novas_linhas.append(nova_linha)
 
             # Criar um novo DataFrame com as novas linhas
             df_expandido = pd.DataFrame(novas_linhas)
