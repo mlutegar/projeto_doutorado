@@ -1,13 +1,56 @@
+import ast
 import unittest
 from pathlib import Path
 
+import pandas as pd
+
 from process import Process
+from util.situacoes import situacoes
 
 
 class TestGameFunctions(unittest.TestCase):
 
     def setUp(self):
         self.processo = Process("teste_iniciar", "novo_host")
+
+    def teste(self):
+        def write_clustered() -> None:
+            """
+            Lê o CSV gerado e escreve os dados analisados em um arquivo clusterizado no caminho especificado.
+            """
+            # Caminho do CSV original
+            csv_path = "../data/Sat_20_Jul_2024_01_39_45_GMT.csv"
+
+            # Caminho do arquivo Excel a ser gerado
+            excel_path = "../data/Sat_20_Jul_2024_01_39_45_GMT_clusterizado.xlsx"
+
+            # Ler o CSV
+            df = pd.read_csv(csv_path)
+
+            # Lista para armazenar as novas linhas
+            novas_linhas = []
+
+            # Dicionário de exemplo para as descrições dos casos
+            descricoes_casos = situacoes
+
+            # Iterar sobre cada linha do DataFrame
+            for index, row in df.iterrows():
+                casos_id = ast.literal_eval(row["Casos ID"])
+
+                # Para cada caso ID, criar uma nova linha com a descrição do caso
+                for caso_id in casos_id:
+                    nova_linha = row.copy()
+                    nova_linha["Casos ID"] = caso_id
+                    nova_linha["Descrição do Caso"] = descricoes_casos.get(caso_id, "Descrição não encontrada")
+                    novas_linhas.append(nova_linha)
+
+            # Criar um novo DataFrame com as novas linhas
+            df_expandido = pd.DataFrame(novas_linhas)
+
+            # Salvar o DataFrame expandido em um arquivo Excel
+            df_expandido.to_excel(excel_path, index=False)
+
+        write_clustered()
 
     def test_iniciar_jogo(self):
         self.assertEqual(self.processo.game.nome_da_sala, "teste_iniciar")

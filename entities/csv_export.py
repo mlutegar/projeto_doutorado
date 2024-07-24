@@ -1,3 +1,5 @@
+import ast
+
 import pandas as pd
 import csv
 
@@ -100,39 +102,36 @@ class CsvExport:
 
     def write_clustered(self) -> None:
         """
-        Escreve os dados analisados em um arquivo clusterizado no caminho especificado.
+        Lê o CSV gerado e escreve os dados analisados em um arquivo clusterizado no caminho especificado.
         """
-        try:
-            data = {
-                'ID': [],
-                'Nome do player': [],
-                'Casos ID': [],
-                'Descrição caso': []
-            }
+        # Caminho do CSV original
+        csv_path = self.path
 
-            id_counter = 1
-            for item, casos_id in self.list_cvs:
-                if isinstance(item, Jogada) or isinstance(item, Finalizacao):
-                    for caso_id in casos_id:
-                        data['ID'].append(id_counter)
-                        data['Nome do player'].append(
-                            item.peca.jogador.nome if isinstance(item, Jogada) else item.jogador.nome)
-                        data['Casos ID'].append(f'Caso {caso_id}')
-                        data['Descrição caso'].append(self.caso_descricao.get(caso_id, 'Descrição não encontrada'))
-                    id_counter += 1
+        # Caminho do arquivo Excel a ser gerado
+        excel_path = self.path.with_suffix('.xlsx')
 
-            # Debug print to check the data dictionary
-            print("Data dictionary:", data)
+        # Ler o CSV
+        df = pd.read_csv(csv_path)
 
-            df = pd.DataFrame(data)
+        # Lista para armazenar as novas linhas
+        novas_linhas = []
 
-            # Debug print to check the DataFrame
-            print("DataFrame head:", df.head())
+        # Dicionário de exemplo para as descrições dos casos
+        descricoes_casos = self.caso_descricao
 
-            # Debug print to check the DataFrame info
-            print("DataFrame info:", df.info())
+        # Iterar sobre cada linha do DataFrame
+        for index, row in df.iterrows():
+            casos_id = ast.literal_eval(row["Casos ID"])
 
-            df.to_excel(self.path.with_suffix('.xlsx'), index=False, engine='openpyxl')
-            print(f"Arquivo {self.path.with_suffix('.xlsx')} escrito com sucesso.")
-        except Exception as e:
-            print(f"Erro ao escrever no arquivo {self.path.with_suffix('.xlsx')}: {e}")
+            # Para cada caso ID, criar uma nova linha com a descrição do caso
+            for caso_id in casos_id:
+                nova_linha = row.copy()
+                nova_linha["Casos ID"] = caso_id
+                nova_linha["Descrição do Caso"] = descricoes_casos.get(caso_id, "Descrição não encontrada")
+                novas_linhas.append(nova_linha)
+
+        # Criar um novo DataFrame com as novas linhas
+        df_expandido = pd.DataFrame(novas_linhas)
+
+        # Salvar o DataFrame expandido em um arquivo Excel
+        df_expandido.to_excel(excel_path, index=False)
