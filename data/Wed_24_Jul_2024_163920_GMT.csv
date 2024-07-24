@@ -1,0 +1,5 @@
+ID,Horario da jogada,Nome do player,Tempo desde do último movimento do jogador,Duração da jogada,Grupo,Peça UID,Peça Cor,Casos ID,Tipo da jogada
+1,16:39:23,\sda,1.24s,0.49s,sem grupo,3,light_blue,"{1, 9}",Jogada
+2,16:39:24,\sda,1.01s,0.69s,sem grupo,51,red,"{1, 9}",Jogada
+3,16:39:25,\sda,1.12s,0.58s,grupo: 8 \sda,8,green,"{9, 3, 13}",Jogada
+4,16:39:27,\sda,N/A,-4.72s,N/A,N/A,N/A,"{32, 33}",Finalizacao

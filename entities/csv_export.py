@@ -2,6 +2,7 @@ import ast
 
 import pandas as pd
 import csv
+import io
 
 from datetime import datetime, timedelta
 from entities.finalizacao import Finalizacao
@@ -104,34 +105,54 @@ class CsvExport:
         """
         Lê o CSV gerado e escreve os dados analisados em um arquivo clusterizado no caminho especificado.
         """
-        # Caminho do CSV original
-        csv_path = self.path
+        csv_path = "data/Sat_20_Jul_2024_01_39_45_GMT.csv"
+        excel_path = "data/Sat_20_Jul_2024_01_39_45_GMT_clusterizado.xlsx"
+        descricoes_casos = situacoes
 
-        # Caminho do arquivo Excel a ser gerado
-        excel_path = self.path.with_suffix('.xlsx')
-
-        # Ler o CSV
-        df = pd.read_csv(csv_path)
-
-        # Lista para armazenar as novas linhas
-        novas_linhas = []
-
-        # Dicionário de exemplo para as descrições dos casos
-        descricoes_casos = self.caso_descricao
-
-        # Iterar sobre cada linha do DataFrame
-        for index, row in df.iterrows():
-            casos_id = ast.literal_eval(row["Casos ID"])
-
-            # Para cada caso ID, criar uma nova linha com a descrição do caso
-            for caso_id in casos_id:
-                nova_linha = row.copy()
-                nova_linha["Casos ID"] = caso_id
-                nova_linha["Descrição do Caso"] = descricoes_casos.get(caso_id, "Descrição não encontrada")
-                novas_linhas.append(nova_linha)
-
-        # Criar um novo DataFrame com as novas linhas
-        df_expandido = pd.DataFrame(novas_linhas)
-
-        # Salvar o DataFrame expandido em um arquivo Excel
-        df_expandido.to_excel(excel_path, index=False)
+        try:
+            # Verificar se o CSV existe e lê-lo
+            try:
+                df = pd.read_csv(csv_path)
+                print(f"CSV lido com sucesso. Número de linhas: {len(df)}")
+            except FileNotFoundError:
+                print(f"Erro: O arquivo CSV '{csv_path}' não foi encontrado.")
+                return
+            except Exception as e:
+                print(f"Erro ao ler o arquivo CSV: {e}")
+                return
+        
+            # Lista para armazenar as novas linhas
+            novas_linhas = []
+        
+            # Iterar sobre cada linha do DataFrame
+            for index, row in df.iterrows():
+                try:
+                    casos_id = ast.literal_eval(row["Casos ID"])
+                except Exception as e:
+                    print(f"Erro ao analisar os casos ID na linha {index}: {e}")
+                    continue
+        
+                # Para cada caso ID, criar uma nova linha com a descrição do caso
+                for caso_id in casos_id:
+                    nova_linha = row.copy()
+                    nova_linha["Casos ID"] = caso_id
+                    nova_linha["Descrição do Caso"] = descricoes_casos.get(caso_id, "Descrição não encontrada")
+                    novas_linhas.append(nova_linha)
+        
+            # Criar um novo DataFrame com as novas linhas
+            df_expandido = pd.DataFrame(novas_linhas)
+            print(f"DataFrame expandido criado com sucesso. Número de linhas: {len(df_expandido)}")
+        
+            # Usar buffer de memória para escrever o arquivo Excel
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                df_expandido.to_excel(writer, index=False)
+        
+            # Escrever buffer no arquivo Excel
+            with open(excel_path, 'wb') as f:
+                f.write(buffer.getvalue())
+        
+            print(f"Arquivo Excel salvo em '{excel_path}'.")
+        
+        except Exception as e:
+            print(f"Ocorreu um erro: {e}")
