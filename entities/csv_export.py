@@ -1,4 +1,5 @@
 import ast
+import zipfile
 
 import pandas as pd
 import csv
@@ -107,6 +108,7 @@ class CsvExport:
         """
         csv_path = "data/Sat_20_Jul_2024_01_39_45_GMT.csv"
         excel_path = "data/Sat_20_Jul_2024_01_39_45_GMT_clusterizado.xlsx"
+        zip_path = "data/Sat_20_Jul_2024_01_39_45_GMT_clusterizado.zip"
         descricoes_casos = situacoes
 
         try:
@@ -120,10 +122,10 @@ class CsvExport:
             except Exception as e:
                 print(f"Erro ao ler o arquivo CSV: {e}")
                 return
-        
+
             # Lista para armazenar as novas linhas
             novas_linhas = []
-        
+
             # Iterar sobre cada linha do DataFrame
             for index, row in df.iterrows():
                 try:
@@ -131,28 +133,34 @@ class CsvExport:
                 except Exception as e:
                     print(f"Erro ao analisar os casos ID na linha {index}: {e}")
                     continue
-        
+
                 # Para cada caso ID, criar uma nova linha com a descrição do caso
                 for caso_id in casos_id:
                     nova_linha = row.copy()
                     nova_linha["Casos ID"] = caso_id
                     nova_linha["Descrição do Caso"] = descricoes_casos.get(caso_id, "Descrição não encontrada")
                     novas_linhas.append(nova_linha)
-        
+
             # Criar um novo DataFrame com as novas linhas
             df_expandido = pd.DataFrame(novas_linhas)
             print(f"DataFrame expandido criado com sucesso. Número de linhas: {len(df_expandido)}")
-        
+
             # Usar buffer de memória para escrever o arquivo Excel
             buffer = io.BytesIO()
             with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
                 df_expandido.to_excel(writer, index=False)
-        
+
             # Escrever buffer no arquivo Excel
             with open(excel_path, 'wb') as f:
                 f.write(buffer.getvalue())
-        
+
             print(f"Arquivo Excel salvo em '{excel_path}'.")
-        
+
+            # Criar arquivo ZIP
+            with zipfile.ZipFile(zip_path, 'w') as zipf:
+                zipf.write(excel_path, arcname='nome_clusterizado.xlsx')
+
+            print(f"Arquivo ZIP salvo em '{zip_path}'.")
+
         except Exception as e:
             print(f"Ocorreu um erro: {e}")
