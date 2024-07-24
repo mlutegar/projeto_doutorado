@@ -155,6 +155,8 @@ class CsvExport:
                         nova_linha = {
                             "ID": row["ID"],
                             "Nome do player": row["Nome do player"],
+                            "Tempo de reação": row["Tempo de reação"],
+                            "Tempo de resposta": row["Tempo de resposta"],
                             "Descrição do Caso": descricao_caso,
                             "Ação Genérica": acao_generica
                         }
@@ -184,3 +186,63 @@ class CsvExport:
 
         except Exception as e:
             print(f"Ocorreu um erro: {e}")
+
+    # def gerar_grafo(self):
+    #     """
+    #     Gera um grafo com as jogadas feitas no game.
+    #     """
+    #     import pandas as pd
+    #     import networkx as nx
+    #     import matplotlib.pyplot as plt
+    #
+    #     # Supondo que você tenha um DataFrame com a sua tabela
+    #     data = {
+    #         'ID': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4,
+    #                4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5],
+    #         'Nome do player': ['As'] * 49,
+    #         'Descrição do Caso': ['Pegou a peça e largou em algum lugar Aleatório'] * 7 +
+    #                              ['Realizou uma ação rápida, menos de 3 segundos'] * 4 +
+    #                              ['Fez, sozinho, um agrupamento com 2 peças'] * 2 +
+    #                              [
+    #                                  'Criou um agrupamento contendo peças iguais e diferentes. Exemplo: Duas amarelas e duas pretas'] * 5 +
+    #                              ['Pegou a peça e largou em algum lugar Aleatório'] * 7 +
+    #                              ['Realizou uma ação rápida, menos de 3 segundos'] * 2 +
+    #                              ['Pegou a peça e largou em algum lugar Aleatório'] * 7 +
+    #                              ['Realizou uma ação rápida, menos de 3 segundos'] * 2 +
+    #                              ['Finalizou sozinho'] * 5 +
+    #                              ['Finalizou sozinho com pouco tempo de jogo'] * 3,
+    #         'Ação Genérica': ['Executa Tarefas Simples', 'Não se Envolve / Evita Envolvimento',
+    #                           'Ignora Contribuições Alheias', 'Evita Participar', 'Desconsidera o Grupo',
+    #                           'Contribui Esporadicamente', 'Desmotiva o Grupo', 'Define Metas Claras',
+    #                           'Executa Tarefas Simples', 'Define Metas Claras', 'Executa Tarefas Simples',
+    #                           'Não se Envolve', 'Monitora e Avalia Progresso', 'Planeja Estratégicamente',
+    #                           'Define Visão de Longo Prazo', 'Desempenha Funções Variadas',
+    #                           'Monitora e Avalia Progresso', 'Define Metas Claras', 'Executa Tarefas Simples',
+    #                           'Não se Envolve / Evita Envolvimento', 'Ignora Contribuições Alheias', 'Evita Participar',
+    #                           'Desconsidera o Grupo', 'Contribui Esporadicamente', 'Desmotiva o Grupo',
+    #                           'Define Metas Claras', 'Executa Tarefas Simples', 'Executa Tarefas Simples',
+    #                           'Não se Envolve / Evita Envolvimento', 'Ignora Contribuições Alheias', 'Evita Participar',
+    #                           'Desconsidera o Grupo', 'Contribui Esporadicamente', 'Desmotiva o Grupo',
+    #                           'Define Metas Claras', 'Executa Tarefas Simples', 'Desconsidera o Grupo',
+    #                           'Centraliza Decisões', 'Prioriza Interesses Próprios', 'Monitora e Avalia Progresso',
+    #                           'Desmotiva o Grupo', 'Monitora e Avalia Progresso', 'Centraliza Decisões',
+    #                           'Prioriza Interesses Próprios']
+    #     }
+    #
+    #     df = pd.DataFrame(data)
+    #
+    #     # Criar o grafo
+    #     G = nx.DiGraph()
+    #
+    #     # Adicionar nós e arestas ao grafo
+    #     for i in range(len(df) - 1):
+    #         G.add_node(df['Descrição do Caso'][i], action=df['Ação Genérica'][i])
+    #         G.add_edge(df['Descrição do Caso'][i], df['Descrição do Caso'][i + 1])
+    #
+    #     # Desenhar o grafo
+    #     plt.figure(figsize=(12, 8))
+    #     pos = nx.spring_layout(G, k=0.5)
+    #     nx.draw(G, pos, with_labels=True, node_size=3000, node_color='lightblue', font_size=10, font_weight='bold',
+    #             edge_color='gray')
+    #     plt.title("Grafo das Ações dos Jogadores")
+    #     plt.show()

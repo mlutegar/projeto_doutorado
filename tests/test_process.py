@@ -14,43 +14,37 @@ class TestGameFunctions(unittest.TestCase):
         self.processo = Process("teste_iniciar", "novo_host")
 
     def teste(self):
-        def write_clustered() -> None:
+        def gerar_grafo():
             """
-            Lê o CSV gerado e escreve os dados analisados em um arquivo clusterizado no caminho especificado.
+            Gera um grafo com as jogadas feitas no game.
             """
-            # Caminho do CSV original
-            csv_path = "../data/Sat_20_Jul_2024_01_39_45_GMT.csv"
+            import pandas as pd
+            import networkx as nx
+            import matplotlib.pyplot as plt
 
-            # Caminho do arquivo Excel a ser gerado
-            excel_path = "../data/Sat_20_Jul_2024_01_39_45_GMT_clusterizado.xlsx"
+            # Supondo que você tenha um arquivo CSV com os dados, vamos lê-lo diretamente
+            file_path = 'data.csv'  # Substitua pelo caminho correto do seu arquivo CSV
+            df = pd.read_csv(file_path)
 
-            # Ler o CSV
-            df = pd.read_csv(csv_path)
+            # Criar o grafo
+            G = nx.DiGraph()
 
-            # Lista para armazenar as novas linhas
-            novas_linhas = []
+            # Adicionar nós e arestas ao grafo
+            for i in range(len(df) - 1):
+                # Vamos garantir que estamos considerando apenas transições entre diferentes ações
+                if df['Ação Genérica'][i] != df['Ação Genérica'][i + 1]:
+                    G.add_node(df['Descrição do Caso'][i], action=df['Ação Genérica'][i])
+                    G.add_edge(df['Descrição do Caso'][i], df['Descrição do Caso'][i + 1])
 
-            # Dicionário de exemplo para as descrições dos casos
-            descricoes_casos = situacoes
+            # Desenhar o grafo
+            plt.figure(figsize=(12, 8))
+            pos = nx.spring_layout(G, k=0.5)
+            nx.draw(G, pos, with_labels=True, node_size=3000, node_color='lightblue', font_size=10, font_weight='bold',
+                    edge_color='gray')
+            plt.title("Grafo das Ações dos Jogadores")
+            plt.show()
 
-            # Iterar sobre cada linha do DataFrame
-            for index, row in df.iterrows():
-                casos_id = ast.literal_eval(row["Casos ID"])
-
-                # Para cada caso ID, criar uma nova linha com a descrição do caso
-                for caso_id in casos_id:
-                    nova_linha = row.copy()
-                    nova_linha["Casos ID"] = caso_id
-                    nova_linha["Descrição do Caso"] = descricoes_casos.get(caso_id, "Descrição não encontrada")
-                    novas_linhas.append(nova_linha)
-
-            # Criar um novo DataFrame com as novas linhas
-            df_expandido = pd.DataFrame(novas_linhas)
-
-            # Salvar o DataFrame expandido em um arquivo Excel
-            df_expandido.to_excel(excel_path, index=False)
-
-        write_clustered()
+        gerar_grafo()
 
     def test_iniciar_jogo(self):
         self.assertEqual(self.processo.game.nome_da_sala, "teste_iniciar")
