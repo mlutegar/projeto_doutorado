@@ -106,9 +106,9 @@ class CsvExport:
         """
         Lê o CSV gerado e escreve os dados analisados em um arquivo clusterizado no caminho especificado.
         """
-        csv_path = "data/Sat_20_Jul_2024_01_39_45_GMT.csv"
-        excel_path = "data/Sat_20_Jul_2024_01_39_45_GMT_clusterizado.xlsx"
-        zip_path = "data/Sat_20_Jul_2024_01_39_45_GMT_clusterizado.zip"
+        csv_path = self.path
+        excel_path = self.path.with_suffix('.xlsx')
+        zip_path = self.path.with_suffix('.zip')
         descricoes_casos = situacoes
 
         try:
