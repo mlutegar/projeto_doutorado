@@ -8,9 +8,9 @@ from entities.situacao import Situacao
 
 
 class Process:
-    def __init__(self, nome: str, host: str) -> None:
+    def __init__(self, nome: str, host: str, tabuleiro: str) -> None:
         self.csv_instance = None
-        self.game = Game(name=nome, host=host)
+        self.game = Game(name=nome, host=host, tabuleiro=int(tabuleiro))
 
     def process_data(self, move: dict) -> None:
         """

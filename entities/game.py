@@ -10,7 +10,7 @@ from util.methods_peca import verificar_adicionar_pecas_conectadas, verificar_pe
 
 
 class Game:
-    def __init__(self, name: str, host: str, tabuleiro: int = 1) -> None:
+    def __init__(self, name: str, host: str, tabuleiro: int) -> None:
         """
         Inicializa um jogo.
         :param name: Nome da sala.

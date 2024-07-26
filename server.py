@@ -21,9 +21,9 @@ class GameState:
     def __init__(self):
         self.processo = None
 
-    def iniciar_processo(self, nome, host):
-        self.processo = Process(nome=nome, host=host)
-        logging.info(f"Processo iniciado com nome: {nome}, host: {host}")
+    def iniciar_processo(self, nome: str, host: str, tabuleiro: str):
+        self.processo = Process(nome=nome, host=host, tabuleiro=tabuleiro)
+        logging.info(f"Processo iniciado com nome: {nome}, host: {host}, tabuleiro: {tabuleiro}")
 
     def get_processo(self):
         return self.processo
@@ -46,12 +46,14 @@ def iniciar_jogo():
 
     nome = data.get('nome')
     host = data.get('host')
-    if not nome or not host:
+    tabuleiro = data.get('tabuleiro')
+
+    if not nome or not host or not tabuleiro:
         return jsonify({"status": "error", "message": "Missing 'nome' or 'host'"}), 400
 
     try:
-        logging.info(f"Iniciando jogo com nome: {nome}, host: {host}")
-        game_state.iniciar_processo(nome=nome, host=host)
+        logging.info(f"Iniciando jogo com nome: {nome}, host: {host}, tabuleiro: {tabuleiro}")
+        game_state.iniciar_processo(nome=nome, host=host, tabuleiro=tabuleiro)
         return jsonify({"status": "success", "message": "Game started"}), 200
     except ValueError as e:
         logging.error(f"Erro ao iniciar o jogo: {e}")
