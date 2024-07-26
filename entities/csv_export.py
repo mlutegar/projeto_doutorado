@@ -15,14 +15,33 @@ from util.situacoes import situacoes, acoes_genericas  # Importando as descriç�
 
 
 class CsvExport:
-    def __init__(self, path: str, game: Game) -> None:
+    def __init__(self, path_root: str, game: 'Game', nome: str) -> None:
         """
         Inicializa a classe Csv com o caminho do arquivo e o jogo.
+
+        :param path_root: Caminho raiz dos arquivos.
+        :param game: Instância do jogo.
+        :param nome: Nome do arquivo.
         """
-        self.path: Path = Path(path)
+        self.nome: str = nome
+        self.path_root: Path = Path(path_root)
+        self.path_csv: Path = self.path_root / "csv"
+        self.path_excel: Path = self.path_root / "excel"
+        self.path_zip: Path = self.path_root / "zip"
+
+        # Cria os diretórios se não existirem
+        self.path_csv.mkdir(parents=True, exist_ok=True)
+        self.path_excel.mkdir(parents=True, exist_ok=True)
+        self.path_zip.mkdir(parents=True, exist_ok=True)
+
+        # Caminhos completos para os arquivos
+        self.path_csv_complete: Path = self.path_csv / f"{self.nome}.csv"
+        self.path_excel_complete: Path = self.path_excel / f"{self.nome}.xlsx"
+        self.path_zip_complete: Path = self.path_zip / f"{self.nome}.zip"
+
         self.game: Game = game
         self.list_cvs: List = []
-        self.caso_descricao: Dict[int, str] = situacoes
+        self.caso_descricao: Dict[int, str] = situacoes  # Certifique-se de que 'situacoes' está definido em algum lugar
 
     @staticmethod
     def format_horario(dt: datetime) -> str:
@@ -39,90 +58,96 @@ class CsvExport:
         """
         self.list_cvs.extend(self.game.situacoes)
 
-    def read(self) -> str:
+    def write_csv(self) -> None:
         """
-        Lê o conteúdo do arquivo especificado no caminho.
-        :return: Conteúdo do arquivo como string.
-        """
-        try:
-            with self.path.open('r') as file:
-                return file.read()
-        except FileNotFoundError:
-            return f"Arquivo {self.path} não encontrado."
-        except IOError as e:
-            return f"Erro ao ler o arquivo {self.path}: {e}"
-
-    def write(self) -> None:
-        """
-        Escreve os dados analisados em um arquivo no caminho especificado.
+        Escreve os dados analisados em um arquivo CSV no caminho especificado.
         """
         try:
-            with self.path.open('w', newline='') as file:
+            with self.path_csv_complete.open('w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow([
-                    'ID',
-                    'Horario da jogada',
-                    'Nome do player',
-                    'Tempo desde do último movimento do jogador',
-                    'Tempo de reação',  # Nova coluna
-                    'Tempo de resposta',  # Renomeando 'Duração da jogada' para 'Tempo de resposta'
-                    'Grupo',
-                    'Peça UID',
-                    'Peça Cor',
-                    'Casos ID',
-                    'Tipo da jogada'
-                ])
-
-                id_counter = 1
-                last_move_time = None  # Variável para armazenar o tempo da última jogada de qualquer jogador
-                for item, casos_id in self.list_cvs:
-                    if isinstance(item, Jogada):
-                        if last_move_time is None:
-                            tempo_de_reacao = "N/A"
-                        else:
-                            tempo_de_reacao = self.format_timedelta_seconds(item.horario_da_jogada - last_move_time)
-
-                        writer.writerow([
-                            id_counter,
-                            self.format_horario(item.horario_da_jogada),
-                            item.peca.jogador.nome,
-                            self.format_timedelta_seconds(item.tempo_desde_ultimo_movimento),
-                            tempo_de_reacao,  # Tempo de reação
-                            self.format_timedelta_seconds(item.tempo),  # Tempo de resposta (Duração da jogada)
-                            f"grupo: "
-                            f"{item.grupo.peca_pai.uid} "
-                            f"{item.grupo.criador.nome}" if item.grupo else "sem grupo",
-                            item.peca.uid,
-                            item.peca.cor,
-                            casos_id,
-                            'Jogada'
-                        ])
-                        last_move_time = item.horario_da_jogada  # Atualiza o tempo da última jogada de qualquer jogador
-                    elif isinstance(item, Finalizacao):
-                        writer.writerow([
-                            id_counter,
-                            self.format_horario(item.horario_da_finalizacao),
-                            item.jogador.nome,
-                            "N/A",  # Tempo desde do último movimento do jogador not applicable for Finalizacao
-                            "N/A",  # Tempo de reação not applicable for Finalizacao
-                            self.format_timedelta_seconds(item.tempo),  # Tempo de resposta (Duração da jogada)
-                            "N/A",  # Group not applicable for Finalizacao
-                            "N/A",  # Piece UID not applicable for Finalizacao
-                            "N/A",  # Piece Color not applicable for Finalizacao
-                            casos_id,
-                            'Finalizacao'
-                        ])
-                    id_counter += 1
+                self._write_csv_header(writer)
+                self._write_csv_rows(writer)
         except IOError as e:
-            print(f"Erro ao escrever no arquivo {self.path}: {e}")
+            print(f"Erro ao escrever no arquivo {self.path_csv_complete}: {e}")
+
+    @staticmethod
+    def _write_csv_header(writer) -> None:
+        """
+        Escreve o cabeçalho do arquivo CSV.
+        """
+        writer.writerow([
+            'ID',
+            'Horario da jogada',
+            'Nome do player',
+            'Tempo desde o último movimento do jogador',
+            'Tempo de reação',  # Nova coluna
+            'Tempo de resposta',  # Renomeando 'Duração da jogada' para 'Tempo de resposta'
+            'Grupo',
+            'Peça UID',
+            'Peça Cor',
+            'Casos ID',
+            'Tipo da jogada'
+        ])
+
+    def _write_csv_rows(self, writer) -> None:
+        """
+        Escreve as linhas de dados no arquivo CSV.
+        """
+        id_counter = 1
+        last_move_time = None  # Variável para armazenar o tempo da última jogada de qualquer jogador
+        for item, casos_id in self.list_cvs:
+            if isinstance(item, Jogada):
+                self._write_jogada_row(writer, id_counter, item, casos_id, last_move_time)
+                last_move_time = item.horario_da_jogada  # Atualiza o tempo da última jogada de qualquer jogador
+            elif isinstance(item, Finalizacao):
+                self._write_finalizacao_row(writer, id_counter, item, casos_id)
+            id_counter += 1
+
+    def _write_jogada_row(self, writer, id_counter: int, item: 'Jogada', casos_id: int, last_move_time) -> None:
+        """
+        Escreve uma linha de dados de uma jogada no arquivo CSV.
+        """
+        tempo_de_reacao = "N/A" if last_move_time is None else self.format_timedelta_seconds(item.horario_da_jogada - last_move_time)
+
+        writer.writerow([
+            id_counter,
+            self.format_horario(item.horario_da_jogada),
+            item.peca.jogador.nome,
+            self.format_timedelta_seconds(item.tempo_desde_ultimo_movimento),
+            tempo_de_reacao,  # Tempo de reação
+            self.format_timedelta_seconds(item.tempo),  # Tempo de resposta (Duração da jogada)
+            f"grupo: {item.grupo.peca_pai.uid} {item.grupo.criador.nome}" if item.grupo else "sem grupo",
+            item.peca.uid,
+            item.peca.cor,
+            casos_id,
+            'Jogada'
+        ])
+
+    def _write_finalizacao_row(self, writer, id_counter: int, item: 'Finalizacao', casos_id: int) -> None:
+        """
+        Escreve uma linha de dados de finalização no arquivo CSV.
+        """
+        writer.writerow([
+            id_counter,
+            self.format_horario(item.horario_da_finalizacao),
+            item.jogador.nome,
+            "N/A",  # Tempo desde do último movimento do jogador não aplicável para Finalizacao
+            "N/A",  # Tempo de reação não aplicável para Finalizacao
+            self.format_timedelta_seconds(item.tempo),  # Tempo de resposta (Duração da jogada)
+            "N/A",  # Grupo não aplicável para Finalizacao
+            "N/A",  # UID da peça não aplicável para Finalizacao
+            "N/A",  # Cor da peça não aplicável para Finalizacao
+            casos_id,
+            'Finalizacao'
+        ])
 
     def write_clustered(self) -> None:
         """
         Lê o CSV gerado e escreve os dados analisados em um arquivo clusteritzada no caminho especificado.
         """
-        csv_path = self.path
-        excel_path = self.path.with_suffix('.xlsx')
-        zip_path = self.path.with_suffix('.zip')
+        csv_path = self.path_csv_complete
+        excel_path = self.path_excel_complete
+        zip_path = self.path_zip_complete
         descricoes_casos = situacoes
 
         try:

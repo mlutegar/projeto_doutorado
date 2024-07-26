@@ -102,7 +102,7 @@ class Process:
             self.csv_instance = CsvExport(path=f'data/{nome_da_sala_corrigido}.csv', game=self.game)
 
         self.csv_instance.analisar_game()
-        self.csv_instance.write()
+        self.csv_instance.write_csv()
         self.csv_instance.write_clustered()  # Nova função para gerar o arquivo clusterizado
 
         print("Jogo encerrado. Dados exportados com sucesso.")
