@@ -10,7 +10,7 @@ from util.methods_peca import verificar_adicionar_pecas_conectadas, verificar_pe
 
 
 class Game:
-    def __init__(self, name: str, host: str) -> None:
+    def __init__(self, name: str, host: str, tabuleiro: int = 1) -> None:
         """
         Inicializa um jogo.
         :param name: Nome da sala.
@@ -38,6 +38,8 @@ class Game:
         self.grupos: Dict[tuple, Grupo] = dict()
         self.historico_grupos: Dict[int, List[Grupo]] = {}  # Histórico de grupos por peça
         self.pecas: Dict[int, Peca] = dict()
+
+        self.tabuleiro = tabuleiro
 
     def add_jogador(self, nome: str) -> Jogador:
         """
@@ -169,6 +171,15 @@ class Game:
         peca: Peca = Peca(uid=uid, cor=cor)
         self.pecas[peca.uid] = peca
         return peca
+
+    def mudar_tabuleiro(self) -> None:
+        """
+        Muda o tabuleiro do jogo.
+        """
+        if self.tabuleiro == 2:
+            self.tabuleiro = 1
+        else:
+            self.tabuleiro = 2
 
     def desistir(self, player: Jogador) -> Finalizacao:
         """

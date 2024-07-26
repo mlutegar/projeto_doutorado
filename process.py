@@ -109,3 +109,12 @@ class Process:
         print("Exportando arquivo CSV...")
         print("Arquivo exportado com sucesso.")
         print("Fim do jogo.")
+
+    def mudar_tabuleiro(self):
+        """
+        Muda o tabuleiro do jogo.
+        """
+        self.game.mudar_tabuleiro()
+        print("Tabuleiro mudado com sucesso.")
+        print("Tabuleiro atual:", self.game.tabuleiro)
+        print("Fim da mudança de tabuleiro.")
