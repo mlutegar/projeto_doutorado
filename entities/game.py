@@ -176,10 +176,14 @@ class Game:
         """
         Muda o tabuleiro do jogo.
         """
+        # verificar se o tabuleiro é 1 ou 2 para mudar para o outro
         if self.tabuleiro == 2:
             self.tabuleiro = 1
         else:
             self.tabuleiro = 2
+
+        # zerar os grupos, pois o tabuleiro mudou
+        self.grupos = dict()
 
     def desistir(self, player: Jogador) -> Finalizacao:
         """
