@@ -1,8 +1,17 @@
+import logging
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from pathlib import Path
 
 from process import Process
+
+# Configurando o logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    handlers=[
+                        logging.FileHandler("app.log"),  # Log em arquivo
+                        logging.StreamHandler()  # Log no console
+                    ])
 
 app = Flask(__name__)
 CORS(app)
@@ -14,6 +23,7 @@ class GameState:
 
     def iniciar_processo(self, nome, host):
         self.processo = Process(nome=nome, host=host)
+        logging.info(f"Processo iniciado com nome: {nome}, host: {host}")
 
     def get_processo(self):
         return self.processo
@@ -40,10 +50,11 @@ def iniciar_jogo():
         return jsonify({"status": "error", "message": "Missing 'nome' or 'host'"}), 400
 
     try:
-        print(f"Iniciando jogo com nome: {nome}, host: {host}")
+        logging.info(f"Iniciando jogo com nome: {nome}, host: {host}")
         game_state.iniciar_processo(nome=nome, host=host)
         return jsonify({"status": "success", "message": "Game started"}), 200
     except ValueError as e:
+        logging.error(f"Erro ao iniciar o jogo: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
 
@@ -61,10 +72,11 @@ def save_move():
 
     try:
         game_state.get_processo().process_data(move=data)
+        logging.info(f"Movimento salvo: {data}")
         return jsonify({"status": "success", "message": "Move received"}), 200
     except ValueError as e:
+        logging.error(f"Erro ao salvar movimento: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
-
 
 @app.route('/finalizar_jogo', methods=['POST'])
 def finalizar_jogo_route():
@@ -80,11 +92,12 @@ def finalizar_jogo_route():
 
     try:
         finalizacao = game_state.get_processo().finalizar_jogo(move=data)
+        logging.info(f"Jogo finalizado: {finalizacao.descricao} por {finalizacao.jogador.nome}")
         return jsonify({"status": "success",
                         "message": f"Game {finalizacao.descricao} by {finalizacao.jogador.nome}"}), 200
     except ValueError as e:
+        logging.error(f"Erro ao finalizar o jogo: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
-
 
 @app.route('/export_csv', methods=['GET'])
 def export_csv():
@@ -100,8 +113,8 @@ def export_csv():
     if not game_state.get_processo().csv_instance or not Path(csv_file).is_file():
         return jsonify({"status": "error", "message": "Failed to create CSV file"}), 500
 
+    logging.info(f"Exportando CSV: {csv_file}")
     return send_file(csv_file, as_attachment=True)
-
 
 @app.route('/mudar_tabuleiro', methods=['GET'])
 def mudar_tabuleiro():
@@ -109,8 +122,8 @@ def mudar_tabuleiro():
         return jsonify({"status": "error", "message": "Invalid process instance"}), 400
 
     game_state.get_processo().mudar_tabuleiro()
+    logging.info("Tabuleiro mudado")
     return jsonify({"status": "success", "message": "Tabuleiro mudado"}), 200
-
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

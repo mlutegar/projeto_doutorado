@@ -1,4 +1,5 @@
 import ast
+import logging
 import zipfile
 
 import pandas as pd
@@ -9,13 +10,13 @@ from datetime import datetime, timedelta
 from entities.finalizacao import Finalizacao
 from entities.game import Game
 from entities.jogada import Jogada
-from typing import List, Dict
+from typing import List, Dict, Union
 from pathlib import Path
 from util.situacoes import situacoes, acoes_genericas  # Importando as descrições das situações
 
 
 class CsvExport:
-    def __init__(self, path_root: str, game: 'Game', nome: str) -> None:
+    def __init__(self, path_root: Union[str, Path], game: 'Game', nome: str) -> None:
         """
         Inicializa a classe Csv com o caminho do arquivo e o jogo.
 
@@ -23,16 +24,19 @@ class CsvExport:
         :param game: Instância do jogo.
         :param nome: Nome do arquivo.
         """
+        if not isinstance(path_root, (str, Path)):
+            raise TypeError("path_root deve ser uma string ou uma instância de Path.")
+        if not isinstance(nome, str):
+            raise TypeError("nome deve ser uma string.")
+
         self.nome: str = nome
-        self.path_root: Path = Path(path_root)
+        self.path_root: Path = Path(path_root) if isinstance(path_root, str) else path_root
         self.path_csv: Path = self.path_root / "csv"
         self.path_excel: Path = self.path_root / "excel"
         self.path_zip: Path = self.path_root / "zip"
 
         # Cria os diretórios se não existirem
-        self.path_csv.mkdir(parents=True, exist_ok=True)
-        self.path_excel.mkdir(parents=True, exist_ok=True)
-        self.path_zip.mkdir(parents=True, exist_ok=True)
+        self._create_directories()
 
         # Caminhos completos para os arquivos
         self.path_csv_complete: Path = self.path_csv / f"{self.nome}.csv"
@@ -42,6 +46,21 @@ class CsvExport:
         self.game: Game = game
         self.list_cvs: List = []
         self.caso_descricao: Dict[int, str] = situacoes  # Certifique-se de que 'situacoes' está definido em algum lugar
+
+        logging.info(f"Csv object created with root path {self.path_root} and file name {self.nome}")
+
+    def _create_directories(self) -> None:
+        """
+        Cria os diretórios necessários se não existirem.
+        """
+        directories = [self.path_csv, self.path_excel, self.path_zip]
+        for directory in directories:
+            try:
+                directory.mkdir(parents=True, exist_ok=True)
+                logging.info(f"Diretório {directory} criado com sucesso ou já existia.")
+            except Exception as e:
+                logging.error(f"Erro ao criar o diretório {directory}: {e}")
+                raise
 
     @staticmethod
     def format_horario(dt: datetime) -> str:
@@ -205,7 +224,7 @@ class CsvExport:
 
             # Criar arquivo ZIP
             with zipfile.ZipFile(zip_path, 'w') as zipf:
-                zipf.write(excel_path, arcname=f'{self.path.stem}.xlsx')
+                zipf.write(excel_path, arcname=f'{self.nome}.xlsx')
 
             print(f"Arquivo ZIP salvo em '{zip_path}'.")
 
