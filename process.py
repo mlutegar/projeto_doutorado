@@ -42,9 +42,14 @@ class Process:
             jogador = self.game.jogadores[move["Jogador"]]
             print(f"Jogador {move['Jogador']} já existe no jogo.")
 
-        # Atualiza a posição da peça
-        peca.set_posicao_atual(pos_x=int(move["PosX"]), pos_y=int(move["PosY"]), jogador=jogador)
-        print(f"Peça {peca.uid} movida para posição ({peca.linha}, {peca.coluna}) pelo jogador {jogador.nome}.")
+        if self.game.tabuleiro == 1:
+            # Atualiza a posição da peça
+            peca.set_posicao_atual_tabuleiro1(pos_x=int(move["PosX"]), pos_y=int(move["PosY"]), jogador=jogador)
+            print(f"Peça {peca.uid} movida para posição ({peca.linha}, {peca.coluna}) pelo jogador {jogador.nome}.")
+        elif self.game.tabuleiro == 2:
+            # Atualiza a posição da peça
+            peca.set_posicao_atual_tabuleiro2(pos_x=int(move["PosX"]), pos_y=int(move["PosY"]), jogador=jogador)
+            print(f"Peça {peca.uid} movida para posição ({peca.linha}, {peca.coluna}) pelo jogador {jogador.nome}.")
 
         # Adiciona a jogada no jogo
         jogada = self.game.add_jogada(peca=peca, tempo=timedelta(seconds=float(move["Tempo"])))

@@ -64,7 +64,20 @@ class CsvExport:
 
     @staticmethod
     def format_horario(dt: datetime) -> str:
-        return dt.strftime("%H:%M:%S")
+        """
+        Formata um objeto datetime para uma string no formato HH:MM:SS.
+
+        :param dt: Objeto datetime a ser formatado.
+        :return: String formatada no formato HH:MM:SS.
+        :raises TypeError: Se o parâmetro não for uma instância de datetime.
+        """
+        if not isinstance(dt, datetime):
+            raise TypeError("O parâmetro dt deve ser uma instância de datetime.")
+
+        try:
+            return dt.strftime("%H:%M:%S")
+        except Exception as e:
+            raise ValueError(f"Erro ao formatar o datetime: {e}")
 
     @staticmethod
     def format_timedelta_seconds(td: timedelta) -> str:

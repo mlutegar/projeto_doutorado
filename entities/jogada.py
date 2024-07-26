@@ -20,23 +20,6 @@ class Jogada:
         self.horario_da_jogada = datetime.now()
         self.tempo_desde_ultimo_movimento: timedelta = timedelta(0)
 
-    def to_dict(self) -> dict:
-        """
-        Retorna um dicionário com as informações da jogada.
-
-        :return: Dicionário contendo os dados da jogada.
-        """
-        return {
-            "id": self.id,
-            "peca_uid": self.peca.uid,
-            "tempo": self.tempo,
-            "peca_cor": self.peca.cor,
-            "peca_posicao_antiga": self.peca.posicao_antiga,
-            "peca_posicao_atual": self.peca.posicao,
-            "peca_last_player": self.peca.jogador_antigo,
-            "peca_vizinho": self.peca.qtd_vizinho,
-        }
-
     def __eq__(self, other: object) -> bool:
         """
         Verifica se esta jogada é igual a outra jogada.
