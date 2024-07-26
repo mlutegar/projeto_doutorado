@@ -99,7 +99,7 @@ class Process:
             raise ValueError("Jogo não iniciado")
         else:
             nome_da_sala_corrigido = corrigir_nome_sala(self.game.nome_da_sala)
-            self.csv_instance = CsvExport(path=f'data/{nome_da_sala_corrigido}.csv', game=self.game)
+            self.csv_instance = CsvExport(path_root='data', game=self.game, nome=nome_da_sala_corrigido)
 
         self.csv_instance.analisar_game()
         self.csv_instance.write_csv()
