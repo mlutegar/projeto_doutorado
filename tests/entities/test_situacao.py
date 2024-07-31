@@ -1502,10 +1502,10 @@ class TestSituacao(unittest.TestCase):
 
     def test_registrar_caso38(self):
         """
-        38: "Não realizou ações"
+        0: "Não realizou ações"
         """
         situacao = Situacao(game=self.game)
-        self.assertIn(38, situacao.casos_id)
+        self.assertIn(0, situacao.casos_id)
 
 
 if __name__ == '__main__':

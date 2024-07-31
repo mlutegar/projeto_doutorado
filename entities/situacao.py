@@ -29,6 +29,12 @@ class Situacao:
                 for caso in self.jogada.peca.jogador.tabulacao:
                     casos.add(caso)
                 self.jogada.peca.jogador.tabulacao = []
+            self.registrar_casos_pegar_peca(casos)
+            self.registrar_casos_colocar_peca_agrupamento_proprio(casos)
+            self.registrar_casos_colocar_peca_agrupamento_outro(casos)
+            self.registrar_casos_colocar_peca_aleatoria(casos)
+            self.registrar_casos_colocar_peca_conexoes(casos)
+            self.registrar_casos_colocar_peca_imitar(casos)
             self.registrar_casos_jogada(casos)
         elif self.finalizacao:
             if self.finalizacao.descricao == "Desistiu":
@@ -57,6 +63,92 @@ class Situacao:
 
         self.casos_descricao = [situacoes[caso] for caso in casos]
         return casos
+
+    def registrar_casos_pegar_peca(self, casos):
+        """
+        Registra os casos relacionados a pegar peças. Os casos registrados são:
+        14: "Retirou peças do Agrupamento do outro integrante e devolveu para o monte",
+        15: "Retirou peças do Agrupamento do outro integrante e colocou no seu próprio agrupamento",
+        16: "Retirou peças do Agrupamento do outro integrante e colocou em um lugar aleatório",
+        17: "Trocou a posição da própria peça",
+        18: "Retirou peças do próprio Agrupamento e devolveu para o monte",
+        19: "Retirou peças do próprio agrupamento e colocou em algum lugar aleatório",
+        20: "Retirou peças dos outros integrantes que adicionaram no agrupamento feito por ele"
+        """
+        self.registrar_caso14(casos) # "Retirou peças do Agrupamento do outro integrante e devolveu para o monte"
+        self.registrar_caso15(casos) # "Retirou peças do Agrupamento do outro integrante e colocou no seu próprio agrupamento"
+        self.registrar_caso16(casos) # "Retirou peças do Agrupamento do outro integrante e colocou em um lugar aleatório"
+        self.registrar_caso17(casos) # "Trocou a posição da própria peça"
+        self.registrar_caso18(casos) # "Retirou peças do próprio Agrupamento e devolveu para o monte"
+        self.registrar_caso19(casos) # "Retirou peças do próprio agrupamento e colocou em algum lugar aleatório"
+        self.registrar_caso20(casos) # "Retirou peças dos outros integrantes que adicionaram no agrupamento feito por ele"
+
+    def registrar_casos_colocar_peca_agrupamento_proprio(self, casos):
+        """
+        Registra os casos relacionados a colocar peças em um agrupamento próprio. Os casos registrados são:
+        2: "Fez, sozinho, um agrupamento com 2 peças",
+        3: "Fez, sozinho, um agrupamento com 3 a 6 peças",
+        4: "Fez, sozinho, um agrupamento com mais de 6 peças",
+        11: "Agrupou peças de cor igual",
+        12: "Criou um agrupamento contendo peças iguais e diferentes",
+        13: "Agrupou peças de cores diferentes",
+        21: "Criou mais de um agrupamento"
+        """
+        self.registrar_caso2(casos) # "Fez, sozinho, um agrupamento com 2 peças"
+        self.registrar_caso3(casos) # "Fez, sozinho, um agrupamento com 3 a 6 peças"
+        self.registrar_caso4(casos) # "Fez, sozinho, um agrupamento com mais de 6 peças"
+        self.registrar_caso11(casos) # "Agrupou peças de cor igual"
+        self.registrar_caso12(casos) # "Criou um agrupamento contendo peças iguais e diferentes"
+        self.registrar_caso13(casos) # "Agrupou peças de cores diferentes"
+        self.registrar_caso21(casos) # "Criou mais de um agrupamento"
+
+    def registrar_casos_colocar_peca_agrupamento_outro(self, casos):
+        """
+        Registra os casos relacionados a colocar peças em um agrupamento de outro jogador. Os casos registrados são:
+        5: "Adicionou uma peça no agrupamento de outro integrante, fez várias vezes",
+        6: "Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num período curto",
+        8: "Colocou uma peça no tabuleiro de forma aleatória ou no próprio agrupamento e depois colocou a mesma peça no agrupamento do outro",
+        10: "Adicionou uma peça no agrupamento do outro, que a remove, mas continua a repetir a ação",
+        24: "Forma um agrupamento de 2 peças com outro integrante",
+        25: "Forma um agrupamento de 3 a 6 peças com outro integrante",
+        26: "Forma um agrupamento de mais de 6 peças com outro integrante",
+        27: "Desenvolveu um agrupamento e outro integrante resolveu adicionar peças"
+        """
+        self.registrar_caso5(casos) # "Adicionou uma peça no agrupamento de outro integrante, fez várias vezes"
+        self.registrar_caso6(casos) # "Adicionou uma peça no agrupamento de outro integrante, faz somente uma vez num período curto"
+        self.registrar_caso8(casos) # "Colocou uma peça no tabuleiro de forma aleatória ou no próprio agrupamento e depois colocou a mesma peça no agrupamento do outro"
+        self.registrar_caso10(casos) # "Adicionou uma peça no agrupamento do outro, que a remove, mas continua a repetir a ação"
+        self.registrar_caso24(casos) # "Forma um agrupamento de 2 peças com outro integrante"
+        self.registrar_caso25(casos) # "Forma um agrupamento de 3 a 6 peças com outro integrante"
+        self.registrar_caso26(casos) # "Forma um agrupamento de mais de 6 peças com outro integrante"
+        self.registrar_caso27(casos) # "Desenvolveu um agrupamento e outro integrante resolveu adicionar peças"
+
+    def registrar_casos_colocar_peca_aleatoria(self, casos):
+        """
+        Registra os casos relacionados a colocar peças em um lugar aleatório. Os casos registrados são:
+        1: "Pegou a peça e largou em algum lugar Aleatório",
+        8: "Colocou uma peça no tabuleiro de forma aleatória ou no próprio agrupamento e depois colocou a mesma peça no agrupamento do outro",
+        """
+        self.registrar_caso1(casos) # "Pegou a peça e largou em algum lugar Aleatório"
+        self.registrar_caso8(casos) # "Colocou uma peça no tabuleiro de forma aleatória ou no próprio agrupamento e depois colocou a mesma peça no agrupamento do outro"
+
+    def registrar_casos_colocar_peca_conexoes(self, casos):
+        """
+        Registra os casos relacionados a conectar agrupamentos. Os casos registrados são:
+        22: "Conecta dois ou mais agrupamentos com outros participantes",
+        23: "Conecta dois ou mais agrupamentos consigo mesmo",
+        """
+        self.registrar_caso22(casos) # "Conecta dois ou mais agrupamentos com outros participantes"
+        self.registrar_caso23(casos) # "Conecta dois ou mais agrupamentos consigo mesmo"
+
+    def registrar_casos_colocar_peca_imitar(self, casos):
+        """
+        Registra os casos relacionados a imitar agrupamentos. Os casos registrados são:
+        36: "Imitou a forma do mesmo agrupamento do outro (fez depois que outro integrante realizou a ação)",
+        37: "É imitado por alguém",
+        """
+        self.registrar_caso36(casos) # "Imitou a forma do mesmo agrupamento do outro (fez depois que outro integrante realizou a ação)"
+        self.registrar_caso37(casos) # "É imitado por alguém"
 
     def registrar_casos_jogada(self, casos):
         self.registrar_caso1(casos)
@@ -608,11 +700,11 @@ class Situacao:
 
     def registrar_caso38(self, casos):
         """
-        38: "Não realizou ações"
+        0: "Não realizou ações"
         """
         # Verifica se o tempo desde o último movimento do jogador atual é maior que 10 segundos
-        if self.jogada.tempo_desde_ultimo_movimento.total_seconds() > 10:
-            casos.add(38)
+        if self.jogada.tempo_desde_ultimo_movimento.total_seconds() > 0:
+            casos.add(0)
 
     def to_dict(self) -> dict:
         return {

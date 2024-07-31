@@ -38,7 +38,7 @@ situacoes = {
     35: "Finalizou Sozinho e pouco tempo depois outro integrante finalizou também",
     36: "Imitou a forma do mesmo agrupamento do outro (fez depois que outro integrante realizou a ação)",
     37: "É imitado por alguém",
-    38: "Não realizou ações"
+    0: "Não realizou ações"
 }
 
 acoes_genericas = {
