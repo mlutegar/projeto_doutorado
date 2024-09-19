@@ -35,12 +35,12 @@ game_state = GameState()
 
 # Exemplo de lista com itens e seus tipos
 itens = [
-    {"tipo": "fruta", "valor": "maçã"},
-    {"tipo": "fruta", "valor": "banana"},
-    {"tipo": "bebida", "valor": "água"},
-    {"tipo": "bebida", "valor": "suco"},
-    {"tipo": "fruta", "valor": "laranja"},
-    {"tipo": "bebida", "valor": "café"}
+    {"tipo": "1", "valor": "maçã"},
+    {"tipo": "1", "valor": "banana"},
+    {"tipo": "1", "valor": "água"},
+    {"tipo": "2", "valor": "suco"},
+    {"tipo": "2", "valor": "laranja"},
+    {"tipo": "2", "valor": "café"}
 ]
 
 @app.route('/pegar_item_aleatorio', methods=['POST'])
