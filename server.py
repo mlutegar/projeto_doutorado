@@ -1,4 +1,6 @@
 import logging
+import random
+
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from pathlib import Path
@@ -31,6 +33,39 @@ class GameState:
 
 game_state = GameState()
 
+# Exemplo de lista com itens e seus tipos
+itens = [
+    {"tipo": "fruta", "valor": "maçã"},
+    {"tipo": "fruta", "valor": "banana"},
+    {"tipo": "bebida", "valor": "água"},
+    {"tipo": "bebida", "valor": "suco"},
+    {"tipo": "fruta", "valor": "laranja"},
+    {"tipo": "bebida", "valor": "café"}
+]
+
+@app.route('/pegar_item_aleatorio', methods=['POST'])
+def pegar_item_aleatorio():
+    """
+    Retorna um item aleatório de uma lista. Se 'tipo' for passado no request,
+    retorna um item aleatório apenas desse tipo.
+    """
+    if not request.is_json:
+        return jsonify({"status": "error", "message": "Invalid content type"}), 415
+
+    data = request.get_json()
+    tipo = data.get('tipo')
+
+    # Se um tipo foi especificado, filtra a lista para aquele tipo
+    if tipo:
+        itens_filtrados = [item for item in itens if item['tipo'] == tipo]
+        if not itens_filtrados:
+            return jsonify({"status": "error", "message": "Nenhum item encontrado para esse tipo"}), 404
+        item_escolhido = random.choice(itens_filtrados)
+    else:
+        # Se não foi especificado um tipo, seleciona de toda a lista
+        item_escolhido = random.choice(itens)
+
+    return jsonify({"status": "success", "item": item_escolhido}), 200
 
 @app.route('/iniciar_jogo', methods=['POST'])
 def iniciar_jogo():

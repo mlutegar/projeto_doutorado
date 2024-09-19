@@ -59,6 +59,7 @@ class Situacao:
         return casos
 
     def registrar_casos_jogada(self, casos):
+        self.registrar_caso19(casos)
         self.registrar_caso1(casos)
         self.registrar_caso2(casos)
         self.registrar_caso3(casos)
@@ -77,7 +78,7 @@ class Situacao:
         self.registrar_caso16(casos)
         self.registrar_caso17(casos)
         self.registrar_caso18(casos)
-        self.registrar_caso19(casos)
+
         self.registrar_caso20(casos)
         self.registrar_caso21(casos)
         self.registrar_caso22(casos)
