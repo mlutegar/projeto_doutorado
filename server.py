@@ -65,6 +65,7 @@ def pegar_item_aleatorio():
         # Se não foi especificado um tipo, seleciona de toda a lista
         item_escolhido = random.choice(itens)
 
+    print(f"Item escolhido: {item_escolhido}")
     return jsonify({"status": "success", "item": item_escolhido}), 200
 
 @app.route('/iniciar_jogo', methods=['POST'])
