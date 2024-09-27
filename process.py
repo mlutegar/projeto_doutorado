@@ -21,7 +21,7 @@ class Process:
         print("Iniciando process_data com move:", move)
 
         # Verifica se todas as chaves necessárias estão presentes
-        required_keys = {"UID", "PosX", "PosY", "Tempo", "Jogador", "Cor"}
+        required_keys = {"UID", "PosX", "PosY", "Tempo", "Jogador", "Cor", "Fase"}
         if not required_keys.issubset(move.keys()):
             raise ValueError("Dados incompletos recebidos")
         print("Todas as chaves necessárias estão presentes.")
@@ -52,8 +52,7 @@ class Process:
             print(f"Peça {peca.uid} movida para posição ({peca.linha}, {peca.coluna}) pelo jogador {jogador.nome}.")
 
         # Adiciona a jogada no jogo
-        jogada = self.game.add_jogada(peca=peca, tempo=timedelta(seconds=float(move["Tempo"])))
-        print(f"Jogada adicionada com a peça {peca.uid} e tempo {move['Tempo']} segundos.")
+        jogada = self.game.add_jogada(peca=peca, tempo=timedelta(seconds=float(move["Tempo"])), fase=move["Fase"])
 
         # Analisa a jogada imediatamente
         situacao = Situacao(game=self.game, jogada=jogada)

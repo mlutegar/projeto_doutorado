@@ -118,7 +118,8 @@ class CsvExport:
             'Peça UID',
             'Peça Cor',
             'Casos ID',
-            'Tipo da jogada'
+            'Tipo da jogada',
+            'Fase da jogada'
         ])
 
     def _write_csv_rows(self, writer) -> None:
@@ -152,7 +153,8 @@ class CsvExport:
             item.peca.uid,
             item.peca.cor,
             casos_id,
-            'Jogada'
+            'Jogada',
+            item.fase
         ])
 
     def _write_finalizacao_row(self, writer, id_counter: int, item: 'Finalizacao', casos_id: int) -> None:
@@ -170,7 +172,8 @@ class CsvExport:
             "N/A",  # UID da peça não aplicável para Finalizacao
             "N/A",  # Cor da peça não aplicável para Finalizacao
             casos_id,
-            'Finalizacao'
+            'Finalizacao',
+            "N/A"  # Fase não aplicável para Finalizacao
         ])
 
     def write_clustered(self) -> None:

@@ -51,11 +51,12 @@ class Game:
         self.jogadores[jogador.nome] = jogador
         return jogador
 
-    def add_jogada(self, peca: Peca, tempo: timedelta) -> Jogada:
+    def add_jogada(self, peca: Peca, tempo: timedelta, fase: int) -> Jogada:
         """
         Adiciona uma nova jogada ao jogo.
         :param peca: Peça utilizada na jogada.
         :param tempo: Tempo da jogada.
+        :param fase: Fase da jogada.
         :return: Instância de Jogada criada.
         """
         grupo: Grupo = self.add_grupo(peca)
@@ -87,7 +88,13 @@ class Game:
         else:
             grupo_estatico = None
 
-        jogada: Jogada = Jogada(uid=len(self.jogadas) + 1, peca=peca_estatica, grupo=grupo_estatico, tempo=tempo)
+        jogada: Jogada = Jogada(
+            uid=len(self.jogadas) + 1,
+            peca=peca_estatica,
+            grupo=grupo_estatico,
+            tempo=tempo,
+            fase=fase
+        )
         self.jogadas[jogada.id] = jogada
         self.atualizar_historico_grupos(grupo_estatico)
 
