@@ -66,7 +66,7 @@ class Situacao:
         self.registrar_caso4(casos)
         self.registrar_caso5(casos)
         self.registrar_caso6(casos)
-        self.registrar_caso7(casos)
+        # self.registrar_caso7(casos)
         self.registrar_caso8(casos)
         self.registrar_caso9(casos)
         self.registrar_caso10(casos)
