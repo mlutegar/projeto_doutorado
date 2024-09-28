@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from pathlib import Path
 
+from entities.csv_export import CsvExport
 from process import Process
 
 # Configurando o logging
@@ -81,6 +82,35 @@ itens = [
     {"tipo": "1", "valor": "Você avalia se uma jogada foi bem-sucedida após concluí-la?"},
     {"tipo": "1", "valor": "Você tem critérios específicos para determinar se atingiu seu objetivo no jogo?"}
 ]
+
+perguntas = []
+respostas = []
+jogadores = []
+tempos_respostas = []
+
+@app.route('/responder_pergunta', methods=['POST'])
+def responder_pergunta():
+    """
+    Responde a uma pergunta.
+    """
+    if not request.is_json:
+        return jsonify({"status": "error", "message": "Invalid content type"}), 415
+
+    data = request.get_json()
+    pergunta = data.get('pergunta')
+    resposta = data.get('resposta')
+    jogador = data.get('jogador')
+    tempo_resposta = data.get('tempo_resposta')
+
+    if not pergunta or not resposta or not jogador or not tempo_resposta:
+        return jsonify({"status": "error", "message": "Missing 'pergunta' or 'resposta'"}), 400
+
+    perguntas.append(pergunta)
+    respostas.append(resposta)
+    jogadores.append(jogador)
+    tempo_resposta.append(tempo_resposta)
+
+    print(f"Pergunta: {pergunta}, Resposta: {resposta}")
 
 
 @app.route('/pegar_item_aleatorio', methods=['POST'])
@@ -170,6 +200,8 @@ def finalizar_jogo_route():
 
     try:
         finalizacao = game_state.get_processo().finalizar_jogo(move=data)
+        csv_export = CsvExport(path_root='data', game=None, nome="perguntas_respostas")
+        csv_export.write_csv_perguntas(perguntas, respostas, jogadores, tempos_respostas)
         logging.info(f"Jogo finalizado: {finalizacao.descricao} por {finalizacao.jogador.nome}")
         return jsonify({"status": "success",
                         "message": f"Game {finalizacao.descricao} by {finalizacao.jogador.nome}"}), 200

@@ -105,8 +105,8 @@ class Process:
             nome_da_sala_corrigido = corrigir_nome_sala(self.game.nome_da_sala)
             self.csv_instance = CsvExport(path_root='data', game=self.game, nome=nome_da_sala_corrigido)
 
-        self.csv_instance.analisar_game()
-        self.csv_instance.write_csv()
+        self.csv_instance.analisar_jogadas_game()
+        self.csv_instance.write_csv_game()
         self.csv_instance.write_clustered()  # Nova função para gerar o arquivo clusterizado
 
         print("Jogo encerrado. Dados exportados com sucesso.")

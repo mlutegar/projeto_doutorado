@@ -16,7 +16,7 @@ from util.situacoes import situacoes, acoes_genericas  # Importando as descriç�
 
 
 class CsvExport:
-    def __init__(self, path_root: Union[str, Path], game: 'Game', nome: str) -> None:
+    def __init__(self, path_root: Union[str, Path], game, nome: str) -> None:
         """
         Inicializa a classe Csv com o caminho do arquivo e o jogo.
 
@@ -84,26 +84,26 @@ class CsvExport:
         total_seconds = td.total_seconds()
         return f"{total_seconds:.2f}s"
 
-    def analisar_game(self) -> None:
+    def analisar_jogadas_game(self) -> None:
         """
         Analisa todas as jogadas feitas no game e atribui uma situacao para cada uma delas.
         """
         self.list_cvs.extend(self.game.situacoes)
 
-    def write_csv(self) -> None:
+    def write_csv_game(self) -> None:
         """
         Escreve os dados analisados em um arquivo CSV no caminho especificado.
         """
         try:
             with self.path_csv_complete.open('w', newline='') as file:
                 writer = csv.writer(file)
-                self._write_csv_header(writer)
-                self._write_csv_rows(writer)
+                self._write_csv_game_header(writer)
+                self._write_csv_game_rows(writer)
         except IOError as e:
             print(f"Erro ao escrever no arquivo {self.path_csv_complete}: {e}")
 
     @staticmethod
-    def _write_csv_header(writer) -> None:
+    def _write_csv_game_header(writer) -> None:
         """
         Escreve o cabeçalho do arquivo CSV.
         """
@@ -122,7 +122,7 @@ class CsvExport:
             'Fase da jogada'
         ])
 
-    def _write_csv_rows(self, writer) -> None:
+    def _write_csv_game_rows(self, writer) -> None:
         """
         Escreve as linhas de dados no arquivo CSV.
         """
@@ -135,6 +135,43 @@ class CsvExport:
             elif isinstance(item, Finalizacao):
                 self._write_finalizacao_row(writer, id_counter, item, casos_id)
             id_counter += 1
+
+    def write_csv_perguntas(self, perguntas: List[str], respostas: List[str], jogadores: List[str], tempo_resposta: List[str]) -> None:
+        """
+        Escreve as perguntas e respostas no arquivo CSV no caminho especificado.
+        """
+        try:
+            with self.path_csv_complete.open('w', newline='') as file:
+                writer = csv.writer(file)
+                self._write_csv_perguntas_header(writer)
+                self._write_csv_perguntas_rows(writer, perguntas, respostas, jogadores, tempo_resposta)
+        except IOError as e:
+            print(f"Erro ao escrever no arquivo {self.path_csv_complete}: {e}")
+
+    @staticmethod
+    def _write_csv_perguntas_header(writer) -> None:
+        """
+        Escreve o cabeçalho do arquivo CSV.
+        """
+        writer.writerow([
+            'Pergunta',
+            'Resposta',
+            'Jogador',
+            'Tempo resposta'
+        ])
+
+    def _write_csv_perguntas_rows(self, writer, perguntas: List[str], respostas: List[str], jogadores: List[str], tempo_resposta: List[str]) -> None:
+        """
+        Escreve as linhas de dados no arquivo CSV.
+        """
+        for i in range(len(perguntas)):
+            writer.writerow([
+                perguntas[i],
+                respostas[i],
+                jogadores[i],
+                tempo_resposta[i]
+            ])
+
 
     def _write_jogada_row(self, writer, id_counter: int, item: 'Jogada', casos_id: int, last_move_time) -> None:
         """
