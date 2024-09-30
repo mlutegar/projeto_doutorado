@@ -101,7 +101,7 @@ def responder_pergunta():
         print("O conteúdo não é JSON.")
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
-    data = request.get_json()
+    data = request.get_json().get('data')
     # Imprimir dados recebidos
     print(f"Dados recebidos: {data}")
 
@@ -139,7 +139,7 @@ def pegar_item_aleatorio():
     if not request.is_json:
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
-    data = request.get_json()
+    data = request.get_json().get('data')
     tipo = data.get('tipo')
 
     # Se um tipo foi especificado, filtra a lista para aquele tipo
