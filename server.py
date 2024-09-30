@@ -122,7 +122,7 @@ def responder_pergunta():
     perguntas.append(pergunta)
     respostas.append(resposta)
     jogadores.append(jogador)
-    tempo_resposta.append(tempo_resposta)
+    tempos_respostas.append(tempo_resposta)
 
     # Imprimir confirmação da adição
     print(f"Pergunta '{pergunta}' adicionada com sucesso para o jogador '{jogador}'.")
@@ -139,7 +139,7 @@ def pegar_item_aleatorio():
     if not request.is_json:
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
-    data = request.get_json().get('data')
+    data = request.get_json()
     tipo = data.get('tipo')
 
     # Se um tipo foi especificado, filtra a lista para aquele tipo
