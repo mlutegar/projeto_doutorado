@@ -88,29 +88,46 @@ respostas = []
 jogadores = []
 tempos_respostas = []
 
+
 @app.route('/responder_pergunta', methods=['POST'])
 def responder_pergunta():
     """
     Responde a uma pergunta.
     """
+    # Imprimir para verificar se a rota está sendo acessada
+    print("Acessando a rota '/responder_pergunta'")
+
     if not request.is_json:
+        print("O conteúdo não é JSON.")
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
     data = request.get_json()
+    # Imprimir dados recebidos
+    print(f"Dados recebidos: {data}")
+
     pergunta = data.get('pergunta')
     resposta = data.get('resposta')
     jogador = data.get('jogador')
     tempo_resposta = data.get('tempo_resposta')
 
+    # Imprimir valores individuais recebidos
+    print(f"Pergunta: {pergunta}, Resposta: {resposta}, Jogador: {jogador}, Tempo de Resposta: {tempo_resposta}")
+
     if not pergunta or not resposta or not jogador or not tempo_resposta:
+        print("Faltando algum valor necessário (pergunta, resposta, jogador ou tempo_resposta).")
         return jsonify({"status": "error", "message": "Missing 'pergunta' or 'resposta'"}), 400
 
+    # Imprimir antes de adicionar as perguntas e respostas às listas
+    print("Adicionando pergunta, resposta, jogador e tempo de resposta às listas.")
     perguntas.append(pergunta)
     respostas.append(resposta)
     jogadores.append(jogador)
     tempo_resposta.append(tempo_resposta)
 
-    print(f"Pergunta: {pergunta}, Resposta: {resposta}")
+    # Imprimir confirmação da adição
+    print(f"Pergunta '{pergunta}' adicionada com sucesso para o jogador '{jogador}'.")
+
+    return jsonify({"status": "success", "message": "Pergunta e resposta registradas com sucesso."}), 200
 
 
 @app.route('/pegar_item_aleatorio', methods=['POST'])
