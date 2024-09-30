@@ -550,7 +550,6 @@ class Situacao:
         36: "Imitou a forma do mesmo agrupamento do outro (fez depois que outro integrante realizou a ação)",
         """
         if self.jogada.grupo is None:
-            print("Jogada atual não tem grupo.")
             return
 
         # Configuração do agrupamento atual
@@ -558,8 +557,6 @@ class Situacao:
             'qtd_pecas': self.jogada.grupo.qtd_pecas,
             'cores': set(peca.cor for peca in self.jogada.grupo.pecas.values())
         }
-
-        print("Configuração atual:", configuracao_atual)
 
         # Itera sobre todas as jogadas anteriores para encontrar uma jogada que corresponda à configuração
         for jogada in self.game.jogadas.values():
@@ -569,10 +566,7 @@ class Situacao:
                     'cores': set(peca.cor for peca in jogada.grupo.pecas.values())
                 }
 
-                print("Comparando com configuração anterior:", configuracao_anterior)
-
                 if configuracao_atual == configuracao_anterior:
-                    print("Encontrou uma configuração anterior correspondente.")
                     casos.add(36)
                     break
 
@@ -589,8 +583,6 @@ class Situacao:
             'cores': set(peca.cor for peca in self.jogada.grupo.pecas.values())
         }
 
-        print(f"Configuração atual: {configuracao_atual}")
-
         # Itera sobre todas as jogadas anteriores para encontrar uma jogada que corresponda à configuração
         for jogada in self.game.jogadas.values():
             if jogada.peca.jogador != self.jogada.peca.jogador and jogada.grupo is not None:
@@ -599,11 +591,7 @@ class Situacao:
                     'cores': set(peca.cor for peca in jogada.grupo.pecas.values())
                 }
 
-                print(f"Comparando com configuração anterior: {configuracao_anterior}")
-
                 if configuracao_atual == configuracao_anterior:
-                    print(
-                        f"Jogador {self.jogada.peca.jogador.nome} foi imitado pelo jogador {jogada.peca.jogador.nome}")
                     jogada.peca.jogador.tabulacao.append(37)
                     break
 

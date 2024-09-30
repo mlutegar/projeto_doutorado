@@ -18,38 +18,29 @@ class Process:
 
         :param move: Dicionário contendo os dados da jogada.
         """
-        print("Iniciando process_data com move:", move)
-
         # Verifica se todas as chaves necessárias estão presentes
         required_keys = {"UID", "PosX", "PosY", "Tempo", "Jogador", "Cor", "Fase"}
         if not required_keys.issubset(move.keys()):
             raise ValueError("Dados incompletos recebidos")
-        print("Todas as chaves necessárias estão presentes.")
 
         # Obtém ou adiciona a peça no jogo
         if move["UID"] not in self.game.pecas:
             peca = self.game.add_peca(uid=int(move["UID"]), cor=move["Cor"])
-            print(f"Peça {move['UID']} adicionada ao jogo com cor {move['Cor']}.")
         else:
             peca = self.game.pecas[move["UID"]]
-            print(f"Peça {move['UID']} já existe no jogo.")
 
         # Obtém ou adiciona o jogador no jogo
         if move["Jogador"] not in self.game.jogadores:
             jogador = self.game.add_jogador(nome=move["Jogador"])
-            print(f"Jogador {move['Jogador']} adicionado ao jogo.")
         else:
             jogador = self.game.jogadores[move["Jogador"]]
-            print(f"Jogador {move['Jogador']} já existe no jogo.")
 
         if self.game.tabuleiro == 1:
             # Atualiza a posição da peça
             peca.set_posicao_atual_tabuleiro1(pos_x=int(move["PosX"]), pos_y=int(move["PosY"]), jogador=jogador)
-            print(f"Peça {peca.uid} movida para posição ({peca.linha}, {peca.coluna}) pelo jogador {jogador.nome}.")
         elif self.game.tabuleiro == 2:
             # Atualiza a posição da peça
             peca.set_posicao_atual_tabuleiro2(pos_x=int(move["PosX"]), pos_y=int(move["PosY"]), jogador=jogador)
-            print(f"Peça {peca.uid} movida para posição ({peca.linha}, {peca.coluna}) pelo jogador {jogador.nome}.")
 
         # Adiciona a jogada no jogo
         jogada = self.game.add_jogada(peca=peca, tempo=timedelta(seconds=float(move["Tempo"])), fase=move["Fase"])
@@ -109,16 +100,8 @@ class Process:
         self.csv_instance.write_csv_game()
         self.csv_instance.write_clustered()  # Nova função para gerar o arquivo clusterizado
 
-        print("Jogo encerrado. Dados exportados com sucesso.")
-        print("Exportando arquivo CSV...")
-        print("Arquivo exportado com sucesso.")
-        print("Fim do jogo.")
-
     def mudar_tabuleiro(self):
         """
         Muda o tabuleiro do jogo.
         """
         self.game.mudar_tabuleiro()
-        print("Tabuleiro mudado com sucesso.")
-        print("Tabuleiro atual:", self.game.tabuleiro)
-        print("Fim da mudança de tabuleiro.")
