@@ -140,9 +140,9 @@ class CsvExport:
         novas_linhas = []
         for _, row in game_df.iterrows():
             try:
-                casos_id = ast.literal_eval(row["Casos ID"])
-                if not casos_id:  # Verifica se casos_id está vazio
-                    continue
+                # Converte a string de "{1, 9}" para uma lista de inteiros [1, 9]
+                casos_id_str = row["Casos ID"]
+                casos_id = [int(x) for x in casos_id_str.strip('{}').split(',')]
             except Exception as e:
                 print(f"Erro ao analisar os casos ID na linha {row['ID']}: {e}")
                 continue
