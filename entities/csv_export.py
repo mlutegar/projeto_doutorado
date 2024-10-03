@@ -1,10 +1,6 @@
 import ast
 import logging
-import zipfile
-
 import pandas as pd
-import csv
-import io
 
 from datetime import datetime, timedelta
 from entities.finalizacao import Finalizacao
@@ -78,6 +74,13 @@ class CsvExport:
         Analisa todas as jogadas feitas no game e atribui uma situacao para cada uma delas.
         """
         self.list_cvs.extend(self.game.situacoes)
+
+    @staticmethod
+    def format_timedelta_seconds(td: timedelta) -> str:
+        if not isinstance(td, timedelta):
+            raise TypeError("O parâmetro td deve ser uma instância de timedelta.")
+        total_seconds = td.total_seconds()
+        return f"{total_seconds:.2f}s"
 
     def export_to_excel(self, perguntas: List[str], respostas: List[str], jogadores: List[str],
                         tempo_resposta: List[str]) -> None:
