@@ -141,13 +141,19 @@ class CsvExport:
         for _, row in game_df.iterrows():
             try:
                 casos_id = ast.literal_eval(row["Casos ID"])
+                if not casos_id:  # Verifica se casos_id está vazio
+                    continue
             except Exception as e:
                 print(f"Erro ao analisar os casos ID na linha {row['ID']}: {e}")
                 continue
 
             for caso_id in casos_id:
                 descricao_caso = self.caso_descricao.get(caso_id, "Descrição não encontrada")
-                for acao_generica in acoes_genericas.get(caso_id, ["Ação genérica não encontrada"]):
+                acoes = acoes_genericas.get(caso_id, ["Ação genérica não encontrada"])
+                if not acoes:  # Verifica se ações genéricas estão vazias
+                    continue
+
+                for acao_generica in acoes:
                     nova_linha = {
                         "ID": row["ID"],
                         "Nome do player": row["Nome do player"],
