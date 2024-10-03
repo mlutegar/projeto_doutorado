@@ -8,6 +8,7 @@ from entities.situacao import Situacao
 
 
 class Process:
+
     def __init__(self, nome: str, host: str, tabuleiro: str) -> None:
         self.csv_instance = None
         self.game = Game(name=nome, host=host, tabuleiro=int(tabuleiro))
@@ -19,7 +20,9 @@ class Process:
         :param move: Dicionário contendo os dados da jogada.
         """
         # Verifica se todas as chaves necessárias estão presentes
-        required_keys = {"UID", "PosX", "PosY", "Tempo", "Jogador", "Cor", "Fase"}
+        required_keys = {
+            "UID", "PosX", "PosY", "Tempo", "Jogador", "Cor", "Fase"
+        }
         if not required_keys.issubset(move.keys()):
             raise ValueError("Dados incompletos recebidos")
 
@@ -37,13 +40,20 @@ class Process:
 
         if self.game.tabuleiro == 1:
             # Atualiza a posição da peça
-            peca.set_posicao_atual_tabuleiro1(pos_x=int(move["PosX"]), pos_y=int(move["PosY"]), jogador=jogador)
+            peca.set_posicao_atual_tabuleiro1(pos_x=int(move["PosX"]),
+                                              pos_y=int(move["PosY"]),
+                                              jogador=jogador)
         elif self.game.tabuleiro == 2:
             # Atualiza a posição da peça
-            peca.set_posicao_atual_tabuleiro2(pos_x=int(move["PosX"]), pos_y=int(move["PosY"]), jogador=jogador)
+            peca.set_posicao_atual_tabuleiro2(pos_x=int(move["PosX"]),
+                                              pos_y=int(move["PosY"]),
+                                              jogador=jogador)
 
         # Adiciona a jogada no jogo
-        jogada = self.game.add_jogada(peca=peca, tempo=timedelta(seconds=float(move["Tempo"])), fase=move["Fase"])
+        jogada = self.game.add_jogada(
+            peca=peca,
+            tempo=timedelta(seconds=float(move["Tempo"])),
+            fase=move["Fase"])
 
         # Analisa a jogada imediatamente
         situacao = Situacao(game=self.game, jogada=jogada)
@@ -75,30 +85,39 @@ class Process:
 
         # Analisa a finalização imediatamente
         situacao = Situacao(game=self.game, finalizacao=finalizacao)
-        self.game.registrar_situacao_finalizacao(finalizacao, situacao.casos_id)
+        self.game.registrar_situacao_finalizacao(finalizacao,
+                                                 situacao.casos_id)
 
         return finalizacao
 
-    def encerrar_jogo(self, perguntas, respostas, jogadores, tempos_respostas) -> None:
+    def encerrar_jogo(self, perguntas, respostas, jogadores,
+                      tempos_respostas) -> None:
         """
         Encerra o jogo e exporta os dados.
         """
+
         def corrigir_nome_sala(nome: str) -> str:
             """
             Corrige o nome da sala removendo ou substituindo caracteres inválidos.
             """
             # Substitui caracteres inválidos por underscore
-            return re.sub(r'[:,]', '', nome).replace(' ', '_').replace(':', '_')
+            return re.sub(r'[:,]', '', nome).replace(' ',
+                                                     '_').replace(':', '_')
 
         if not self.game:
             raise ValueError("Jogo não iniciado")
         else:
             nome_da_sala_corrigido = corrigir_nome_sala(self.game.nome_da_sala)
-            self.csv_instance = CsvExport(path_root='data', game=self.game, nome=nome_da_sala_corrigido)
+            self.csv_instance = CsvExport(path_root='data',
+                                          game=self.game,
+                                          nome=nome_da_sala_corrigido)
 
         # Exporta os dados para o arquivo Excel unificado
         self.csv_instance.analisar_jogadas_game()
-        self.csv_instance.export_to_excel(perguntas, respostas, jogadores, tempos_respostas)
+        self.csv_instance.export_to_excel(perguntas, respostas, jogadores,
+                                          tempos_respostas)
+        self.csv_instance.gerar_grafo()
+
 
     def mudar_tabuleiro(self):
         """

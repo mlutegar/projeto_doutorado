@@ -1,6 +1,8 @@
 import ast
 import logging
 import pandas as pd
+import networkx as nx
+import matplotlib.pyplot as plt
 
 from datetime import datetime, timedelta
 from entities.finalizacao import Finalizacao
@@ -140,9 +142,10 @@ class CsvExport:
         novas_linhas = []
         for _, row in game_df.iterrows():
             try:
-                # Converte a string de "{1, 9}" para uma lista de inteiros [1, 9]
-                casos_id_str = row["Casos ID"]
-                casos_id = [int(x) for x in casos_id_str.strip('{}').split(',')]
+                # Certifique-se de que casos_id é um conjunto de inteiros
+                casos_id = row["Casos ID"]
+                if not isinstance(casos_id, set):
+                    raise TypeError(f"Esperado um conjunto, mas obteve {type(casos_id)}")
             except Exception as e:
                 print(f"Erro ao analisar os casos ID na linha {row['ID']}: {e}")
                 continue
@@ -168,6 +171,7 @@ class CsvExport:
             "ID", "Nome do player", "Tempo de reação", "Tempo de resposta", "Descrição do Caso", "Ação Genérica"
         ])
 
+
         # Salvando todos os DataFrames em um único arquivo Excel com várias planilhas
         with pd.ExcelWriter(self.path_excel_complete, engine='openpyxl') as writer:
             game_df.to_excel(writer, sheet_name='Jogadas do Game', index=False)
@@ -175,3 +179,73 @@ class CsvExport:
             df_expandido.to_excel(writer, sheet_name='Dados Clusterizados', index=False)
 
         print(f"Arquivo Excel salvo em '{self.path_excel_complete}'.")
+
+    def gerar_grafo(self) -> None:
+        """
+        Gera um grafo para cada jogador, representando as jogadas e os casos e ações associados.
+        """
+        # Lendo o DataFrame expandido gerado anteriormente
+        df_expandido = pd.read_excel(self.path_excel_complete, sheet_name='Dados Clusterizados')
+    
+        # Agrupando os dados por jogador
+        jogadores = df_expandido["Nome do player"].unique()
+    
+        for jogador in jogadores:
+            df_jogador = df_expandido[df_expandido["Nome do player"] == jogador]
+    
+            # Criando o grafo direcionado
+            G = nx.DiGraph()
+    
+            # Adicionando nós e arestas ao grafo para o jogador atual
+            jogadas = df_jogador["ID"].unique()
+            previous_jogada = None
+    
+            # Dicionário para armazenar cores dos nós
+            color_map = []
+    
+            for jogada_id in jogadas:
+                jogada = f"Jogada {jogada_id}"
+                G.add_node(jogada, label=jogada)
+                color_map.append('blue')  # Cor azul para jogadas
+    
+                # Conecta a jogada atual com a jogada anterior
+                if previous_jogada:
+                    G.add_edge(previous_jogada, jogada)
+    
+                # Filtrando os dados para a jogada atual
+                df_jogada = df_jogador[df_jogador["ID"] == jogada_id]
+    
+                for _, row in df_jogada.iterrows():
+                    # Adiciona o nó do caso ID e a conexão com a jogada
+                    caso_descricao = f"Caso {row['Descrição do Caso']}"
+                    if caso_descricao not in G:
+                        G.add_node(caso_descricao, label=caso_descricao)
+                        color_map.append('green')  # Cor verde para casos ID
+                    G.add_edge(jogada, caso_descricao)
+    
+                    # Adiciona o nó da ação genérica e a conexão com o caso ID
+                    acao_generica = row["Ação Genérica"]
+                    if acao_generica not in G:
+                        G.add_node(acao_generica, label=acao_generica)
+                        color_map.append('yellow')  # Cor amarela para ações genéricas
+                    G.add_edge(caso_descricao, acao_generica)
+    
+                # Atualiza a jogada anterior
+                previous_jogada = jogada
+    
+            # Plotando e salvando o grafo
+            plt.figure(figsize=(14, 10))  # Ajuste o tamanho para melhorar a visualização
+            pos = nx.spring_layout(G, seed=42, k=0.5)  # Ajuste do layout com parâmetro `k` para controlar a distância entre os nós
+            nx.draw(G, pos, with_labels=True, labels=nx.get_node_attributes(G, 'label'), node_size=1000,
+                    node_color=color_map, font_size=8, font_weight='bold', edge_color='gray', arrows=True, width=0.8)
+            plt.title(f"Grafo das Ações do Jogador: {jogador}")
+    
+            # Salvando a imagem
+            grafo_path = self.path_root / f"grafo_{jogador}.png"
+            plt.savefig(grafo_path, dpi=300)  # Salvando com maior resolução
+            plt.close()
+    
+            print(f"Grafo salvo para o jogador '{jogador}' em '{grafo_path}'.")
+    
+        logging.info("Todos os grafos foram gerados e salvos com sucesso.")
+    
