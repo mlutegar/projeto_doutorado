@@ -79,7 +79,7 @@ class Process:
 
         return finalizacao
 
-    def encerrar_jogo(self) -> None:
+    def encerrar_jogo(self, perguntas, respostas, jogadores, tempos_respostas) -> None:
         """
         Encerra o jogo e exporta os dados.
         """
@@ -96,9 +96,9 @@ class Process:
             nome_da_sala_corrigido = corrigir_nome_sala(self.game.nome_da_sala)
             self.csv_instance = CsvExport(path_root='data', game=self.game, nome=nome_da_sala_corrigido)
 
+        # Exporta os dados para o arquivo Excel unificado
         self.csv_instance.analisar_jogadas_game()
-        self.csv_instance.write_csv_game()
-        self.csv_instance.write_clustered()  # Nova função para gerar o arquivo clusterizado
+        self.csv_instance.export_to_excel(perguntas, respostas, jogadores, tempos_respostas)
 
     def mudar_tabuleiro(self):
         """

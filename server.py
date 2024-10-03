@@ -3,9 +3,6 @@ import random
 
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-from pathlib import Path
-
-from entities.csv_export import CsvExport
 from process import Process
 
 # Configurando o logging
@@ -94,38 +91,23 @@ def responder_pergunta():
     """
     Responde a uma pergunta.
     """
-    # Imprimir para verificar se a rota está sendo acessada
-    print("Acessando a rota '/responder_pergunta'")
-
     if not request.is_json:
-        print("O conteúdo não é JSON.")
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
     data = request.get_json().get('data')
-    # Imprimir dados recebidos
-    print(f"Dados recebidos: {data}")
 
     pergunta = data.get('pergunta')
     resposta = data.get('resposta')
     jogador = data.get('jogador')
     tempo_resposta = data.get('tempo_resposta')
 
-    # Imprimir valores individuais recebidos
-    print(f"Pergunta: {pergunta}, Resposta: {resposta}, Jogador: {jogador}, Tempo de Resposta: {tempo_resposta}")
-
     if not pergunta or not resposta or not jogador or not tempo_resposta:
-        print("Faltando algum valor necessário (pergunta, resposta, jogador ou tempo_resposta).")
         return jsonify({"status": "error", "message": "Missing 'pergunta' or 'resposta'"}), 400
 
-    # Imprimir antes de adicionar as perguntas e respostas às listas
-    print("Adicionando pergunta, resposta, jogador e tempo de resposta às listas.")
     perguntas.append(pergunta)
     respostas.append(resposta)
     jogadores.append(jogador)
     tempos_respostas.append(tempo_resposta)
-
-    # Imprimir confirmação da adição
-    print(f"Pergunta '{pergunta}' adicionada com sucesso para o jogador '{jogador}'.")
 
     return jsonify({"status": "success", "message": "Pergunta e resposta registradas com sucesso."}), 200
 
@@ -217,8 +199,6 @@ def finalizar_jogo_route():
 
     try:
         finalizacao = game_state.get_processo().finalizar_jogo(move=data)
-        csv_export = CsvExport(path_root='data', game=None, nome="perguntas_respostas")
-        csv_export.write_csv_perguntas(perguntas, respostas, jogadores, tempos_respostas)
         logging.info(f"Jogo finalizado: {finalizacao.descricao} por {finalizacao.jogador.nome}")
         return jsonify({"status": "success",
                         "message": f"Game {finalizacao.descricao} by {finalizacao.jogador.nome}"}), 200
@@ -231,17 +211,15 @@ def export_csv():
     if not isinstance(game_state.get_processo(), Process):
         return jsonify({"status": "error", "message": "Invalid process instance"}), 400
 
-    game_state.get_processo().encerrar_jogo()
+    game_state.get_processo().encerrar_jogo(perguntas, respostas, jogadores, tempos_respostas)
 
-    if not game_state.get_processo().game.jogadas:
-        return jsonify({"status": "error", "message": "No data to export"}), 400
+    excel_file = game_state.get_processo().csv_instance.path_excel_complete
+    if not excel_file.is_file():
+        return jsonify({"status": "error", "message": "Failed to create Excel file"}), 500
 
-    csv_file = 'data.csv'
-    if not game_state.get_processo().csv_instance or not Path(csv_file).is_file():
-        return jsonify({"status": "error", "message": "Failed to create CSV file"}), 500
+    logging.info(f"Exportando Excel: {excel_file}")
+    return send_file(excel_file, as_attachment=True)
 
-    logging.info(f"Exportando CSV: {csv_file}")
-    return send_file(csv_file, as_attachment=True)
 
 @app.route('/mudar_tabuleiro', methods=['GET'])
 def mudar_tabuleiro():
