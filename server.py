@@ -1,5 +1,6 @@
 import logging
 import random
+from datetime import datetime
 
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
@@ -84,6 +85,7 @@ perguntas = []
 respostas = []
 jogadores = []
 tempos_respostas = []
+horarios_perguntas = {}  # Dicionário para armazenar os horários das perguntas
 
 
 @app.route('/responder_pergunta', methods=['POST'])
@@ -99,11 +101,19 @@ def responder_pergunta():
     pergunta = data.get('pergunta')
     resposta = data.get('resposta')
     jogador = data.get('jogador')
-    tempo_resposta = data.get('tempo_resposta')
 
-    if not pergunta or not resposta or not jogador or not tempo_resposta:
-        return jsonify({"status": "error", "message": "Missing 'pergunta' or 'resposta'"}), 400
+    if not pergunta or not resposta or not jogador:
+        return jsonify({"status": "error", "message": "Missing 'pergunta', 'resposta' ou 'jogador'"}), 400
 
+    # Calculando o tempo de resposta
+    if jogador not in horarios_perguntas:
+        return jsonify({"status": "error", "message": "Horário da pergunta não encontrado para o jogador"}), 400
+
+    horario_pergunta = horarios_perguntas.pop(jogador)  # Remove e obtém o horário da pergunta
+    horario_resposta = datetime.now()
+    tempo_resposta = (horario_resposta - horario_pergunta).total_seconds()
+
+    # Armazenando os dados da resposta
     perguntas.append(pergunta)
     respostas.append(resposta)
     jogadores.append(jogador)
@@ -123,6 +133,10 @@ def pegar_item_aleatorio():
 
     data = request.get_json()
     tipo = data.get('tipo')
+    jogador = data.get('jogador')
+
+    if not jogador:
+        return jsonify({"status": "error", "message": "Missing 'jogador'"}), 400
 
     # Se um tipo foi especificado, filtra a lista para aquele tipo
     if tipo:
@@ -133,6 +147,9 @@ def pegar_item_aleatorio():
     else:
         # Se não foi especificado um tipo, seleciona de toda a lista
         item_escolhido = random.choice(itens)
+
+    # Armazenando o horário da pergunta para o jogador
+    horarios_perguntas[jogador] = datetime.now()
 
     print(f"Item escolhido: {item_escolhido}")
     return jsonify({"status": "success", "item": item_escolhido}), 200
