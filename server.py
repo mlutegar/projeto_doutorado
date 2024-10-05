@@ -128,31 +128,43 @@ def pegar_item_aleatorio():
     Retorna um item aleatório de uma lista. Se 'tipo' for passado no request,
     retorna um item aleatório apenas desse tipo.
     """
+    # Verificando se o conteúdo do request é JSON
     if not request.is_json:
+        print("Erro: O conteúdo do request não é JSON.")
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
     data = request.get_json()
+    print(f"Dados recebidos: {data}")
+
     tipo = data.get('tipo')
     jogador = data.get('jogador')
 
+    # Verificando se o jogador foi especificado
     if not jogador:
+        print("Erro: 'jogador' não foi especificado.")
         return jsonify({"status": "error", "message": "Missing 'jogador'"}), 400
 
     # Se um tipo foi especificado, filtra a lista para aquele tipo
     if tipo:
+        print(f"Tipo especificado: {tipo}")
         itens_filtrados = [item for item in itens if item['tipo'] == tipo]
+        print(f"Itens filtrados: {itens_filtrados}")
         if not itens_filtrados:
+            print("Erro: Nenhum item encontrado para o tipo especificado.")
             return jsonify({"status": "error", "message": "Nenhum item encontrado para esse tipo"}), 404
         item_escolhido = random.choice(itens_filtrados)
     else:
         # Se não foi especificado um tipo, seleciona de toda a lista
+        print("Nenhum tipo especificado, selecionando de toda a lista.")
         item_escolhido = random.choice(itens)
 
     # Armazenando o horário da pergunta para o jogador
     horarios_perguntas[jogador] = datetime.now()
+    print(f"Horário da pergunta para o jogador '{jogador}': {horarios_perguntas[jogador]}")
 
     print(f"Item escolhido: {item_escolhido}")
     return jsonify({"status": "success", "item": item_escolhido}), 200
+
 
 @app.route('/iniciar_jogo', methods=['POST'])
 def iniciar_jogo():
