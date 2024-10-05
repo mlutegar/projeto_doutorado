@@ -1,4 +1,4 @@
-import re
+import zipfile
 import logging
 import pandas as pd
 import networkx as nx
@@ -192,7 +192,6 @@ class CsvExport:
 
         # Agrupando os dados por jogador
         jogadores = df_expandido["Nome do player"].unique()
-        data_atual = datetime.now().strftime("%a_%d_%b_%Y_%H%M%S_GMT")  # Formato da data para o nome do arquivo
 
         for jogador in jogadores:
             df_jogador = df_expandido[df_expandido["Nome do player"] == jogador]
@@ -245,10 +244,31 @@ class CsvExport:
             plt.title(f"Grafo das Ações do Jogador: {jogador}")
 
             # Salvando a imagem no diretório especificado
-            grafo_path = grafo_path_root / f"{data_atual}_{jogador}.png"
+            grafo_path = grafo_path_root / f"{self.nome}_{jogador}.png"
             plt.savefig(grafo_path, dpi=300)  # Salvando com maior resolução
             plt.close()
 
             print(f"Grafo salvo para o jogador '{jogador}' em '{grafo_path}'.")
 
         logging.info("Todos os grafos foram gerados e salvos com sucesso.")
+
+    def zipar_partida(self) -> None:
+        """
+        Cria um arquivo ZIP contendo o Excel da partida e todos os grafos gerados para essa partida.
+        """
+        # Define o caminho para salvar o ZIP
+        zip_path = self.path_root / "partida" / f"{self.nome}.zip"
+        zip_path.parent.mkdir(parents=True, exist_ok=True)  # Cria o diretório /partida se não existir
+
+        # Caminho do Excel e dos grafos
+        excel_path = self.path_excel_complete
+        grafo_path_root = self.path_root / "grafo"
+        grafo_files = list(grafo_path_root.glob(f"{self.nome}_*.png"))
+
+        # Cria o arquivo ZIP e adiciona os arquivos
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            zipf.write(excel_path, excel_path.name)  # Adiciona o arquivo Excel
+            for grafo_file in grafo_files:
+                zipf.write(grafo_file, grafo_file.name)  # Adiciona cada grafo
+
+        print(f"Arquivo ZIP salvo em '{zip_path}'.")
