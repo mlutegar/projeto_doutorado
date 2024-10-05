@@ -1,6 +1,7 @@
 import zipfile
 import logging
 import pandas as pd
+import shutil
 import networkx as nx
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
@@ -272,3 +273,24 @@ class CsvExport:
                 zipf.write(grafo_file, grafo_file.name)  # Adiciona cada grafo
 
         print(f"Arquivo ZIP salvo em '{zip_path}'.")
+
+        # Remover as pastas 'grafo' e 'excel'
+        self.remover_pastas()
+
+    def remover_pastas(self) -> None:
+        """
+        Remove as pastas 'grafo' e 'excel' após o arquivo ZIP ser criado.
+        """
+        # Define os caminhos das pastas
+        grafo_path = self.path_root / "grafo"
+        excel_path = self.path_excel
+
+        # Remove a pasta 'grafo' se ela existir
+        if grafo_path.exists() and grafo_path.is_dir():
+            shutil.rmtree(grafo_path)
+            logging.info(f"Pasta '{grafo_path}' removida com sucesso.")
+
+        # Remove a pasta 'excel' se ela existir
+        if excel_path.exists() and excel_path.is_dir():
+            shutil.rmtree(excel_path)
+            logging.info(f"Pasta '{excel_path}' removida com sucesso.")
