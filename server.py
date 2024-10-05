@@ -133,7 +133,7 @@ def pegar_item_aleatorio():
         print("Erro: O conteúdo do request não é JSON.")
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
-    data = request.get_json()
+    data = request.get_json().get('data')
     print(f"Dados recebidos: {data}")
 
     tipo = data.get('tipo')
