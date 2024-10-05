@@ -258,7 +258,7 @@ class CsvExport:
         Cria um arquivo ZIP contendo o Excel da partida e todos os grafos gerados para essa partida.
         """
         # Define o caminho para salvar o ZIP
-        zip_path = self.path_root / "partida" / f"{self.nome}.zip"
+        zip_path = self.path_root / f"{self.nome}.zip"
         zip_path.parent.mkdir(parents=True, exist_ok=True)  # Cria o diretório /partida se não existir
 
         # Caminho do Excel e dos grafos
