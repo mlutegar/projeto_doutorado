@@ -147,7 +147,7 @@ def pegar_item_aleatorio():
     # Se um tipo foi especificado, filtra a lista para aquele tipo
     if tipo:
         print(f"Tipo especificado: {tipo}")
-        itens_filtrados = [item for item in itens if item['tipo'] == tipo]
+        itens_filtrados = [item for item in itens if item['tipo'] == str(tipo)]
         print(f"Itens filtrados: {itens_filtrados}")
         if not itens_filtrados:
             print("Erro: Nenhum item encontrado para o tipo especificado.")
