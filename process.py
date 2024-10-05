@@ -117,7 +117,7 @@ class Process:
         self.csv_instance.export_to_excel(perguntas, respostas, jogadores,
                                           tempos_respostas)
         self.csv_instance.gerar_grafo()
-        self.csv_instance.zipar_arquivos()
+        self.csv_instance.zipar_partida()
 
 
     def mudar_tabuleiro(self):
