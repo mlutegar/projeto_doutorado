@@ -191,6 +191,7 @@ class CsvExport:
         jogadores = df_clusterizado["Nome do player"].unique()
 
         for jogador in jogadores:
+            print(f"Processando grafo para o jogador: {jogador}")
             df_jogador = df_clusterizado[df_clusterizado["Nome do player"] == jogador]
 
             G = nx.DiGraph()  # Grafo direcionado
@@ -226,10 +227,10 @@ class CsvExport:
                         if operacao_descricao:
                             G.add_edge(caso_descricao, operacao_descricao)
 
-                    previous_jogada = jogada
+                previous_jogada = jogada
 
-            # Gerar as posições dos nós usando spring_layout
-            pos = nx.spring_layout(G, seed=42)
+            # Gerar as posições dos nós usando um layout alternativo
+            pos = nx.kamada_kawai_layout(G)  # Alterado para Kamada-Kawai Layout
 
             # Construir as coordenadas das arestas para o Plotly
             edge_x = []
@@ -257,19 +258,28 @@ class CsvExport:
                 x, y = pos[node[0]]
                 node_x.append(x)
                 node_y.append(y)
-                node_color.append(node[1]['color'])  # A cor do nó
-                node_text.append(node[1]['label'])  # O rótulo do nó
+                node_color.append(node[1]['color'])
+
+                # Mostrar texto somente no hover para operações
+                if node[1]['color'] == 'yellow':
+                    node_text.append('')  # Texto vazio por padrão
+                else:
+                    node_text.append(node[1]['label'])  # Texto visível para jogadas e casos
 
             node_trace = go.Scatter(
                 x=node_x, y=node_y,
-                mode='markers+text',
+                mode='markers+text',  # Exibe marcadores e texto
                 marker=dict(
-                    size=10,
+                    size=20,  # Aumentando o tamanho dos nós
                     color=node_color,
                     line=dict(width=2, color='black')
                 ),
                 text=node_text,
-                hoverinfo='text'
+                textposition='top center',  # Posição do texto
+                textfont=dict(
+                    size=8  # Diminui o tamanho da fonte
+                ),
+                hoverinfo='text'  # Exibe o texto no hover
             )
 
             # Criar a figura e adicionar os traços
