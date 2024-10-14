@@ -214,7 +214,7 @@ class CsvExport:
                     G.add_edge(jogada, caso_descricao)
 
                     # Itera sobre as colunas de ações genéricas (1 a 10)
-                    for i in range(1, 344):
+                    for i in range(1, 244):
                         acao_coluna = f"Operação {i}"
                         operacao_descricao = row[acao_coluna]
 
