@@ -10,7 +10,7 @@ from entities.game import Game
 from entities.jogada import Jogada
 from typing import List, Dict, Union
 from pathlib import Path
-from util.situacoes import situacoes, acoes_genericas  # Importando as descrições das situações
+from util.situacoes import situacoes, operacoes  # Importando as descrições das situações
 
 
 class CsvExport:
@@ -146,7 +146,7 @@ class CsvExport:
 
             for caso_id in casos_id:
                 descricao_caso = self.caso_descricao.get(caso_id, "Descrição não encontrada")
-                acoes = acoes_genericas.get(caso_id, ["Ação genérica não encontrada"])
+                operacoes_descricao = operacoes.get(caso_id, ["Operacao não encontrada"])
 
                 # Cria uma linha para cada jogada com até 10 ações genéricas
                 nova_linha = {
@@ -158,9 +158,9 @@ class CsvExport:
                 }
 
                 # Preenche as colunas de 'Ação Genérica' (de 1 a 10)
-                for i in range(10):
-                    coluna = f"Ação Genérica {i + 1}"
-                    nova_linha[coluna] = acoes[i] if i < len(acoes) else None
+                for i in range(243):
+                    coluna = f"Operação {i + 1}"
+                    nova_linha[coluna] = operacoes_descricao[i] if i < len(operacoes_descricao) else None
 
                 novas_linhas.append(nova_linha)
 
@@ -215,15 +215,15 @@ class CsvExport:
 
                     # Itera sobre as colunas de ações genéricas (1 a 10)
                     for i in range(1, 11):
-                        acao_coluna = f"Ação Genérica {i}"
-                        acao_generica = row[acao_coluna]
+                        acao_coluna = f"Operação {i}"
+                        operacao_descricao = row[acao_coluna]
 
-                        if acao_generica and acao_generica not in G:
-                            G.add_node(acao_generica, label=acao_generica)
+                        if operacao_descricao and operacao_descricao not in G:
+                            G.add_node(operacao_descricao, label=operacao_descricao)
                             color_map.append('yellow')  # Amarelo para ações
 
-                        if acao_generica:
-                            G.add_edge(caso_descricao, acao_generica)
+                        if operacao_descricao:
+                            G.add_edge(caso_descricao, operacao_descricao)
 
                 previous_jogada = jogada
 
