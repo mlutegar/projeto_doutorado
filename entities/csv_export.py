@@ -302,7 +302,7 @@ class CsvExport:
         # Caminho do Excel e dos grafos
         excel_path = self.path_excel_complete
         grafo_path_root = self.path_root / "grafo"
-        grafo_files = list(grafo_path_root.glob(f"{self.nome}_*.png"))
+        grafo_files = list(grafo_path_root.glob(f"{self.nome}_*.html"))
 
         # Cria o arquivo ZIP e adiciona os arquivos
         with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
