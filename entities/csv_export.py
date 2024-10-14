@@ -181,69 +181,57 @@ class CsvExport:
 
     def gerar_grafo(self) -> None:
         """Gera um grafo interativo para cada jogador, representando as jogadas e as ações associadas."""
-        print("Lendo o DataFrame...")
+        # Lê o DataFrame modificado
         df_clusterizado = pd.read_excel(self.path_excel_complete, sheet_name='Dados Clusterizados')
-
-        # Verificando se o DataFrame foi lido corretamente
-        print(f"DataFrame lido com {len(df_clusterizado)} linhas.")
 
         # Cria o diretório para salvar os grafos, caso necessário
         grafo_path_root = self.path_root / "grafo"
         grafo_path_root.mkdir(parents=True, exist_ok=True)
-        print(f"Diretório para salvar os grafos: {grafo_path_root}")
 
         jogadores = df_clusterizado["Nome do player"].unique()
-        print(f"Jogadores encontrados: {jogadores}")
 
         for jogador in jogadores:
-            print(f"Processando grafo para o jogador: {jogador}")
             df_jogador = df_clusterizado[df_clusterizado["Nome do player"] == jogador]
-            print(f"Jogador '{jogador}' tem {len(df_jogador)} jogadas.")
 
             G = nx.DiGraph()  # Grafo direcionado
 
             jogadas = df_jogador["ID"].unique()
-            print(f"Jogadas do jogador: {jogadas}")
             previous_jogada = None
 
             for jogada_id in jogadas:
                 jogada = f"Jogada {jogada_id}"
-                print(f"Adicionando nó da jogada: {jogada}")
-                G.add_node(jogada, label=jogada, color='blue')
+                G.add_node(jogada, label=jogada, color='blue')  # Cor azul para jogadas
 
                 if previous_jogada:
-                    print(f"Conectando '{previous_jogada}' -> '{jogada}'")
                     G.add_edge(previous_jogada, jogada)
 
                 df_jogada = df_jogador[df_jogador["ID"] == jogada_id]
-                print(f"Processando jogada '{jogada_id}' com {len(df_jogada)} casos.")
 
                 for _, row in df_jogada.iterrows():
                     caso_descricao = f"Caso {row['Descrição do Caso']}"
                     if caso_descricao not in G:
-                        print(f"Adicionando nó do caso: {caso_descricao}")
-                        G.add_node(caso_descricao, label=caso_descricao, color='green')
+                        G.add_node(caso_descricao, label=caso_descricao, color='green')  # Verde para casos
 
-                    print(f"Conectando jogada '{jogada}' -> caso '{caso_descricao}'")
                     G.add_edge(jogada, caso_descricao)
 
+                    # Itera sobre as colunas de operações
                     for i in range(1, 244):
                         acao_coluna = f"Operação {i}"
                         operacao_descricao = row.get(acao_coluna)
 
-                        if operacao_descricao:
-                            if operacao_descricao not in G:
-                                print(f"Adicionando nó da operação: {operacao_descricao}")
-                                G.add_node(operacao_descricao, label=operacao_descricao, color='yellow')
+                        if operacao_descricao and operacao_descricao not in G:
+                            G.add_node(operacao_descricao, label=operacao_descricao,
+                                       color='yellow')  # Amarelo para operações
 
-                            print(f"Conectando caso '{caso_descricao}' -> operação '{operacao_descricao}'")
+                        if operacao_descricao:
                             G.add_edge(caso_descricao, operacao_descricao)
 
-                previous_jogada = jogada
+                    previous_jogada = jogada
 
-            print(f"Gerando layout do grafo para o jogador: {jogador}")
+            # Gerar as posições dos nós usando spring_layout
             pos = nx.spring_layout(G, seed=42)
 
+            # Construir as coordenadas das arestas para o Plotly
             edge_x = []
             edge_y = []
             for edge in G.edges():
@@ -251,7 +239,6 @@ class CsvExport:
                 x1, y1 = pos[edge[1]]
                 edge_x.extend([x0, x1, None])
                 edge_y.extend([y0, y1, None])
-            print(f"Arestas processadas: {len(G.edges())}")
 
             edge_trace = go.Scatter(
                 x=edge_x, y=edge_y,
@@ -260,6 +247,7 @@ class CsvExport:
                 mode='lines'
             )
 
+            # Construir as coordenadas dos nós
             node_x = []
             node_y = []
             node_color = []
@@ -269,10 +257,8 @@ class CsvExport:
                 x, y = pos[node[0]]
                 node_x.append(x)
                 node_y.append(y)
-                node_color.append(node[1]['color'])
-                node_text.append(node[1]['label'])
-
-            print(f"Nós processados: {len(G.nodes())}")
+                node_color.append(node[1]['color'])  # A cor do nó
+                node_text.append(node[1]['label'])  # O rótulo do nó
 
             node_trace = go.Scatter(
                 x=node_x, y=node_y,
@@ -286,6 +272,7 @@ class CsvExport:
                 hoverinfo='text'
             )
 
+            # Criar a figura e adicionar os traços
             fig = go.Figure(data=[edge_trace, node_trace],
                             layout=go.Layout(
                                 title=f"Grafo das Ações do Jogador: {jogador}",
@@ -297,11 +284,11 @@ class CsvExport:
                                 yaxis=dict(showgrid=False, zeroline=False, visible=False)
                             ))
 
+            # Opcional: salvar o grafo como um HTML
             grafo_path = grafo_path_root / f"{self.nome}_{jogador}.html"
             fig.write_html(str(grafo_path))
             print(f"Grafo salvo para o jogador '{jogador}' em '{grafo_path}'.")
 
-        print("Todos os grafos foram gerados e salvos com sucesso.")
         logging.info("Todos os grafos foram gerados e salvos com sucesso.")
 
     def zipar_partida(self) -> None:
