@@ -228,10 +228,10 @@ class CsvExport:
                 previous_jogada = jogada
 
             # Plotando e salvando o grafo
-            plt.figure(figsize=(14, 10))
+            plt.figure(figsize=(50, 50))
             pos = nx.spring_layout(G, seed=42, k=0.5)
-            nx.draw(G, pos, with_labels=True, labels=nx.get_node_attributes(G, 'label'), node_size=1000,
-                    node_color=color_map, font_size=8, font_weight='bold', edge_color='gray', arrows=True, width=0.8)
+            nx.draw(G, pos, with_labels=True, labels=nx.get_node_attributes(G, 'label'), node_size=100,
+                    node_color=color_map, font_size=2, font_weight='bold', edge_color='gray', arrows=True, width=0.2)
             plt.title(f"Grafo das Ações do Jogador: {jogador}")
 
             grafo_path = grafo_path_root / f"{self.nome}_{jogador}.png"
