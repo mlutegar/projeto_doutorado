@@ -140,9 +140,9 @@ class CsvExport:
 
         # DataFrame 3: Clustered data (expandido)
         novas_linhas = []
+
         for _, row in game_df.iterrows():
             try:
-                # Certifique-se de que casos_id é um conjunto de inteiros
                 casos_id = row["Casos ID"]
                 if not isinstance(casos_id, set):
                     raise TypeError(f"Esperado um conjunto, mas obteve {type(casos_id)}")
@@ -150,26 +150,36 @@ class CsvExport:
                 print(f"Erro ao analisar os casos ID na linha {row['ID']}: {e}")
                 continue
 
+            # Para cada situação, criamos uma linha completa com até 10 colunas de ações
             for caso_id in casos_id:
                 descricao_caso = self.caso_descricao.get(caso_id, "Descrição não encontrada")
                 acoes = acoes_genericas.get(caso_id, ["Ação genérica não encontrada"])
-                if not acoes:  # Verifica se ações genéricas estão vazias
-                    continue
 
-                for acao_generica in acoes:
-                    nova_linha = {
-                        "ID": row["ID"],
-                        "Nome do player": row["Nome do player"],
-                        "Tempo de reação": row["Tempo de reação"],
-                        "Tempo de resposta": row["Tempo de resposta"],
-                        "Descrição do Caso": descricao_caso,
-                        "Ação Genérica": acao_generica
-                    }
-                    novas_linhas.append(nova_linha)
+                # Garantir que haja exatamente 10 espaços (preenchidos com None se necessário)
+                acoes = (acoes + [None] * 10)[:10]
 
-        df_expandido = pd.DataFrame(novas_linhas, columns=[
-            "ID", "Nome do player", "Tempo de reação", "Tempo de resposta", "Descrição do Caso", "Ação Genérica"
-        ])
+                # Criar nova linha com as ações como colunas separadas
+                nova_linha = {
+                    "ID": row["ID"],
+                    "Nome do player": row["Nome do player"],
+                    "Tempo de reação": row["Tempo de reação"],
+                    "Tempo de resposta": row["Tempo de resposta"],
+                    "Descrição do Caso": descricao_caso,
+                }
+
+                # Adiciona cada ação em colunas individuais
+                for i, acao in enumerate(acoes):
+                    nova_linha[f"Ação Genérica {i + 1}"] = acao
+
+                novas_linhas.append(nova_linha)
+
+        # Criação do DataFrame final com colunas nomeadas
+        colunas = [
+                      "ID", "Nome do player", "Tempo de reação", "Tempo de resposta",
+                      "Descrição do Caso"
+                  ] + [f"Ação Genérica {i + 1}" for i in range(10)]
+
+        df_expandido = pd.DataFrame(novas_linhas, columns=colunas)
 
 
         # Salvando todos os DataFrames em um único arquivo Excel com várias planilhas
