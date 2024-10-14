@@ -7,7 +7,6 @@ import networkx as nx
 import matplotlib
 matplotlib.use('Agg')  # Adicione esta linha
 
-import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from entities.finalizacao import Finalizacao
 from entities.game import Game
@@ -16,6 +15,7 @@ from typing import List, Dict, Union
 from pathlib import Path
 from util.situacoes import situacoes, operacoes  # Importando as descrições das situações
 
+import plotly.graph_objects as go
 
 class CsvExport:
     def __init__(self, path_root: Union[str, Path], game, nome: str) -> None:
@@ -180,11 +180,11 @@ class CsvExport:
         print(f"Arquivo Excel salvo em '{self.path_excel_complete}'.")
 
     def gerar_grafo(self) -> None:
-        """Gera um grafo para cada jogador, representando as jogadas e as ações associadas."""
+        """Gera um grafo interativo para cada jogador, representando as jogadas e as ações associadas."""
         # Lê o DataFrame modificado
         df_clusterizado = pd.read_excel(self.path_excel_complete, sheet_name='Dados Clusterizados')
 
-        # Cria o diretório para salvar os grafos
+        # Cria o diretório para salvar os grafos, caso necessário
         grafo_path_root = self.path_root / "grafo"
         grafo_path_root.mkdir(parents=True, exist_ok=True)
 
@@ -194,15 +194,13 @@ class CsvExport:
             df_jogador = df_clusterizado[df_clusterizado["Nome do player"] == jogador]
 
             G = nx.DiGraph()  # Grafo direcionado
-            color_map = []  # Para armazenar as cores dos nós
 
             jogadas = df_jogador["ID"].unique()
             previous_jogada = None
 
             for jogada_id in jogadas:
                 jogada = f"Jogada {jogada_id}"
-                G.add_node(jogada, label=jogada)
-                color_map.append('blue')  # Azul para jogadas
+                G.add_node(jogada, label=jogada, color='blue')  # Cor azul para jogadas
 
                 if previous_jogada:
                     G.add_edge(previous_jogada, jogada)
@@ -212,36 +210,86 @@ class CsvExport:
                 for _, row in df_jogada.iterrows():
                     caso_descricao = f"Caso {row['Descrição do Caso']}"
                     if caso_descricao not in G:
-                        G.add_node(caso_descricao, label=caso_descricao)
-                        color_map.append('green')  # Verde para casos
+                        G.add_node(caso_descricao, label=caso_descricao, color='green')  # Verde para casos
 
                     G.add_edge(jogada, caso_descricao)
 
-                    # Itera sobre as colunas de ações genéricas (1 a 10)
+                    # Itera sobre as colunas de operações
                     for i in range(1, 244):
                         acao_coluna = f"Operação {i}"
-                        operacao_descricao = row[acao_coluna]
+                        operacao_descricao = row.get(acao_coluna)
 
                         if operacao_descricao and operacao_descricao not in G:
-                            G.add_node(operacao_descricao, label=operacao_descricao)
-                            color_map.append('yellow')  # Amarelo para ações
+                            G.add_node(operacao_descricao, label=operacao_descricao,
+                                       color='yellow')  # Amarelo para operações
 
                         if operacao_descricao:
                             G.add_edge(caso_descricao, operacao_descricao)
 
-                previous_jogada = jogada
+                    previous_jogada = jogada
 
-            # Plotando e salvando o grafo
-            plt.figure(figsize=(28, 20))
-            pos = nx.spring_layout(G, seed=42, k=0.5)
-            nx.draw(G, pos, with_labels=True, labels=nx.get_node_attributes(G, 'label'), node_size=100,
-                    node_color=color_map, font_size=4, font_weight='bold', edge_color='gray', arrows=True, width=0.4)
-            plt.title(f"Grafo das Ações do Jogador: {jogador}")
+            # Gerar as posições dos nós usando spring_layout
+            pos = nx.spring_layout(G, seed=42)
 
-            grafo_path = grafo_path_root / f"{self.nome}_{jogador}.png"
-            plt.savefig(grafo_path, dpi=300)
-            plt.close()
+            # Construir as coordenadas das arestas para o Plotly
+            edge_x = []
+            edge_y = []
+            for edge in G.edges():
+                x0, y0 = pos[edge[0]]
+                x1, y1 = pos[edge[1]]
+                edge_x.extend([x0, x1, None])
+                edge_y.extend([y0, y1, None])
 
+            edge_trace = go.Scatter(
+                x=edge_x, y=edge_y,
+                line=dict(width=0.5, color='#888'),
+                hoverinfo='none',
+                mode='lines'
+            )
+
+            # Construir as coordenadas dos nós
+            node_x = []
+            node_y = []
+            node_color = []
+            node_text = []
+
+            for node in G.nodes(data=True):
+                x, y = pos[node[0]]
+                node_x.append(x)
+                node_y.append(y)
+                node_color.append(node[1]['color'])  # A cor do nó
+                node_text.append(node[1]['label'])  # O rótulo do nó
+
+            node_trace = go.Scatter(
+                x=node_x, y=node_y,
+                mode='markers+text',
+                marker=dict(
+                    size=10,
+                    color=node_color,
+                    line=dict(width=2, color='black')
+                ),
+                text=node_text,
+                hoverinfo='text'
+            )
+
+            # Criar a figura e adicionar os traços
+            fig = go.Figure(data=[edge_trace, node_trace],
+                            layout=go.Layout(
+                                title=f"Grafo das Ações do Jogador: {jogador}",
+                                titlefont_size=16,
+                                showlegend=False,
+                                hovermode='closest',
+                                margin=dict(b=20, l=5, r=5, t=40),
+                                xaxis=dict(showgrid=False, zeroline=False, visible=False),
+                                yaxis=dict(showgrid=False, zeroline=False, visible=False)
+                            ))
+
+            # Exibir o grafo interativo no navegador
+            fig.show()
+
+            # Opcional: salvar o grafo como um HTML
+            grafo_path = grafo_path_root / f"{self.nome}_{jogador}.html"
+            fig.write_html(str(grafo_path))
             print(f"Grafo salvo para o jogador '{jogador}' em '{grafo_path}'.")
 
         logging.info("Todos os grafos foram gerados e salvos com sucesso.")
