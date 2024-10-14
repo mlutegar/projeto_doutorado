@@ -297,9 +297,6 @@ class CsvExport:
                                 yaxis=dict(showgrid=False, zeroline=False, visible=False)
                             ))
 
-            print(f"Exibindo grafo para o jogador: {jogador}")
-            fig.show()
-
             grafo_path = grafo_path_root / f"{self.nome}_{jogador}.html"
             fig.write_html(str(grafo_path))
             print(f"Grafo salvo para o jogador '{jogador}' em '{grafo_path}'.")
