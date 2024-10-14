@@ -260,6 +260,8 @@ class CsvExport:
                 node_y.append(y)
                 node_color.append(node[1]['color'])
 
+                node_text.append(node[1]['label'])  # Texto visível para jogadas e casos
+
             node_trace = go.Scatter(
                 x=node_x, y=node_y,
                 mode='markers+text',  # Exibe marcadores e texto
