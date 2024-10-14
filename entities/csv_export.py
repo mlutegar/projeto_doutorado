@@ -260,12 +260,6 @@ class CsvExport:
                 node_y.append(y)
                 node_color.append(node[1]['color'])
 
-                # Mostrar texto somente no hover para operações
-                if node[1]['color'] == 'yellow':
-                    node_text.append('')  # Texto vazio por padrão
-                else:
-                    node_text.append(node[1]['label'])  # Texto visível para jogadas e casos
-
             node_trace = go.Scatter(
                 x=node_x, y=node_y,
                 mode='markers+text',  # Exibe marcadores e texto
