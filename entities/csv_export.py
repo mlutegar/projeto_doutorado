@@ -142,45 +142,30 @@ class CsvExport:
         novas_linhas = []
 
         for _, row in game_df.iterrows():
-            try:
-                casos_id = row["Casos ID"]
-                if not isinstance(casos_id, set):
-                    raise TypeError(f"Esperado um conjunto, mas obteve {type(casos_id)}")
-            except Exception as e:
-                print(f"Erro ao analisar os casos ID na linha {row['ID']}: {e}")
-                continue
+            casos_id = row["Casos ID"]
 
-            # Para cada situação, criamos uma linha completa com até 10 colunas de ações
             for caso_id in casos_id:
                 descricao_caso = self.caso_descricao.get(caso_id, "Descrição não encontrada")
                 acoes = acoes_genericas.get(caso_id, ["Ação genérica não encontrada"])
 
-                # Garantir que haja exatamente 10 espaços (preenchidos com None se necessário)
-                acoes = (acoes + [None] * 10)[:10]
-
-                # Criar nova linha com as ações como colunas separadas
+                # Cria uma linha para cada jogada com até 10 ações genéricas
                 nova_linha = {
                     "ID": row["ID"],
                     "Nome do player": row["Nome do player"],
                     "Tempo de reação": row["Tempo de reação"],
                     "Tempo de resposta": row["Tempo de resposta"],
-                    "Descrição do Caso": descricao_caso,
+                    "Descrição do Caso": descricao_caso
                 }
 
-                # Adiciona cada ação em colunas individuais
-                for i, acao in enumerate(acoes):
-                    nova_linha[f"Ação Genérica {i + 1}"] = acao
+                # Preenche as colunas de 'Ação Genérica' (de 1 a 10)
+                for i in range(10):
+                    coluna = f"Ação Genérica {i + 1}"
+                    nova_linha[coluna] = acoes[i] if i < len(acoes) else None
 
                 novas_linhas.append(nova_linha)
 
-        # Criação do DataFrame final com colunas nomeadas
-        colunas = [
-                      "ID", "Nome do player", "Tempo de reação", "Tempo de resposta",
-                      "Descrição do Caso"
-                  ] + [f"Ação Genérica {i + 1}" for i in range(10)]
-
-        df_expandido = pd.DataFrame(novas_linhas, columns=colunas)
-
+        # Cria o DataFrame com as novas colunas
+        df_expandido = pd.DataFrame(novas_linhas)
 
         # Salvando todos os DataFrames em um único arquivo Excel com várias planilhas
         with pd.ExcelWriter(self.path_excel_complete, engine='openpyxl') as writer:
@@ -191,72 +176,66 @@ class CsvExport:
         print(f"Arquivo Excel salvo em '{self.path_excel_complete}'.")
 
     def gerar_grafo(self) -> None:
-        """
-        Gera um grafo para cada jogador, representando as jogadas e os casos e ações associados.
-        """
-        # Lendo o DataFrame expandido gerado anteriormente
-        df_expandido = pd.read_excel(self.path_excel_complete, sheet_name='Dados Clusterizados')
+        """Gera um grafo para cada jogador, representando as jogadas e as ações associadas."""
+        # Lê o DataFrame modificado
+        df_clusterizado = pd.read_excel(self.path_excel_complete, sheet_name='Dados Clusterizados')
 
-        # Criando o diretório para salvar os grafos, caso não exista
+        # Cria o diretório para salvar os grafos
         grafo_path_root = self.path_root / "grafo"
         grafo_path_root.mkdir(parents=True, exist_ok=True)
 
-        # Agrupando os dados por jogador
-        jogadores = df_expandido["Nome do player"].unique()
+        jogadores = df_clusterizado["Nome do player"].unique()
 
         for jogador in jogadores:
-            df_jogador = df_expandido[df_expandido["Nome do player"] == jogador]
+            df_jogador = df_clusterizado[df_clusterizado["Nome do player"] == jogador]
 
-            # Criando o grafo direcionado
-            G = nx.DiGraph()
+            G = nx.DiGraph()  # Grafo direcionado
+            color_map = []  # Para armazenar as cores dos nós
 
-            # Adicionando nós e arestas ao grafo para o jogador atual
             jogadas = df_jogador["ID"].unique()
             previous_jogada = None
-
-            # Dicionário para armazenar cores dos nós
-            color_map = []
 
             for jogada_id in jogadas:
                 jogada = f"Jogada {jogada_id}"
                 G.add_node(jogada, label=jogada)
-                color_map.append('blue')  # Cor azul para jogadas
+                color_map.append('blue')  # Azul para jogadas
 
-                # Conecta a jogada atual com a jogada anterior
                 if previous_jogada:
                     G.add_edge(previous_jogada, jogada)
 
-                # Filtrando os dados para a jogada atual
                 df_jogada = df_jogador[df_jogador["ID"] == jogada_id]
 
                 for _, row in df_jogada.iterrows():
-                    # Adiciona o nó do caso ID e a conexão com a jogada
                     caso_descricao = f"Caso {row['Descrição do Caso']}"
                     if caso_descricao not in G:
                         G.add_node(caso_descricao, label=caso_descricao)
-                        color_map.append('green')  # Cor verde para casos ID
+                        color_map.append('green')  # Verde para casos
+
                     G.add_edge(jogada, caso_descricao)
 
-                    # Adiciona o nó da ação genérica e a conexão com o caso ID
-                    acao_generica = row["Ação Genérica"]
-                    if acao_generica not in G:
-                        G.add_node(acao_generica, label=acao_generica)
-                        color_map.append('yellow')  # Cor amarela para ações genéricas
-                    G.add_edge(caso_descricao, acao_generica)
+                    # Itera sobre as colunas de ações genéricas (1 a 10)
+                    for i in range(1, 11):
+                        acao_coluna = f"Ação Genérica {i}"
+                        acao_generica = row[acao_coluna]
 
-                # Atualiza a jogada anterior
+                        if acao_generica and acao_generica not in G:
+                            G.add_node(acao_generica, label=acao_generica)
+                            color_map.append('yellow')  # Amarelo para ações
+
+                        if acao_generica:
+                            G.add_edge(caso_descricao, acao_generica)
+
                 previous_jogada = jogada
 
             # Plotando e salvando o grafo
-            plt.figure(figsize=(14, 10))  # Ajuste o tamanho para melhorar a visualização
-            pos = nx.spring_layout(G, seed=42, k=0.5)  # Ajuste do layout com parâmetro `k` para controlar a distância entre os nós
+            plt.figure(figsize=(14, 10))
+            pos = nx.spring_layout(G, seed=42, k=0.5)
             nx.draw(G, pos, with_labels=True, labels=nx.get_node_attributes(G, 'label'), node_size=1000,
                     node_color=color_map, font_size=8, font_weight='bold', edge_color='gray', arrows=True, width=0.8)
             plt.title(f"Grafo das Ações do Jogador: {jogador}")
 
-            # Salvando a imagem no diretório especificado
             grafo_path = grafo_path_root / f"{self.nome}_{jogador}.png"
-            plt.savefig(grafo_path, dpi=300)  # Salvando com maior resolução
+            plt.savefig(grafo_path, dpi=300)
             plt.close()
 
             print(f"Grafo salvo para o jogador '{jogador}' em '{grafo_path}'.")
