@@ -148,7 +148,7 @@ class CsvExport:
                 descricao_caso = self.caso_descricao.get(caso_id, "Descrição não encontrada")
                 operacoes_descricao = operacoes.get(caso_id, ["Operacao não encontrada"])
 
-                # Cria uma linha para cada jogada com até 10 ações genéricas
+                # Cria uma linha para cada jogada com até 243 ações genéricas
                 nova_linha = {
                     "ID": row["ID"],
                     "Nome do player": row["Nome do player"],
@@ -157,7 +157,7 @@ class CsvExport:
                     "Descrição do Caso": descricao_caso
                 }
 
-                # Preenche as colunas de 'Ação Genérica' (de 1 a 10)
+                # Preenche as colunas de 'Ação Genérica' (de 1 a 243)
                 for i in range(243):
                     coluna = f"Operação {i + 1}"
                     nova_linha[coluna] = operacoes_descricao[i] if i < len(operacoes_descricao) else None
@@ -214,7 +214,7 @@ class CsvExport:
                     G.add_edge(jogada, caso_descricao)
 
                     # Itera sobre as colunas de ações genéricas (1 a 10)
-                    for i in range(1, 11):
+                    for i in range(1, 344):
                         acao_coluna = f"Operação {i}"
                         operacao_descricao = row[acao_coluna]
 
