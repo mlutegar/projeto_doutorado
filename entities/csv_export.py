@@ -3,6 +3,10 @@ import logging
 import pandas as pd
 import shutil
 import networkx as nx
+
+import matplotlib
+matplotlib.use('Agg')  # Adicione esta linha
+
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from entities.finalizacao import Finalizacao
