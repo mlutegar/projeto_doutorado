@@ -15,8 +15,7 @@ logging.basicConfig(level=logging.INFO,
                     ])
 
 app = Flask(__name__)
-CORS(app)
-
+CORS(app, resources={r"/*": {"origins": "https://preview.construct.net"}})
 
 class GameState:
     def __init__(self):
