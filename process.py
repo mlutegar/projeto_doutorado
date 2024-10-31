@@ -1,5 +1,6 @@
 import re
 from datetime import timedelta
+from typing import Set
 
 from entities.csv_export import CsvExport
 from entities.finalizacao import Finalizacao
@@ -13,7 +14,7 @@ class Process:
         self.csv_instance = None
         self.game = Game(name=nome, host=host, tabuleiro=int(tabuleiro))
 
-    def process_data(self, move: dict) -> None:
+    def process_data(self, move: dict) -> set[int]:
         """
         Processa os dados da jogada, atualizando a lista de movimentos.
 
@@ -58,6 +59,7 @@ class Process:
         # Analisa a jogada imediatamente
         situacao = Situacao(game=self.game, jogada=jogada)
         self.game.registrar_situacao(jogada, situacao.casos_id)
+        return situacao.casos_id
 
     def finalizar_jogo(self, move: dict) -> Finalizacao:
         """

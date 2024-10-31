@@ -30,62 +30,25 @@ class GameState:
 
 
 game_state = GameState()
-
-# Exemplo de lista com itens e seus tipos
-itens = [
-    {"tipo": "1", "valor": "Você escolheu formar um agrupamento com peças diferentes?"},
-    {"tipo": "1", "valor": "Você escolheu formar um agrupamento com peças iguais?"},
-    {"tipo": "2", "valor": "Você interagiu com os outros jogadores?"},
-    {"tipo": "2", "valor": "Havia algo que impediu você de interagir com os outros jogadores?"},
-    {"tipo": "2", "valor": "Algo específico fez você decidir interagir com os outros jogadores?"},
-    {"tipo": "1", "valor": "Você corrige suas ações quando percebe que está prestes a cometer um erro ao posicionar as peças?"},
-    {"tipo": "1", "valor": "Você analisa as razões quando uma jogada não sai como o esperado?"},
-    {"tipo": "1", "valor": "Você acredita que suas escolhas no jogo são mais eficazes do que as dos outros jogadores?"},
-    {"tipo": "1", "valor": "A forma como os outros jogadores organizam suas peças influencia suas decisões?"},
-    {"tipo": "2", "valor": "Você adapta sua estratégia com base no que observa nos outros jogadores?"},
-    {"tipo": "2", "valor": "Você percebe diferenças entre a sua forma de jogar e a dos outros jogadores?"},
-    {"tipo": "1", "valor": "Você acha que a estratégia de outro jogador já foi melhor ou pior do que a sua?"},
-    {"tipo": "2", "valor": "O sucesso ou falha de outros jogadores influencia a forma como você posiciona suas peças?"},
-    {"tipo": "1", "valor": "Você acredita que existe uma maneira específica de agir nesse jogo/instrumento?"},
-    {"tipo": "2", "valor": "Você acredita que todos os jogadores seguem padrões similares de pensamento?"},
-    {"tipo": "1", "valor": "Você está seguindo regras específicas no jogo?"},
-    {"tipo": "1", "valor": "Você acredita que existe uma maneira correta de todos jogarem?"},
-    {"tipo": "1", "valor": "Você acredita que a forma como organiza suas peças reflete as regras universais do jogo/instrumento?"},
-    {"tipo": "2", "valor": "Você acredita que todos os jogadores interpretam a dinâmica do jogo da mesma maneira?"},
-    {"tipo": "2", "valor": "Você ajusta suas jogadas com base na suposição de que outros jogadores podem pensar de forma semelhante a você?"},
-    {"tipo": "1", "valor": "Você considera algum aspecto do jogo particularmente desafiador?"},
-    {"tipo": "1", "valor": "Você acha que algumas ações no jogo requerem mais planejamento do que outras?"},
-    {"tipo": "2", "valor": "Você decidiu desistir do jogo?"},
-    {"tipo": "2", "valor": "Você decidiu finalizar o jogo?"},
-    {"tipo": "1", "valor": "Você retirou uma peça do lugar que o outro jogador havia colocado?"},
-    {"tipo": "1", "valor": "Você retirou uma peça que você mesmo havia colocado?"},
-    {"tipo": "1", "valor": "Você utiliza estratégias específicas para posicionar as peças e alcançar seus objetivos?"},
-    {"tipo": "1", "valor": "Você decide previamente qual estratégia vai usar para formar um agrupamento?"},
-    {"tipo": "1", "valor": "Você planeja suas jogadas antes de executá-las?"},
-    {"tipo": "1", "valor": "Você definiu indicadores de desempenho específicos para acompanhar seu progresso no jogo?"},
-    {"tipo": "2", "valor": "Há indicadores específicos que fazem você mudar sua estratégia?"},
-    {"tipo": "1", "valor": "Você relaciona as ações dos outros jogadores com as suas para melhorar sua estratégia?"},
-    {"tipo": "1", "valor": "Você verifica se está utilizando a melhor estratégia durante o jogo?"},
-    {"tipo": "1", "valor": "Você definiu indicadores de desempenho específicos para acompanhar seu progresso no jogo?"},
-    {"tipo": "2", "valor": "Quando você sente que uma tarefa é fácil ou difícil, isso afeta suas próximas jogadas?"},
-    {"tipo": "2", "valor": "Você altera sua estratégia ao sentir frustração ou satisfação durante o jogo?"},
-    {"tipo": "1", "valor": "Quando uma jogada não tem o efeito esperado, você muda sua abordagem no jogo?"},
-    {"tipo": "1", "valor": "Você definiu um objetivo principal ao jogar este jogo?"},
-    {"tipo": "1", "valor": "Seu objetivo principal guia suas decisões durante a partida?"},
-    {"tipo": "1", "valor": "Você alterou seus objetivos ao longo do jogo com base na evolução da partida?"},
-    {"tipo": "1", "valor": "Você prioriza algum objetivo específico ao interagir com outros jogadores?"},
-    {"tipo": "1", "valor": "Você tem critérios claros para determinar se atingiu seu objetivo no jogo?"},
-    {"tipo": "1", "valor": "Você planeja suas jogadas antes de começar a posicionar as peças?"},
-    {"tipo": "1", "valor": "Você avalia se uma jogada foi bem-sucedida após concluí-la?"},
-    {"tipo": "1", "valor": "Você tem critérios específicos para determinar se atingiu seu objetivo no jogo?"}
+dicionario_perguntas = [
+    {
+        "jogador": "exemple_player",
+        "perguntas_nao_respondidas": [],
+        "pergunta/resposta/tempo": [
+            {
+                "pergunta": "exemple_question",
+                "resposta": "exemple_answer",
+                "tempo": "exemple_time"
+            }
+        ]
+    }
 ]
-
-perguntas = []
-respostas = []
-jogadores = []
-tempos_respostas = []
+perguntas, respostas, jogadores, tempos_respostas = [], [], [], []
 horarios_perguntas = {}  # Dicionário para armazenar os horários das perguntas
 
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({"message": "hello world"}), 200
 
 @app.route('/responder_pergunta', methods=['POST'])
 def responder_pergunta():
@@ -164,54 +127,169 @@ def pegar_item_aleatorio():
     print(f"Item escolhido: {item_escolhido}")
     return jsonify({"status": "success", "item": item_escolhido}), 200
 
+def log_debug(mensagem):
+    """
+    Função de log para mensagens de debug.
+    """
+    print(mensagem)
+
+def validar_tipo_conteudo(request):
+    """
+    Verifica se o tipo de conteúdo da solicitação é JSON.
+    """
+    if not request.is_json:
+        log_debug("Erro: Tipo de conteúdo inválido, esperado JSON.")
+        return False
+    return True
+
+def resposta_erro(mensagem, status_code):
+    """
+    Retorna uma resposta de erro em formato JSON.
+    """
+    log_debug(f"Erro: {mensagem}")
+    return jsonify({"status": "error", "message": mensagem}), status_code
+
+def resposta_sucesso(mensagem):
+    """
+    Retorna uma resposta de sucesso em formato JSON.
+    """
+    log_debug(mensagem)
+    return jsonify({"status": "success", "message": mensagem}), 200
+
+def extrair_dados(request):
+    """
+    Extrai e retorna os dados do corpo da solicitação.
+    """
+    data = request.get_json().get('data')
+    log_debug(f"Dados recebidos: {data}")
+    return data
+
+
+def validar_parametros_iniciar_jogo(data):
+    """
+    Verifica se os parâmetros necessários estão presentes nos dados.
+    """
+    nome = data.get('nome')
+    host = data.get('host')
+    tabuleiro = data.get('tabuleiro')
+    log_debug(f"Parâmetros extraídos - Nome: {nome}, Host: {host}, Tabuleiro: {tabuleiro}")
+
+    if not nome or not host or not tabuleiro:
+        log_debug("Erro: Faltando 'nome', 'host' ou 'tabuleiro' nos dados fornecidos.")
+        return False
+    return True
+
+def iniciar_processo_jogo(data):
+    """
+    Inicia o processo do jogo com os dados fornecidos.
+    """
+    nome = data.get('nome')
+    host = data.get('host')
+    tabuleiro = data.get('tabuleiro')
+    log_debug("Tentando iniciar o processo do jogo...")
+    logging.info(f"Iniciando jogo com nome: {nome}, host: {host}, tabuleiro: {tabuleiro}")
+    game_state.iniciar_processo(nome=nome, host=host, tabuleiro=tabuleiro)
+    log_debug("Jogo iniciado com sucesso.")
 
 @app.route('/iniciar_jogo', methods=['POST'])
 def iniciar_jogo():
     """
     Inicia o jogo.
     """
-    if not request.is_json:
-        return jsonify({"status": "error", "message": "Invalid content type"}), 415
+    log_debug("Recebendo solicitação para iniciar o jogo.")
 
-    data = request.get_json().get('data')
+    # Validação do tipo de conteúdo
+    if not validar_tipo_conteudo(request):
+        return resposta_erro("Invalid content type", 415)
+
+    # Extração dos dados
+    data = extrair_dados(request)
     if not data:
-        return jsonify({"status": "error", "message": "Missing data"}), 400
+        return resposta_erro("Missing data", 400)
 
-    nome = data.get('nome')
-    host = data.get('host')
-    tabuleiro = data.get('tabuleiro')
+    # Validação dos parâmetros principais
+    if not validar_parametros_iniciar_jogo(data):
+        return resposta_erro("Missing 'nome' or 'host'", 400)
 
-    if not nome or not host or not tabuleiro:
-        return jsonify({"status": "error", "message": "Missing 'nome' or 'host'"}), 400
-
+    # Tentativa de iniciar o jogo
     try:
-        logging.info(f"Iniciando jogo com nome: {nome}, host: {host}, tabuleiro: {tabuleiro}")
-        game_state.iniciar_processo(nome=nome, host=host, tabuleiro=tabuleiro)
-        return jsonify({"status": "success", "message": "Game started"}), 200
+        iniciar_processo_jogo(data)
+        return resposta_sucesso("Game started")
     except ValueError as e:
-        logging.error(f"Erro ao iniciar o jogo: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 400
-
+        return resposta_erro(str(e), 400)
 
 @app.route('/save_move', methods=['POST'])
 def save_move():
-    if not isinstance(game_state.get_processo(), Process):
-        return jsonify({"status": "error", "message": "Invalid process instance"}), 400
+    """
+    Salva o movimento do jogo.
+    """
+    # Validações iniciais
+    if not validar_instancia_processo(game_state.get_processo()):
+        return resposta_erro("Invalid process instance", 400)
 
-    if not request.is_json:
-        return jsonify({"status": "error", "message": "Invalid content type"}), 415
+    if not validar_tipo_conteudo(request):
+        return resposta_erro("Invalid content type", 415)
 
-    data = request.get_json().get('data')
+    # Extração dos dados
+    data = extrair_dados(request)
     if not data:
-        return jsonify({"status": "error", "message": "Missing data"}), 400
+        return resposta_erro("Missing data", 400)
 
+    # Processamento do movimento
     try:
-        game_state.get_processo().process_data(move=data)
+        verificar_jogador(data)
+        processar_movimento(data)
         logging.info(f"Movimento salvo: {data}")
-        return jsonify({"status": "success", "message": "Move received"}), 200
+        return resposta_sucesso("Move received")
     except ValueError as e:
         logging.error(f"Erro ao salvar movimento: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 400
+        return resposta_erro(str(e), 400)
+
+
+def verificar_jogador(data):
+    """
+    Verifica se a lista de jogadores contém o jogador especificados. Caso não esteja, adiciona.
+    """
+    jogador_nome = data.get('jogador')
+    if not jogador_nome:
+        raise ValueError("Data deve conter o campo 'jogador'.")
+
+    for jogador in dicionario_perguntas:
+        if jogador['jogador'] == jogador_nome:
+            log_debug(f"Jogador '{jogador_nome}' encontrado na lista de jogadores.")
+            return
+
+    log_debug(f"Jogador '{jogador_nome}' não encontrado na lista de jogadores, adicionando...")
+    novo_jogador = {
+        "jogador": jogador_nome,
+        "perguntas_nao_respondidas": [],
+        "pergunta/resposta/tempo": []
+    }
+    log_debug(f"Lista de jogadores atualizada: {dicionario_perguntas}")
+
+    dicionario_perguntas.append(novo_jogador)
+
+
+def validar_instancia_processo(processo):
+    """
+    Verifica se a instância do processo é válida.
+    """
+    if not isinstance(processo, Process):
+        log_debug("Erro: Instância do processo inválida.")
+        return False
+    return True
+
+
+def processar_movimento(data):
+    """
+    Processa o movimento recebido com base na fase atual.
+    """
+    if data.get('fase') == 3:
+        casos_id_perguntas = set()
+        casos_id_perguntas = game_state.get_processo().process_data(move=data)
+    else:
+        game_state.get_processo().process_data(move=data)
+
 
 @app.route('/finalizar_jogo', methods=['POST'])
 def finalizar_jogo_route():
