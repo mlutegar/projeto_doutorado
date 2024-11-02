@@ -1,10 +1,10 @@
 import logging
-import random
-from datetime import datetime
 
-from flask import Flask, request, jsonify, send_file
+from datetime import datetime
+from flask import Flask, send_file, jsonify, request
 from flask_cors import CORS
 from process import Process
+from util.situacoes import perguntas, casos
 
 # Configurando o logging
 logging.basicConfig(level=logging.INFO,
@@ -16,6 +16,8 @@ logging.basicConfig(level=logging.INFO,
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "https://preview.construct.net"}})
+
+numero_jogada = 0
 
 class GameState:
     def __init__(self):
@@ -33,99 +35,76 @@ game_state = GameState()
 dicionario_perguntas = [
     {
         "jogador": "exemple_player",
-        "perguntas_nao_respondidas": [],
+        "perguntas_nao_respondidas": list(perguntas.values()),
         "pergunta/resposta/tempo": [
             {
                 "pergunta": "exemple_question",
                 "resposta": "exemple_answer",
-                "tempo": "exemple_time"
+                "horario": "exemple_time"
             }
         ]
     }
 ]
-perguntas, respostas, jogadores, tempos_respostas = [], [], [], []
-horarios_perguntas = {}  # Dicionário para armazenar os horários das perguntas
+
 
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({"message": "hello world"}), 200
+
 
 @app.route('/responder_pergunta', methods=['POST'])
 def responder_pergunta():
     """
     Responde a uma pergunta.
     """
+    print("Iniciando o processamento de /responder_pergunta...")
+
     if not request.is_json:
+        print("Erro: Tipo de conteúdo inválido.")
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
-    data = request.get_json().get('data')
+    data = request.get_json()
+    print("Dados recebidos:", data)
 
     pergunta = data.get('pergunta')
     resposta = data.get('resposta')
     jogador = data.get('jogador')
+    print(f"Pergunta: {pergunta}, Resposta: {resposta}, Jogador: {jogador}")
 
     if not pergunta or not resposta or not jogador:
-        return jsonify({"status": "error", "message": "Missing 'pergunta', 'resposta' ou 'jogador'"}), 400
+        print("Erro: Faltando 'pergunta', 'resposta' ou 'Jogador' nos dados.")
+        return jsonify({"status": "error", "message": "Missing 'pergunta', 'resposta' ou 'Jogador'"}), 400
 
-    # Calculando o tempo de resposta
-    if jogador not in horarios_perguntas:
-        return jsonify({"status": "error", "message": "Horário da pergunta não encontrado para o jogador"}), 400
+    # Localiza o dicionário do jogador
+    jogador_data = next((item for item in dicionario_perguntas if item["jogador"] == jogador), None)
+    if not jogador_data:
+        print("Erro: Jogador não encontrado no dicionário.")
+        return jsonify({"status": "error", "message": "Jogador não encontrado"}), 400
+    else:
+        print("Jogador encontrado:", jogador_data)
 
-    horario_pergunta = horarios_perguntas.pop(jogador)  # Remove e obtém o horário da pergunta
+    # Calcula o horário atual para a resposta
     horario_resposta = datetime.now()
-    tempo_resposta = (horario_resposta - horario_pergunta).total_seconds()
+    print("Horário da resposta:", horario_resposta)
 
-    # Armazenando os dados da resposta
-    perguntas.append(pergunta)
-    respostas.append(resposta)
-    jogadores.append(jogador)
-    tempos_respostas.append(tempo_resposta)
+    # Armazena a pergunta, resposta e o horário da resposta
+    jogador_data["pergunta/resposta/tempo"].append({
+        "pergunta": pergunta,
+        "resposta": resposta,
+        "horario": horario_resposta.strftime("%Y-%m-%d %H:%M:%S")  # Converte datetime para string
+    })
+    print("Dados atualizados do jogador após registro de resposta:", jogador_data)
 
+    # Remove a pergunta de perguntas_nao_respondidas, se presente
+    if pergunta in jogador_data["perguntas_nao_respondidas"]:
+        jogador_data["perguntas_nao_respondidas"].remove(pergunta)
+        print(f"Pergunta '{pergunta}' removida de perguntas_nao_respondidas.")
+    else:
+        print(f"Pergunta '{pergunta}' não encontrada em perguntas_nao_respondidas.")
+
+    print("Resposta registrada com sucesso.")
     return jsonify({"status": "success", "message": "Pergunta e resposta registradas com sucesso."}), 200
 
-
-@app.route('/pegar_item_aleatorio', methods=['POST'])
-def pegar_item_aleatorio():
-    """
-    Retorna um item aleatório de uma lista. Se 'tipo' for passado no request,
-    retorna um item aleatório apenas desse tipo.
-    """
-    # Verificando se o conteúdo do request é JSON
-    if not request.is_json:
-        print("Erro: O conteúdo do request não é JSON.")
-        return jsonify({"status": "error", "message": "Invalid content type"}), 415
-
-    data = request.get_json().get('data')
-    print(f"Dados recebidos: {data}")
-
-    tipo = data.get('tipo')
-    jogador = data.get('jogador')
-
-    # Verificando se o jogador foi especificado
-    if not jogador:
-        print("Erro: 'jogador' não foi especificado.")
-        return jsonify({"status": "error", "message": "Missing 'jogador'"}), 400
-
-    # Se um tipo foi especificado, filtra a lista para aquele tipo
-    if tipo:
-        print(f"Tipo especificado: {tipo}")
-        itens_filtrados = [item for item in itens if item['tipo'] == str(tipo)]
-        print(f"Itens filtrados: {itens_filtrados}")
-        if not itens_filtrados:
-            print("Erro: Nenhum item encontrado para o tipo especificado.")
-            return jsonify({"status": "error", "message": "Nenhum item encontrado para esse tipo"}), 404
-        item_escolhido = random.choice(itens_filtrados)
-    else:
-        # Se não foi especificado um tipo, seleciona de toda a lista
-        print("Nenhum tipo especificado, selecionando de toda a lista.")
-        item_escolhido = random.choice(itens)
-
-    # Armazenando o horário da pergunta para o jogador
-    horarios_perguntas[jogador] = datetime.now()
-    print(f"Horário da pergunta para o jogador '{jogador}': {horarios_perguntas[jogador]}")
-
-    print(f"Item escolhido: {item_escolhido}")
-    return jsonify({"status": "success", "item": item_escolhido}), 200
 
 def log_debug(mensagem):
     """
@@ -133,14 +112,16 @@ def log_debug(mensagem):
     """
     print(mensagem)
 
-def validar_tipo_conteudo(request):
+
+def validar_tipo_conteudo(conteudo):
     """
     Verifica se o tipo de conteúdo da solicitação é JSON.
     """
-    if not request.is_json:
+    if not conteudo.is_json:
         log_debug("Erro: Tipo de conteúdo inválido, esperado JSON.")
         return False
     return True
+
 
 def resposta_erro(mensagem, status_code):
     """
@@ -149,6 +130,7 @@ def resposta_erro(mensagem, status_code):
     log_debug(f"Erro: {mensagem}")
     return jsonify({"status": "error", "message": mensagem}), status_code
 
+
 def resposta_sucesso(mensagem):
     """
     Retorna uma resposta de sucesso em formato JSON.
@@ -156,11 +138,12 @@ def resposta_sucesso(mensagem):
     log_debug(mensagem)
     return jsonify({"status": "success", "message": mensagem}), 200
 
-def extrair_dados(request):
+
+def extrair_dados(conteudo):
     """
     Extrai e retorna os dados do corpo da solicitação.
     """
-    data = request.get_json().get('data')
+    data = conteudo.get_json().get('data')
     log_debug(f"Dados recebidos: {data}")
     return data
 
@@ -179,6 +162,7 @@ def validar_parametros_iniciar_jogo(data):
         return False
     return True
 
+
 def iniciar_processo_jogo(data):
     """
     Inicia o processo do jogo com os dados fornecidos.
@@ -191,12 +175,17 @@ def iniciar_processo_jogo(data):
     game_state.iniciar_processo(nome=nome, host=host, tabuleiro=tabuleiro)
     log_debug("Jogo iniciado com sucesso.")
 
+
 @app.route('/iniciar_jogo', methods=['POST'])
 def iniciar_jogo():
     """
     Inicia o jogo.
     """
     log_debug("Recebendo solicitação para iniciar o jogo.")
+
+    # Zerar o dicionário de perguntas
+    global dicionario_perguntas
+    dicionario_perguntas = []
 
     # Validação do tipo de conteúdo
     if not validar_tipo_conteudo(request):
@@ -218,11 +207,15 @@ def iniciar_jogo():
     except ValueError as e:
         return resposta_erro(str(e), 400)
 
+
 @app.route('/save_move', methods=['POST'])
 def save_move():
     """
     Salva o movimento do jogo.
     """
+    # Numero da jogada
+    global numero_jogada
+
     # Validações iniciais
     if not validar_instancia_processo(game_state.get_processo()):
         return resposta_erro("Invalid process instance", 400)
@@ -238,8 +231,16 @@ def save_move():
     # Processamento do movimento
     try:
         verificar_jogador(data)
-        processar_movimento(data)
+        resultado = processar_movimento(data)
+        print(f"Resultado: {resultado}")
+        print(f"Fase: {data.get('Fase')}")
+        # Verifica se o movimento é da fase 3, se houve resultado e se é uma jogada múltipla de 5
+        if data.get('Fase') == 3 and resultado and numero_jogada%5 == 0:
+            return jsonify({"perguntas": resultado}), 200
+
         logging.info(f"Movimento salvo: {data}")
+        numero_jogada += 1
+        print(f"Numero da jogada: {numero_jogada}")
         return resposta_sucesso("Move received")
     except ValueError as e:
         logging.error(f"Erro ao salvar movimento: {e}")
@@ -250,7 +251,7 @@ def verificar_jogador(data):
     """
     Verifica se a lista de jogadores contém o jogador especificados. Caso não esteja, adiciona.
     """
-    jogador_nome = data.get('jogador')
+    jogador_nome = data.get('Jogador')
     if not jogador_nome:
         raise ValueError("Data deve conter o campo 'jogador'.")
 
@@ -262,7 +263,7 @@ def verificar_jogador(data):
     log_debug(f"Jogador '{jogador_nome}' não encontrado na lista de jogadores, adicionando...")
     novo_jogador = {
         "jogador": jogador_nome,
-        "perguntas_nao_respondidas": [],
+        "perguntas_nao_respondidas": list(perguntas.values()),
         "pergunta/resposta/tempo": []
     }
     log_debug(f"Lista de jogadores atualizada: {dicionario_perguntas}")
@@ -284,12 +285,57 @@ def processar_movimento(data):
     """
     Processa o movimento recebido com base na fase atual.
     """
-    if data.get('fase') == 3:
-        casos_id_perguntas = set()
-        casos_id_perguntas = game_state.get_processo().process_data(move=data)
-    else:
-        game_state.get_processo().process_data(move=data)
+    print("\n--------------------------------------------------")
+    print("Iniciando o processamento do movimento...")
 
+    print(f"Data recebido: {data}")
+    if data.get('Fase') == 3 and numero_jogada%5 == 0:
+        print("Fase 3 detectada.")
+        casos_id_perguntas = game_state.get_processo().process_data(move=data)
+        print(f"casos_id_perguntas após processamento: {casos_id_perguntas}")
+
+        # Lista para acumular perguntas
+        lista_perguntas = []
+        print("Iniciando a extração de perguntas correspondentes aos casos.")
+
+        # Percorre os IDs e extrai perguntas correspondentes
+        for caso_id in casos_id_perguntas:
+            print(f"Todos os casos: {casos}")
+            print(f"O caso que será verificado é o caso de id: {caso_id}")
+            if str(caso_id) in casos:
+                print(f"Caso encontrado no dicionário 'casos' para ID {caso_id}. Perguntas: {casos[str(caso_id)]['perguntas']}")
+                lista_perguntas.extend(casos[str(caso_id)]["perguntas"])
+            else:
+                print(f"Caso não encontrado no dicionário 'casos' para ID {caso_id}.")
+
+        # Localiza o dicionário do jogador
+        jogador_data = next((item for item in dicionario_perguntas if item["jogador"] == data["Jogador"]), None)
+
+
+        if jogador_data:
+            print("\nJogador encontrado no dicionário.")
+            print(f"Dados do jogador encontrado: {jogador_data}")
+
+            perguntas_nao_respondidads_pelo_jogador = jogador_data["perguntas_nao_respondidas"]
+
+            # Excluir da lista de perguntas as perguntas que o jogador já respondeu, deixando apenas as que estiverem na lista de perguntas não respondidas
+            print(f"Perguntas não respondidas pelo jogador antes da remoção: {perguntas_nao_respondidads_pelo_jogador}")
+            lista_perguntas = [pergunta for pergunta in lista_perguntas if pergunta in perguntas_nao_respondidads_pelo_jogador]
+            print(f"Lista de perguntas atualizada após a remoção: {lista_perguntas}")
+        else:
+            print("\nJogador não encontrado no dicionário.")
+            return
+
+        # Limita a lista a 5 perguntas
+        lista_perguntas = lista_perguntas[:5]
+        print(f"Lista de perguntas após limitar a 5 itens: {lista_perguntas}")
+
+        # Retorna a lista de perguntas para a fase 3
+        print(f"Lista de perguntas final para retorno: {lista_perguntas}")
+        return lista_perguntas
+    else:
+        print("Fase diferente de 3 detectada. Processando dado sem perguntas.")
+        game_state.get_processo().process_data(move=data)
 
 @app.route('/finalizar_jogo', methods=['POST'])
 def finalizar_jogo_route():
@@ -312,13 +358,32 @@ def finalizar_jogo_route():
         logging.error(f"Erro ao finalizar o jogo: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
+
 @app.route('/export_csv', methods=['GET'])
 def export_csv():
     if not isinstance(game_state.get_processo(), Process):
         return jsonify({"status": "error", "message": "Invalid process instance"}), 400
 
-    game_state.get_processo().encerrar_jogo(perguntas, respostas, jogadores, tempos_respostas)
+    # Extrai perguntas, respostas, jogadores e tempos_respostas do dicionario_perguntas
+    perguntas_export = []
+    respostas_export = []
+    jogadores_export = []
+    tempos_respostas_export = []
 
+    for entry in dicionario_perguntas:
+        jogador = entry["jogador"]
+        for prt in entry["pergunta/resposta/tempo"]:
+            perguntas_export.append(prt["pergunta"])
+            respostas_export.append(prt["resposta"])
+            jogadores_export.append(jogador)
+            tempos_respostas_export.append(prt["horario"])  # Assumindo que já está no formato string
+
+    # Encerrar o jogo passando os dados extraídos
+    game_state.get_processo().encerrar_jogo(
+        perguntas_export, respostas_export, jogadores_export, tempos_respostas_export
+    )
+
+    # Verifica se o arquivo Excel foi criado corretamente
     excel_file = game_state.get_processo().csv_instance.path_excel_complete
     if not excel_file.is_file():
         return jsonify({"status": "error", "message": "Failed to create Excel file"}), 500
@@ -335,6 +400,7 @@ def mudar_tabuleiro():
     game_state.get_processo().mudar_tabuleiro()
     logging.info("Tabuleiro mudado")
     return jsonify({"status": "success", "message": "Tabuleiro mudado"}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
