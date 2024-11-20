@@ -1,25 +1,36 @@
 from datetime import datetime
 from typing import List, Dict
-from entities.jogador import Jogador
-from entities.peca import Peca
+from src.entities.jogador import Jogador
+from src.entities.peca import Peca
 
 
 class Grupo:
     def __init__(self, peca: Peca) -> None:
         """
         Cria um grupo de peças.
+
+        :param peca: Peça fundadora do grupo. A peça que quando foi colocada no tabuleiro, formou o grupo.
         """
+        # definir informações principais do grupo
         self.criador: Jogador = peca.jogador
         self.peca_pai: Peca = peca
         self.pecas: Dict[int, Peca] = {peca.uid: peca}
         self.members: Dict[str, Jogador] = {peca.jogador.nome: peca.jogador}
 
+        # definir informações de quantidade do grupo
         self.qtd_cores: int = 1
         self.qtd_jogadores: int = 1
         self.qtd_pecas: int = 1
 
+        # definir informações de tempo
         self.horario_criado: datetime = datetime.now()
+
+        # definir informações de identificação
         self.id = hash((self.criador, self.peca_pai))
+
+        # definir informações de estrutura para então comparar com outros grupos e dizer se são iguais
+        # em relação à estrutura
+        self.estrutura: str = "-"
 
     def add_peca(self, peca: Peca) -> None:
         """
@@ -28,6 +39,7 @@ class Grupo:
         """
         self.pecas[peca.uid] = peca
         self.atualizar_status()
+        self.atualizar_estrutura()
 
     def remover_peca(self, peca: Peca) -> None | tuple[str, int]:
         """
@@ -41,6 +53,7 @@ class Grupo:
 
             # Atualiza o status do grupo após a remoção
             self.atualizar_status()
+            self.atualizar_estrutura()
 
             # Verifica se a peça removida era a peça principal (peca_pai)
             if peca == self.peca_pai and self.pecas:
@@ -63,6 +76,20 @@ class Grupo:
         self.set_qtd_cores()
         self.set_qtd_jogadores()
         self.set_qtd_pecas()
+
+    def atualizar_estrutura(self) -> None:
+        """
+        Atualiza a estrutura do grupo.
+        """
+        self.estrutura = self.definir_estrutura()
+
+    def definir_estrutura(self) -> str:
+        """
+        Define a estrutura do grupo. Ele olha o formato do grupo e retorna uma string que representa a estrutura.
+        Para isso ele pega a posição (linha e coluna) de cada peça e verifica se elas estão em uma linha, coluna
+        ou diagonal.
+        """
+        pass
 
     def verificar_peca(self, peca: Peca) -> bool:
         """

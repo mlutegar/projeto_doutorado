@@ -1,5 +1,19 @@
 # Doutorado - Back End
 
+## Deploy
+
+Para fazer o deploy do back end, siga os passos abaixo:
+```bash
+docker build -t mlutegar/doutoradov1:v3 .
+docker run -d -p 5000:5000 mlutegar/doutoradov1:v3
+```
+
+Enviar para o Docker Hub:
+```bash
+docker push mlutegar/doutoradov1:v4
+```
+
+
 ## Executar
 
 Para executar o back end, siga os passos abaixo:

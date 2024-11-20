@@ -1,4 +1,4 @@
-from entities.jogador import Jogador
+from src.entities.jogador import Jogador
 
 
 class Peca:
@@ -21,7 +21,7 @@ class Peca:
         self.eh_ponte: bool = False
         self.ponte_qtd_lideres: int = 0
 
-    def set_posicao_atual(self, pos_x: int, pos_y: int, jogador: Jogador) -> None:
+    def set_posicao_atual_tabuleiro1(self, pos_x: int, pos_y: int, jogador: Jogador) -> None:
         """
         Atualiza a posição atual da peça.
 
@@ -35,13 +35,35 @@ class Peca:
             self.coluna = -1
             self.local = "monte"
         else:
-            self.linha = self.definir_linha(pos_y)
-            self.coluna = self.definir_coluna(pos_x)
+            self.linha = self.definir_linha_tabuleiro1(pos_y)
+            self.coluna = self.definir_coluna_tabuleiro1(pos_x)
             self.local = "tabuleiro"
         self.posicao = (self.linha, self.coluna)
         self.jogador = jogador
 
-    def definir_linha(self, pos_y: int) -> int:
+    def set_posicao_atual_tabuleiro2(self, pos_x: int, pos_y: int, jogador: Jogador) -> None:
+        """
+        Atualiza a posição atual da peça.
+
+        :param pos_x: Posição x da peça. (as posições podem ser [110, 184, 260, 337, 414, 490, 568, 643, 719, 796,
+        873, 949, 1025, 1103, 1179, 1254, 1333])
+        :param pos_y: Posição y da peça. (as posições podem ser [85, 154, 222, 295, 362, 435, 501, 572, 644, 713,
+        781, 852, 923])
+        :param jogador: Jogador que moveu a peça.
+        """
+        if pos_x > 1430:
+            self.linha = -1
+            self.coluna = -1
+            self.local = "monte"
+        else:
+            self.linha = self.definir_linha_tabuleiro2(pos_y)
+            self.coluna = self.definir_coluna_tabuleiro2(pos_x)
+            self.local = "tabuleiro"
+        self.posicao = (self.linha, self.coluna)
+        self.jogador = jogador
+
+    @staticmethod
+    def definir_linha_tabuleiro1(pos_y: int) -> int:
         """
         Define a linha da peça com base na posição x.
         """
@@ -54,12 +76,41 @@ class Peca:
 
         raise ValueError("Posição x fora do intervalo permitido.")
 
-    def definir_coluna(self, pos_x: int) -> int:
+    @staticmethod
+    def definir_coluna_tabuleiro1(pos_x: int) -> int:
         """
         Define a coluna da peça com base na posição y.
         """
         colunas = [86, 123, 163, 200, 239, 276, 316, 353, 393, 430, 469, 506, 547, 584, 622, 657, 698, 736, 775, 813,
                    852, 890, 928, 966, 1004, 1042, 1082, 1119, 1158, 1196, 1233, 1270, 1312, 1350]
+        margem_erro = 20
+
+        for i, coluna in enumerate(colunas, start=1):
+            if abs(pos_x - coluna) <= margem_erro:
+                return i
+
+        raise ValueError("Posição y fora do intervalo permitido.")
+
+    @staticmethod
+    def definir_linha_tabuleiro2(pos_y: int) -> int:
+        """
+        Define a linha da peça com base na posição x.
+        """
+        linhas = [85, 154, 222, 295, 362, 435, 501, 572, 644, 713, 781, 852, 923]
+        margem_erro = 20
+
+        for i, linha in enumerate(linhas, start=1):
+            if abs(pos_y - linha) <= margem_erro:
+                return i
+
+        raise ValueError("Posição x fora do intervalo permitido.")
+
+    @staticmethod
+    def definir_coluna_tabuleiro2(pos_x: int) -> int:
+        """
+        Define a coluna da peça com base na posição y.
+        """
+        colunas = [110, 184, 260, 337, 414, 490, 568, 643, 719, 796, 873, 949, 1025, 1103, 1179, 1254, 1333]
         margem_erro = 20
 
         for i, coluna in enumerate(colunas, start=1):

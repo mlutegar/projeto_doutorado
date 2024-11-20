@@ -9,6 +9,39 @@ class TestGameFunctions(unittest.TestCase):
     def setUp(self):
         self.processo = Process("teste_iniciar", "novo_host")
 
+    def teste(self):
+        def gerar_grafo():
+            """
+            Gera um grafo com as jogadas feitas no game.
+            """
+            import pandas as pd
+            import networkx as nx
+            import matplotlib.pyplot as plt
+
+            # Supondo que você tenha um arquivo CSV com os dados, vamos lê-lo diretamente
+            file_path = 'data.csv'  # Substitua pelo caminho correto do seu arquivo CSV
+            df = pd.read_csv(file_path)
+
+            # Criar o grafo
+            G = nx.DiGraph()
+
+            # Adicionar nós e arestas ao grafo
+            for i in range(len(df) - 1):
+                # Vamos garantir que estamos considerando apenas transições entre diferentes ações
+                if df['Ação Genérica'][i] != df['Ação Genérica'][i + 1]:
+                    G.add_node(df['Descrição do Caso'][i], action=df['Ação Genérica'][i])
+                    G.add_edge(df['Descrição do Caso'][i], df['Descrição do Caso'][i + 1])
+
+            # Desenhar o grafo
+            plt.figure(figsize=(12, 8))
+            pos = nx.spring_layout(G, k=0.5)
+            nx.draw(G, pos, with_labels=True, node_size=3000, node_color='lightblue', font_size=10, font_weight='bold',
+                    edge_color='gray')
+            plt.title("Grafo das Ações dos Jogadores")
+            plt.show()
+
+        gerar_grafo()
+
     def test_iniciar_jogo(self):
         self.assertEqual(self.processo.game.nome_da_sala, "teste_iniciar")
         self.assertEqual(self.processo.game.host, "novo_host")

@@ -1,6 +1,3 @@
-from entities.peca import Peca
-
-
 def encontrar_peca_vizinha(item, pecas, dict_pecas):
     """
     Encontra peças vizinhas conectadas à peça indicada.

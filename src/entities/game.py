@@ -1,16 +1,16 @@
 from datetime import timedelta, datetime
 from typing import Dict, Union, List
 
-from entities.finalizacao import Finalizacao
-from entities.grupo import Grupo
-from entities.jogada import Jogada
-from entities.jogador import Jogador
-from entities.peca import Peca
-from util.methods_peca import verificar_adicionar_pecas_conectadas, verificar_peca_em_grupo
+from src.entities.finalizacao import Finalizacao
+from src.entities.grupo import Grupo
+from src.entities.jogada import Jogada
+from src.entities.jogador import Jogador
+from src.entities.peca import Peca
+from src.util.methods_peca import verificar_adicionar_pecas_conectadas, verificar_peca_em_grupo
 
 
 class Game:
-    def __init__(self, name: str, host: str) -> None:
+    def __init__(self, name: str, host: str, tabuleiro: int) -> None:
         """
         Inicializa um jogo.
         :param name: Nome da sala.
@@ -39,6 +39,8 @@ class Game:
         self.historico_grupos: Dict[int, List[Grupo]] = {}  # Histórico de grupos por peça
         self.pecas: Dict[int, Peca] = dict()
 
+        self.tabuleiro = tabuleiro
+
     def add_jogador(self, nome: str) -> Jogador:
         """
         Adiciona um novo jogador ao jogo.
@@ -49,11 +51,12 @@ class Game:
         self.jogadores[jogador.nome] = jogador
         return jogador
 
-    def add_jogada(self, peca: Peca, tempo: timedelta) -> Jogada:
+    def add_jogada(self, peca: Peca, tempo: timedelta, fase: int) -> Jogada:
         """
         Adiciona uma nova jogada ao jogo.
         :param peca: Peça utilizada na jogada.
         :param tempo: Tempo da jogada.
+        :param fase: Fase da jogada.
         :return: Instância de Jogada criada.
         """
         grupo: Grupo = self.add_grupo(peca)
@@ -85,7 +88,13 @@ class Game:
         else:
             grupo_estatico = None
 
-        jogada: Jogada = Jogada(uid=len(self.jogadas) + 1, peca=peca_estatica, grupo=grupo_estatico, tempo=tempo)
+        jogada: Jogada = Jogada(
+            uid=len(self.jogadas) + 1,
+            peca=peca_estatica,
+            grupo=grupo_estatico,
+            tempo=tempo,
+            fase=fase
+        )
         self.jogadas[jogada.id] = jogada
         self.atualizar_historico_grupos(grupo_estatico)
 
@@ -169,6 +178,19 @@ class Game:
         peca: Peca = Peca(uid=uid, cor=cor)
         self.pecas[peca.uid] = peca
         return peca
+
+    def mudar_tabuleiro(self) -> None:
+        """
+        Muda o tabuleiro do jogo.
+        """
+        # verificar se o tabuleiro é 1 ou 2 para mudar para o outro
+        if self.tabuleiro == 2:
+            self.tabuleiro = 1
+        else:
+            self.tabuleiro = 2
+
+        # zerar os grupos, pois o tabuleiro mudou
+        self.grupos = dict()
 
     def desistir(self, player: Jogador) -> Finalizacao:
         """
