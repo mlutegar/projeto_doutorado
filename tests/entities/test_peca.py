@@ -1,4 +1,4 @@
-from entities.peca import *
+from src.entities.peca import *
 
 
 def rodar_testes_peca():

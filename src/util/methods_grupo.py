@@ -1,6 +1,6 @@
-from entities.game import Game
-from entities.grupo import Grupo
-from entities.peca import Peca
+from src.entities.game import Game
+from src.entities.grupo import Grupo
+from src.entities.peca import Peca
 
 
 def get_grupo_by_peca_pai(peca_pai: Peca, game: Game) -> Grupo | None:

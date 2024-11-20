@@ -1,10 +1,10 @@
 from typing import Optional
 
-from entities.game import Game
-from entities.grupo import Grupo
-from entities.jogada import Jogada
-from entities.jogador import Jogador
-from entities.peca import Peca
+from src.entities.game import Game
+from src.entities.grupo import Grupo
+from src.entities.jogada import Jogada
+from src.entities.jogador import Jogador
+from src.entities.peca import Peca
 
 
 def pegar_jogada_da_peca(peca: Peca, game: Game, indice: int) -> Optional[Jogada]:

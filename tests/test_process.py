@@ -1,11 +1,7 @@
-import ast
 import unittest
 from pathlib import Path
 
-import pandas as pd
-
 from process import Process
-from util.situacoes import situacoes
 
 
 class TestGameFunctions(unittest.TestCase):

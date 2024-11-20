@@ -1,7 +1,0 @@
-id_jogada,UID,InicioX,InicioY,PosX,PosY,Tempo,Jogador,PenJogador,vizinhos_laterais,vizinhos_diagonais,valor,vizinhos_peca
-1,24,161,633,161,633,0,aaa,aaa,True,False,1,0
-2,23,162,351,162,351,0,aaa,aaa,False,False,1,0
-3,21,237,633,237,633,0,aaa,aaa,True,False,2,0
-4,48,201,841,201,841,0,aaa,aaa,True,False,1,0
-5,37,277,841,277,841,0,aaa,aaa,True,False,2,0
-6,47,354,841,354,841,0,aaa,aaa,True,False,2,0

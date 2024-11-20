@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Dict
-from entities.jogador import Jogador
-from entities.peca import Peca
+from src.entities.jogador import Jogador
+from src.entities.peca import Peca
 
 
 class Grupo:

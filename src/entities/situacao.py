@@ -1,7 +1,7 @@
 from datetime import timedelta
-from entities.finalizacao import Finalizacao
-from util.methods_game import *
-from util.situacoes import situacoes
+from src.entities.finalizacao import Finalizacao
+from src.util.methods_game import *
+from src.util.situacoes import situacoes
 
 
 class Situacao:

@@ -1,4 +1,4 @@
-from entities.jogador import Jogador
+from src.entities.jogador import Jogador
 
 
 class Peca:

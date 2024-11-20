@@ -1,12 +1,12 @@
 from datetime import timedelta, datetime
 from typing import Dict, Union, List
 
-from entities.finalizacao import Finalizacao
-from entities.grupo import Grupo
-from entities.jogada import Jogada
-from entities.jogador import Jogador
-from entities.peca import Peca
-from util.methods_peca import verificar_adicionar_pecas_conectadas, verificar_peca_em_grupo
+from src.entities.finalizacao import Finalizacao
+from src.entities.grupo import Grupo
+from src.entities.jogada import Jogada
+from src.entities.jogador import Jogador
+from src.entities.peca import Peca
+from src.util.methods_peca import verificar_adicionar_pecas_conectadas, verificar_peca_em_grupo
 
 
 class Game:

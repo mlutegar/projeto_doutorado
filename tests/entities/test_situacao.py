@@ -1,9 +1,8 @@
 import unittest
 
-from process import *
 from datetime import timedelta
-from entities.game import Game
-from entities.situacao import Situacao
+from src.entities.game import Game
+from src.entities.situacao import Situacao
 
 
 class TestSituacao(unittest.TestCase):

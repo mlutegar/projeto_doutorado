@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
-from entities.grupo import Grupo
-from entities.peca import Peca
+from src.entities.grupo import Grupo
+from src.entities.peca import Peca
 
 
 class Jogada:

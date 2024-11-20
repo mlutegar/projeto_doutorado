@@ -1,0 +1,93 @@
+/* Estilo geral */
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: #e9eff5;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Títulos */
+h1 {
+    text-align: center;
+    color: #0056b3;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+/* Formulários e inputs */
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.dcc-dropdown,
+.dcc-input,
+.dcc-checklist label {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 20px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.dcc-input:focus,
+.dcc-dropdown:focus {
+    outline: none;
+    border-color: #0056b3;
+    box-shadow: 0 0 8px rgba(0, 86, 179, 0.3);
+}
+
+/* Centralização */
+div {
+    text-align: center;
+}
+
+/* Layout flexível */
+.flex-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+/* Gráficos */
+.graph-container {
+    width: 100vw;
+    height: 100vh;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    .dcc-dropdown,
+    .dcc-input,
+    .dcc-checklist label {
+        max-width: 100%;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    .graph-container {
+        height: 50vh;
+    }
+}

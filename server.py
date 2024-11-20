@@ -1,10 +1,16 @@
 import logging
+import os
+import pandas as pd
 
 from datetime import datetime
-from flask import Flask, send_file, jsonify, request
+from flask import Flask, send_file, jsonify, request, render_template, send_from_directory, redirect, url_for
 from flask_cors import CORS
 from process import Process
-from util.situacoes import perguntas, casos
+from routes.grafo_dash import layouts, gerar_grafo, fases_disponiveis
+from src.util.situacoes import perguntas_unica, perguntas, situacoes
+from dash import Dash, dcc, html, Input, Output
+
+from util.nome_file import process_files
 
 # Configurando o logging
 logging.basicConfig(level=logging.INFO,
@@ -15,9 +21,11 @@ logging.basicConfig(level=logging.INFO,
                     ])
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://preview.construct.net"}})
-
+CORS(app, resources={
+    r"/*": {"origins": ["https://preview.construct.net", "https://white-coast-08b1df80f.5.azurestaticapps.net"]}
+})
 numero_jogada = 0
+
 
 class GameState:
     def __init__(self):
@@ -35,21 +43,260 @@ game_state = GameState()
 dicionario_perguntas = [
     {
         "jogador": "exemple_player",
-        "perguntas_nao_respondidas": list(perguntas.values()),
+        "perguntas_nao_respondidas": list(perguntas_unica.values()),
         "pergunta/resposta/tempo": [
             {
                 "pergunta": "exemple_question",
                 "resposta": "exemple_answer",
                 "horario": "exemple_time"
             }
-        ]
+        ],
+        "perguntas_pendentes": []
     }
 ]
+
+ZIP_DIR = 'data'
+
+# Inicializa a aplicação Dash com o Flask
+dash_app = Dash(
+    server=app,
+    url_base_pathname='/dash/'
+)
+
+df_clusterizado = pd.read_excel("sd.xlsx", sheet_name='Dados Clusterizados')
+jogadores = df_clusterizado["Nome do player"].unique()
+
+# Layout inicial do Dash
+dash_app.layout = html.Div(
+        [
+            html.H1("Visualizador de Grafos"),
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.Label("Selecione o Jogador:"),
+                            dcc.Dropdown(
+                                id="jogador-dropdown",
+                                options=[{"label": jogador, "value": jogador} for jogador in jogadores],
+                                value=jogadores[0],
+                            ),
+                        ], style={'width': '100%'}
+                    ),
+                    html.Div(
+                        [
+                            html.Label("Selecione o Layout:"),
+                            dcc.Dropdown(
+                                id="layout-dropdown",
+                                options=[{"label": layout, "value": layout} for layout in layouts.keys()],
+                                value="Spectral",
+                            ),
+                        ], style={'width': '100%'}
+                    ),
+                    html.Div(
+                        [
+                            html.Label("Selecione as Fases da Jogada:"),
+                            dcc.Dropdown(
+                                id="fases-dropdown",
+                                options=[{"label": fase, "value": fase} for fase in fases_disponiveis],
+                                value=[],
+                                multi=True,  # Permite seleção múltipla
+                            ),
+                        ], style={'width': '100%'}
+                    ),
+                ], style={'display': 'flex', 'gap': '10px'}
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.Label("Jogada inicial:"),
+                            dcc.Input(
+                                id="jogada-inicial",
+                                type="number",
+                                placeholder="Ex: 10",
+                                value=1,
+                            ),
+                        ],
+                    ),
+                    html.Div(
+                        [
+                            html.Label("Jogada final:"),
+                            dcc.Input(
+                                id="jogada-final",
+                                type="number",
+                                placeholder="Ex: 20",
+                                value=10,
+                            ),
+                        ]
+                    ),
+                    html.Div(
+                        [
+                            html.Label("Ver Estados:"),
+                            dcc.Checklist(
+                                id="ver-estados-checkbox",
+                                options=[{"label": "Habilitar", "value": "ver_estados"}],
+                                value=[],
+                                inline=True,
+                            ),
+                        ]
+                    ),
+                ],
+                className="flex-container",
+            ),
+            dcc.Graph(id="grafo-output", className="graph-container"),
+        ]
+    )
 
 
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({"message": "hello world"}), 200
+    # Lista de arquivos ZIP no diretório
+    all_files = [f for f in os.listdir(ZIP_DIR) if f.endswith('.xlsx')]
+
+    # Obtém a data do filtro (formato 'YYYYMMDD'), se fornecida
+    filter_date = request.args.get('date')
+
+    if filter_date:
+        # Filtra arquivos que contêm a data no nome (segundo a estrutura nomesala_data_hora.zip)
+        filtered_files = [file for file in all_files if filter_date in file.split('_')[1]]
+    else:
+        filtered_files = all_files
+
+    processed_files = process_files(filtered_files)
+
+    return render_template('home.html', processed_files=processed_files)
+
+
+# Carrega o arquivo Excel baseado no parâmetro da URL
+@app.route('/dashboard')
+def dashboard():
+    file_name = request.args.get('file')
+    if not file_name:
+        return redirect(url_for('home'))
+
+    file_path = os.path.join("data", file_name)
+    if not os.path.exists(file_path):
+        return f"Arquivo {file_name} não encontrado.", 404
+
+    # Carrega o arquivo e atualiza os valores do dropdown
+    global df_clusterizado
+    global jogadores
+
+    df_clusterizado = pd.read_excel(file_path, sheet_name='Dados Clusterizados')
+    jogadores = df_clusterizado["Nome do player"].unique()
+
+    # Layout inicial do Dash
+    # Layout inicial do Dash
+    dash_app.layout = html.Div(
+        [
+            html.H1("Visualizador de Grafos"),
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.Label("Selecione o Jogador:"),
+                            dcc.Dropdown(
+                                id="jogador-dropdown",
+                                options=[{"label": jogador, "value": jogador} for jogador in jogadores],
+                                value=jogadores[0],
+                            ),
+                        ], style={'width': '100%'}
+                    ),
+                    html.Div(
+                        [
+                            html.Label("Selecione o Layout:"),
+                            dcc.Dropdown(
+                                id="layout-dropdown",
+                                options=[{"label": layout, "value": layout} for layout in layouts.keys()],
+                                value="Spectral",
+                            ),
+                        ], style={'width': '100%'}
+                    ),
+                    html.Div(
+                        [
+                            html.Label("Selecione as Fases da Jogada:"),
+                            dcc.Dropdown(
+                                id="fases-dropdown",
+                                options=[{"label": fase, "value": fase} for fase in fases_disponiveis],
+                                value=[],
+                                multi=True,  # Permite seleção múltipla
+                            ),
+                        ], style={'width': '100%'}
+                    ),
+                ], style={'display': 'flex', 'gap': '10px'}
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.Label("Jogada inicial:"),
+                            dcc.Input(
+                                id="jogada-inicial",
+                                type="number",
+                                placeholder="Ex: 10",
+                                value=1,
+                            ),
+                        ],
+                    ),
+                    html.Div(
+                        [
+                            html.Label("Jogada final:"),
+                            dcc.Input(
+                                id="jogada-final",
+                                type="number",
+                                placeholder="Ex: 20",
+                                value=10,
+                            ),
+                        ]
+                    ),
+                    html.Div(
+                        [
+                            html.Label("Ver Estados:"),
+                            dcc.Checklist(
+                                id="ver-estados-checkbox",
+                                options=[{"label": "Habilitar", "value": "ver_estados"}],
+                                value=[],
+                                inline=True,
+                            ),
+                        ]
+                    ),
+                ],
+                className="flex-container",
+            ),
+            dcc.Graph(id="grafo-output", className="graph-container"),
+        ]
+    )
+
+    return redirect('/dash/')
+
+
+# Callback para atualizar o grafo
+@dash_app.callback(
+    Output("grafo-output", "figure"),
+    [
+        Input("jogador-dropdown", "value"),
+        Input("layout-dropdown", "value"),
+        Input("jogada-inicial", "value"),
+        Input("jogada-final", "value"),
+        Input("fases-dropdown", "value"),
+        Input("ver-estados-checkbox", "value"),
+    ]
+)
+def update_grafo(jogador, layout_name, jogada_inicial, jogada_final, fases_selecionadas, ver_estados):
+    # Converte a lista de valores para booleano (se "ver_estados" está na lista)
+    mostrar_estados = "ver_estados" in ver_estados
+    return gerar_grafo(df_clusterizado, jogador, layout_name, jogada_inicial, jogada_final, mostrar_estados,
+                       fases_selecionadas)
+
+
+@app.route('/versao', methods=['GET'])
+def versao():
+    return jsonify({"versao": "back: v.1.0 18/11/2024"})
+
+
+@app.route('/download/<filename>', methods=['GET'])
+def download_file(filename):
+    return send_from_directory(ZIP_DIR, filename, as_attachment=True)
 
 
 @app.route('/responder_pergunta', methods=['POST'])
@@ -101,6 +348,13 @@ def responder_pergunta():
         print(f"Pergunta '{pergunta}' removida de perguntas_nao_respondidas.")
     else:
         print(f"Pergunta '{pergunta}' não encontrada em perguntas_nao_respondidas.")
+
+    # Remove a pergunta de perguntas_pendentes, se presente
+    if pergunta in jogador_data["perguntas_pendentes"]:
+        jogador_data["perguntas_pendentes"].remove(pergunta)
+        print(f"Pergunta '{pergunta}' removida de perguntas_pendentes.")
+    else:
+        print(f"Pergunta '{pergunta}' não encontrada em perguntas_pendentes.")
 
     print("Resposta registrada com sucesso.")
     return jsonify({"status": "success", "message": "Pergunta e resposta registradas com sucesso."}), 200
@@ -213,29 +467,38 @@ def save_move():
     """
     Salva o movimento do jogo.
     """
-    # Numero da jogada
-    global numero_jogada
+    global numero_jogada  # numero_jogada: variável global para contar o número de jogadas
+    print(f"Numero da jogada: {numero_jogada}")
 
     # Validações iniciais
     if not validar_instancia_processo(game_state.get_processo()):
+        print("Erro: Instância do processo inválida.")
         return resposta_erro("Invalid process instance", 400)
+    print("Instância do processo válida.")
 
     if not validar_tipo_conteudo(request):
+        print("Erro: Tipo de conteúdo inválido.")
         return resposta_erro("Invalid content type", 415)
+    print("Tipo de conteúdo válido.")
 
     # Extração dos dados
     data = extrair_dados(request)
+    print(f"Dados extraídos: {data}")
     if not data:
+        print("Erro: Dados ausentes.")
         return resposta_erro("Missing data", 400)
 
     # Processamento do movimento
     try:
         verificar_jogador(data)
         resultado = processar_movimento(data)
+        resultado = resultado[:5] if resultado else None
         print(f"Resultado: {resultado}")
         print(f"Fase: {data.get('Fase')}")
+
         # Verifica se o movimento é da fase 3, se houve resultado e se é uma jogada múltipla de 5
-        if data.get('Fase') == 3 and resultado and numero_jogada%5 == 0:
+        if data.get('Fase') == 3 and resultado and numero_jogada % 5 == 0:
+            numero_jogada += 1
             return jsonify({"perguntas": resultado}), 200
 
         logging.info(f"Movimento salvo: {data}")
@@ -263,8 +526,9 @@ def verificar_jogador(data):
     log_debug(f"Jogador '{jogador_nome}' não encontrado na lista de jogadores, adicionando...")
     novo_jogador = {
         "jogador": jogador_nome,
-        "perguntas_nao_respondidas": list(perguntas.values()),
-        "pergunta/resposta/tempo": []
+        "perguntas_nao_respondidas": list(perguntas_unica.values()),
+        "pergunta/resposta/tempo": [],
+        "perguntas_pendentes": []  # Adicione esta linha
     }
     log_debug(f"Lista de jogadores atualizada: {dicionario_perguntas}")
 
@@ -286,68 +550,88 @@ def processar_movimento(data):
     Processa o movimento recebido com base na fase atual.
     """
     print("\n--------------------------------------------------")
-    print("Iniciando o processamento do movimento...")
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    print(f"processar_movimento: {data}")
 
-    print(f"Data recebido: {data}")
-    if data.get('Fase') == 3 and numero_jogada%5 == 0:
-        print("Fase 3 detectada.")
+    if data.get('Fase') == 3 and numero_jogada % 5 == 0:
+        print(f"fase == {data.get('Fase')} e numero_jogada % 5 == {numero_jogada % 5}")
+
         casos_id_perguntas = game_state.get_processo().process_data(move=data)
         print(f"casos_id_perguntas após processamento: {casos_id_perguntas}")
 
-        # Lista para acumular perguntas
-        lista_perguntas = []
+        # Lista para acumular perguntas correspondentes aos casos
+        perguntas_extracao = []
         print("Iniciando a extração de perguntas correspondentes aos casos.")
 
         # Percorre os IDs e extrai perguntas correspondentes
         for caso_id in casos_id_perguntas:
-            print(f"Todos os casos: {casos}")
+            print(f"Todos os casos: {situacoes}")
             print(f"O caso que será verificado é o caso de id: {caso_id}")
-            if str(caso_id) in casos:
-                print(f"Caso encontrado no dicionário 'casos' para ID {caso_id}. Perguntas: {casos[str(caso_id)]['perguntas']}")
-                lista_perguntas.extend(casos[str(caso_id)]["perguntas"])
+            if caso_id in perguntas:
+                print(
+                    f"Caso encontrado no dicionário 'casos' para ID {caso_id}. Perguntas: {perguntas[caso_id]}")
+                perguntas_extracao.extend(perguntas[caso_id])
             else:
                 print(f"Caso não encontrado no dicionário 'casos' para ID {caso_id}.")
 
         # Localiza o dicionário do jogador
         jogador_data = next((item for item in dicionario_perguntas if item["jogador"] == data["Jogador"]), None)
 
-
         if jogador_data:
+            # Filtra apenas as perguntas que ainda não foram respondidas
+            perguntas_validas = [pergunta for pergunta in perguntas_extracao if
+                                 pergunta in jogador_data["perguntas_nao_respondidas"] and
+                                 pergunta not in jogador_data.get("perguntas_respondidas", [])]
+
+            jogador_data["perguntas_pendentes"].extend(perguntas_validas)
+            jogador_data["perguntas_pendentes"] = list(
+                set(jogador_data["perguntas_pendentes"]))  # Remove duplicatas, se necessário
+
             print("\nJogador encontrado no dicionário.")
             print(f"Dados do jogador encontrado: {jogador_data}")
+            print(f"Perguntas pendentes atualizadas: {jogador_data['perguntas_pendentes']}")
 
-            perguntas_nao_respondidads_pelo_jogador = jogador_data["perguntas_nao_respondidas"]
-
-            # Excluir da lista de perguntas as perguntas que o jogador já respondeu, deixando apenas as que estiverem na lista de perguntas não respondidas
-            print(f"Perguntas não respondidas pelo jogador antes da remoção: {perguntas_nao_respondidads_pelo_jogador}")
-            lista_perguntas = [pergunta for pergunta in lista_perguntas if pergunta in perguntas_nao_respondidads_pelo_jogador]
-            print(f"Lista de perguntas atualizada após a remoção: {lista_perguntas}")
         else:
             print("\nJogador não encontrado no dicionário.")
             return
 
-        # Limita a lista a 5 perguntas
-        lista_perguntas = lista_perguntas[:5]
-        print(f"Lista de perguntas após limitar a 5 itens: {lista_perguntas}")
+        # Retorna todas as perguntas pendentes para a fase 3
+        return jogador_data["perguntas_pendentes"]
 
-        # Retorna a lista de perguntas para a fase 3
-        print(f"Lista de perguntas final para retorno: {lista_perguntas}")
-        return lista_perguntas
     else:
         print("Fase diferente de 3 detectada. Processando dado sem perguntas.")
         game_state.get_processo().process_data(move=data)
+        return None
+
 
 @app.route('/finalizar_jogo', methods=['POST'])
 def finalizar_jogo_route():
+    """
+    Finaliza a fase para o player. Quando o player clica em finalizar ou desistir jogo, ativa essa tela. E espera
+    o host iniciar outra fase ou finalizar o jogo.
+    """
+    # VALIDAÇÕES
     if not isinstance(game_state.get_processo(), Process):
         return jsonify({"status": "error", "message": "Invalid process instance"}), 400
-
     if not request.is_json:
         return jsonify({"status": "error", "message": "Invalid content type"}), 415
 
     data = request.get_json().get('data')
+    log_debug(f"Dados recebidos: {data}")
     if not data:
         return jsonify({"status": "error", "message": "Missing data"}), 400
+
+    # Verifica se o jogador finalizou a fase 3, caso sim, envia todas as pergunta pendentes para o player.
+    if data.get('fase') == 3:
+        print("Fase 3 detectada. Enviando perguntas pendentes para o jogador...")
+        jogador_data = next((item for item in dicionario_perguntas if item["jogador"] == data["Jogador"]), None)
+        if jogador_data:
+            print("Jogador encontrado no dicionário.")
+            print(f"Perguntas pendentes: {jogador_data['perguntas_nao_respondidas']}")
+            return jsonify({"perguntas": jogador_data["perguntas_nao_respondidas"]}), 200
+        else:
+            print("Jogador não encontrado no dicionário.")
+            return jsonify({"status": "error", "message": "Player not found"}), 400
 
     try:
         finalizacao = game_state.get_processo().finalizar_jogo(move=data)
@@ -401,6 +685,6 @@ def mudar_tabuleiro():
     logging.info("Tabuleiro mudado")
     return jsonify({"status": "success", "message": "Tabuleiro mudado"}), 200
 
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+# Retirado da aqui, e colocado no main.py
+# if __name__ == '__main__':
+#     app.run(debug=True, port=5000)

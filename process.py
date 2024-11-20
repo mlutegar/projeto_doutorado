@@ -1,11 +1,10 @@
 import re
 from datetime import timedelta
-from typing import Set
 
-from entities.csv_export import CsvExport
-from entities.finalizacao import Finalizacao
-from entities.game import Game
-from entities.situacao import Situacao
+from src.entities.csv_export import CsvExport
+from src.entities.finalizacao import Finalizacao
+from src.entities.game import Game
+from src.entities.situacao import Situacao
 
 
 class Process:
@@ -118,9 +117,6 @@ class Process:
         self.csv_instance.analisar_jogadas_game()
         self.csv_instance.export_to_excel(perguntas, respostas, jogadores,
                                           tempos_respostas)
-        self.csv_instance.gerar_grafo()
-        self.csv_instance.zipar_partida()
-
 
     def mudar_tabuleiro(self):
         """
