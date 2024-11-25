@@ -4,13 +4,13 @@
 
 Para fazer o deploy do back end, siga os passos abaixo:
 ```bash
-docker build -t mlutegar/doutoradov1:v3 .
-docker run -d -p 5000:5000 mlutegar/doutoradov1:v3
+docker build -t mlutegar/doutoradov1:v8 .
+docker run -d -p 5000:5000 mlutegar/doutoradov1:v8
 ```
 
 Enviar para o Docker Hub:
 ```bash
-docker push mlutegar/doutoradov1:v4
+docker push mlutegar/doutoradov1:v8
 ```
 
 

@@ -6,11 +6,11 @@ from datetime import datetime
 from flask import Flask, send_file, jsonify, request, render_template, send_from_directory, redirect, url_for
 from flask_cors import CORS
 from process import Process
-from routes.grafo_dash import layouts, gerar_grafo, fases_disponiveis
+from src.routes.grafo_dash import layouts, gerar_grafo, fases_disponiveis
 from src.util.situacoes import perguntas_unica, perguntas, situacoes
 from dash import Dash, dcc, html, Input, Output
 
-from util.nome_file import process_files
+from src.util.nome_file import process_files
 
 # Configurando o logging
 logging.basicConfig(level=logging.INFO,

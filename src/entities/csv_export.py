@@ -28,6 +28,10 @@ class CsvExport:
             raise TypeError("nome deve ser uma string.")
 
         self.nome: str = nome
+
+        # Tratar o nome, remover todos os espaços e _ e substituir por -
+        self.nome = self.nome.replace(" ", "-").replace("_", "-")
+
         self.path_root: Path = Path(path_root) if isinstance(path_root, str) else path_root
         self.path_excel: Path = self.path_root
 
