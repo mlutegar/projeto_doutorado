@@ -5,8 +5,10 @@ import pandas as pd
 from datetime import datetime
 from flask import Flask, send_file, jsonify, request, render_template, send_from_directory, redirect, url_for
 from flask_cors import CORS
+
+from app.routes.home import home_bp
 from process import Process
-from src.routes.grafo_dash import layouts, gerar_grafo, fases_disponiveis
+from src.entities.grafo_dash import layouts, gerar_grafo, fases_disponiveis
 from src.util.situacoes import perguntas_unica, perguntas, situacoes
 from dash import Dash, dcc, html, Input, Output
 
@@ -26,6 +28,7 @@ CORS(app, resources={
 })
 numero_jogada = 0
 
+app.register_blueprint(home_bp)
 
 class GameState:
     def __init__(self):
@@ -146,26 +149,6 @@ dash_app.layout = html.Div(
             dcc.Graph(id="grafo-output", className="graph-container"),
         ]
     )
-
-
-@app.route('/', methods=['GET'])
-def home():
-    # Lista de arquivos ZIP no diretório
-    all_files = [f for f in os.listdir(ZIP_DIR) if f.endswith('.xlsx')]
-
-    # Obtém a data do filtro (formato 'YYYYMMDD'), se fornecida
-    filter_date = request.args.get('date')
-
-    if filter_date:
-        # Filtra arquivos que contêm a data no nome (segundo a estrutura nomesala_data_hora.zip)
-        filtered_files = [file for file in all_files if filter_date in file.split('_')[1]]
-    else:
-        filtered_files = all_files
-
-    processed_files = process_files(filtered_files)
-
-    return render_template('home.html', processed_files=processed_files)
-
 
 # Carrega o arquivo Excel baseado no parâmetro da URL
 @app.route('/dashboard')
